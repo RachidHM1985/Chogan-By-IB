@@ -254,7 +254,7 @@ const Header = () => {
         </Grid>
       </Toolbar>
 
-      <Drawer
+      <Drawer sx={{  width: '100%' }}
         anchor="left"
         open={openSidebar}
         onClose={toggleSidebar}
@@ -289,7 +289,7 @@ const Header = () => {
                           sx={{
                             marginRight: 0, 
                             marginLeft: 0, 
-                            width: { xs: '20%', sm: '9vh' },
+                            width: { xs: '25%', sm: '9vh' },
                             fontSize: { xs: '0.775rem', sm: '1rem' }
                           }}
                         />

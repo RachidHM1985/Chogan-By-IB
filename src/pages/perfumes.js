@@ -217,7 +217,7 @@ const PerfumesPage = () => {
                   src={`./photos/products/${selectedPerfume.genre.toLowerCase()}.png`}
                   alt={selectedPerfume.nom_produit}
                   className="product-details-image"
-                  onError={(e) => e.target.src = "/default-image.jpg"} // Fallback if image not found
+                  onError={(e) => e.target.src = "/selectedPerfume.nom_produit.jpg"} // Fallback if image not found
                   style={{ width: '100%', borderRadius: '10px' }}
                 />
               </Col>
@@ -247,7 +247,7 @@ const PerfumesPage = () => {
                       </div>
                       <TextField
                         type="number"
-                        value={quantities[selectedPerfume.id]?.['30ml'] || 1}
+                        value={quantities[selectedPerfume.id]?.['30ml'] || 0}
                         onChange={(e) => updateQuantity(selectedPerfume.id, '30ml', Number(e.target.value))}
                         inputProps={{ min: 1 }}
                         style={{ marginLeft: '10px', width: '60px' }}
@@ -297,7 +297,7 @@ const PerfumesPage = () => {
                       </div>
                       <TextField
                         type="number"
-                        value={quantities[selectedPerfume.id]?.['70ml'] || 1}
+                        value={quantities[selectedPerfume.id]?.['70ml'] || 0}
                         onChange={(e) => updateQuantity(selectedPerfume.id, '70ml', Number(e.target.value))}
                         inputProps={{ min: 1 }}
                         style={{ marginLeft: '10px', width: '60px' }}

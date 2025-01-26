@@ -17,7 +17,7 @@ const Sidebar = ({ onCategorySelect = () => { } }) => {
   };
 
   return (
-    <Paper sx={{ paddingTop: '50px', paddingBottom: '20px', height: '100vh', overflowX: 'auto' }}>
+    <Paper sx={{ paddingTop: '50px', paddingBottom: '20px', height: '100vh', overflowX: 'auto', width: '25vh' }}>
       <List sx={{ display: 'flex', flexDirection: 'column' }}>
         <ListItem button onClick={handleParfumsClick}>
           <ListItemText primary="Parfums" />

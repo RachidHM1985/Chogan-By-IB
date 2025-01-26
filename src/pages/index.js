@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography } from '@mui/material';
-import Slider from 'react-slick'; // Assurez-vous d'importer correctement Slider
+import { Box, Typography, Grid } from '@mui/material';
+import Slider from 'react-slick'; 
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Footer from '../components/Footer';
@@ -97,7 +97,8 @@ export default function Home() {
                         style={{
                           paddingTop: '15px',
                           width: '100%', // Fill the entire width of the container
-                          height: '35vh',
+                          height: 'auto', // Hauteur automatique en fonction de la largeur
+                          objectFit: 'cover', // S'assure que l'image couvre la zone sans déformer l'image
                           objectPosition: 'center',
                         }}
                         className="promo-image"
@@ -110,7 +111,7 @@ export default function Home() {
           </div>
         </div>
       </div>
-      
+
       {/* Carrousel manuel avec titre et phrase */}
       <div className="manual-carousel-container">
         <div className="container">

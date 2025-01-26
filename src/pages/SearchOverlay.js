@@ -169,19 +169,13 @@ const SearchOverlay = () => {
     }
   }, [open]);
 
-  const handleCloseModal  = () => {
-        // Réinitialisation de tous les états nécessaires
-      setSearchQuery(''); // Vide le champ de recherche
-      setSelectedPerfume(null); // Réinitialise le parfum sélectionné
-      setSelectedSizes({}); // Réinitialise la sélection des tailles
-      setQuantities({}); // Réinitialise les quantités
-      setResults([]); // Vide les résultats
-      setFocus(false); // Retire le focus du champ de recherche
-      setOpen(false); // Ferme la modal
-  };
-
   const handleCloseSearch = () => {
-    setSearchQuery('');  // Réinitialise la recherche
+    setSearchQuery('');
+    setSelectedPerfume(null); // Réinitialise le parfum sélectionné
+    setSelectedSizes({}); // Réinitialise la sélection des tailles
+    setQuantities({}); // Réinitialise les quantités
+    setResults([]); // Vide les résultats
+    setFocus(false); // Retire le focus du champ de recherche  // Réinitialise la recherche
     setOpen(false);       // Ferme la modal
   };
 
@@ -412,7 +406,7 @@ const SearchOverlay = () => {
                           </div>
                           <TextField
                             type="number"
-                            value={quantities[selectedPerfume.id]?.['30ml'] || 1}
+                            value={quantities[selectedPerfume.id]?.['30ml'] || 0}
                             onChange={(e) => updateQuantity(selectedPerfume.id, '30ml', Number(e.target.value))}
                             inputProps={{ min: 1 }}
                             style={{ marginLeft: '10px', width: '60px' }}
@@ -437,7 +431,7 @@ const SearchOverlay = () => {
                           </div>
                           <TextField
                             type="number"
-                            value={quantities[selectedPerfume.id]?.['50ml'] || 1}
+                            value={quantities[selectedPerfume.id]?.['50ml'] || 0}
                             onChange={(e) => updateQuantity(selectedPerfume.id, '50ml', Number(e.target.value))}
                             inputProps={{ min: 1 }}
                             style={{ marginLeft: '10px', width: '60px' }}
@@ -462,7 +456,7 @@ const SearchOverlay = () => {
                           </div>
                           <TextField
                             type="number"
-                            value={quantities[selectedPerfume.id]?.['70ml'] || 1}
+                            value={quantities[selectedPerfume.id]?.['70ml'] || 0}
                             onChange={(e) => updateQuantity(selectedPerfume.id, '70ml', Number(e.target.value))}
                             inputProps={{ min: 1 }}
                             style={{ marginLeft: '10px', width: '60px' }}
