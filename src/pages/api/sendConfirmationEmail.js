@@ -1,8 +1,20 @@
+import express from 'express';
 import sgMail from '@sendgrid/mail';
-// Charger la clé API de SendGrid depuis l'environnement Vercel
+import cors from 'cors';  // Importer le module cors
+import bodyParser from 'body-parser';  // Importer body-parser
+
+const app = express();
+
+// Définir la clé API de SendGrid
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-const sendEmail = async (req, res) => {
+// Utiliser CORS
+app.use(cors());
+
+// Utiliser body-parser pour analyser les données JSON dans les requêtes
+app.use(bodyParser.json());
+
+app.post('/send-email', async (req, res) => {
   const { email, name, prenom, cart, total } = req.body;
 
   // Vérifier les données
@@ -13,7 +25,7 @@ const sendEmail = async (req, res) => {
   // Email à l'utilisateur
   const userMailOptions = {
     to: email,
-    from: 'ikram.bakmou@outlook.fr',  // Utilisez un email validé dans SendGrid
+    from: 'ikram.bakmou@outlook.fr', // Utilisez un email validé dans SendGrid
     subject: 'Confirmation de votre commande Chogan',
     text: `Bonjour ${prenom} ${name},\n\nMerci pour votre commande ! Voici les détails :\n\n${cart.map(item => `${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}`).join('\n')}\n\nTotal : ${total}€.\n\nNous allons traiter votre commande et nous reviendrons vers vous pour vous indiquer les modalités de paiement et de livraison.\n\nCordialement,\n\nIkram B.`,
     html: `
@@ -31,7 +43,7 @@ const sendEmail = async (req, res) => {
 
   // Email à l'administrateur
   const adminMailOptions = {
-    to: 'ikram.bakmou@outlook.fr',  // L'email de l'administrateur
+    to: 'ikram.bakmou@outlook.fr',
     from: 'hachem.rach@gmail.com',
     subject: `Nouvelle commande de ${prenom} ${name}`,
     text: `Nouvelle commande reçue :\n\nNom: ${prenom} ${name}\nTéléphone: ${req.body.phone}\nEmail: ${email}\n\nDétails de la commande:\n${cart.map(item => `${item.code} - ${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}`).join('\n')}\n\nTotal : ${total}€.\n\nMerci de traiter cette commande.`,
@@ -46,6 +58,10 @@ const sendEmail = async (req, res) => {
     console.error('Erreur lors de l\'envoi de l\'email', error);
     return res.status(500).json({ message: 'Erreur d\'envoi de l\'email', error: error.message });
   }
-};
+});
 
-export default sendEmail;
+// Démarrer le serveur Express
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});

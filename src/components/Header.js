@@ -272,12 +272,12 @@ const Header = () => {
                 {cartItems.map((item, index) => (
                   <Grid container key={index} spacing={2} sx={{ marginBottom: 2 }}>
                     <Grid item xs={12} sm={12} md={12} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '10px', borderBottom: '1px solid #ccc' }}>
-                      <Typography variant="body1" sx={{ flex: 1, fontSize: { xs: '0.775rem', sm: '1rem' } }}>
+                      <Typography variant="body2" sx={{ flex: 1, fontSize: { xs: '0.775rem', sm: '1rem' } }}>
                         {item.product.nom_produit} - {item.product.nom_marque} - {item.size}
                       </Typography>
 
                       <Typography variant="body1" sx={{ marginLeft: 2, fontSize: { xs: '0.775rem', sm: '1rem' } }}>
-                        Quantité:
+                        Quantité :
                       </Typography>
 
                       {isEditing ? (
@@ -290,7 +290,7 @@ const Header = () => {
                           sx={{
                             marginRight: 0, 
                             marginLeft: 0, 
-                            width: { xs: '20%', sm: '7vh' },
+                            width: { xs: '20%', sm: '9vh' },
                             fontSize: { xs: '0.775rem', sm: '1rem' }
                           }}
                         />
