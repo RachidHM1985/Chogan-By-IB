@@ -34,7 +34,12 @@ const SearchOverlay = () => {
   const searchProducts = async (searchQuery) => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/search?query=${searchQuery}`);
+      if (!searchQuery.trim()) return; // Ne pas envoyer la requête si la query est vide
+  
+      // Encodage de la query avant de l'ajouter à l'URL
+      const encodedQuery = encodeURIComponent(searchQuery);
+      console.log(encodedQuery)
+      const response = await fetch(`/api/search?query=${encodedQuery}`);
       if (response.ok) {
         const data = await response.json();
         setResults(data);
@@ -47,6 +52,26 @@ const SearchOverlay = () => {
       setLoading(false);
     }
   };
+  
+  const fetchRandomPerfumes = async () => {
+    setLoading(true);
+    try {
+      // Utilisation d'une chaîne vide pour une recherche aléatoire
+     const response = await fetch(`/api/search?query=*`);
+      if (response.ok) {
+        const data = await response.json();
+        const randomPerfumes = data.sort(() => 0.5 - Math.random()).slice(0, 12);
+        setResults(randomPerfumes);
+      } else {
+        console.error('Erreur lors de la récupération des parfums');
+      }
+    } catch (error) {
+      console.error("Erreur de réseau lors de la récupération des parfums", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
 
   // Gérer le changement de la valeur de recherche
   const handleChange = (e) => {
@@ -137,20 +162,6 @@ const SearchOverlay = () => {
     const prices = [perfume.prix_15ml, perfume.prix_30ml, perfume.prix_50ml, perfume.prix_70ml].filter(price => price !== null);
     const lowestPrice = Math.min(...prices);
     return lowestPrice.toFixed(2);
-  };
-
-  const fetchRandomPerfumes = async () => {
-    const searchQuery = "*";
-    setLoading(true);
-    const response = await fetch(`/api/search?query=${searchQuery}`);
-    if (response.ok) {
-      const data = await response.json();
-      const randomPerfumes = data.sort(() => 0.5 - Math.random()).slice(0, 12);
-      setResults(randomPerfumes);
-    } else {
-      console.error('Erreur lors de la récupération des parfums');
-    }
-    setLoading(false);
   };
 
   useEffect(() => {

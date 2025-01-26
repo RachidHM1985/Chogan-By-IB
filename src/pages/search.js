@@ -1,4 +1,3 @@
-// pages/search.js
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import SearchBar from '../components/SearchBar'; // Barre de recherche si nécessaire
@@ -13,7 +12,8 @@ const SearchPage = () => {
   const [error, setError] = useState(null); // Gérer les erreurs
 
   useEffect(() => {
-    if (query) {
+    // Vérifier si query existe et est non vide
+    if (query && query.trim().length > 0) {
       const fetchResults = async () => {
         setLoading(true); // Commence le chargement des données
         setError(null); // Réinitialise l'erreur
