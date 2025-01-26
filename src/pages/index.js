@@ -78,88 +78,83 @@ export default function Home() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '20%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%',paddingTop: '17vh'}}>
       {/* Affichage du Header */}
       <Header />
 
       {/* Carrousel automatique pour les images promotionnelles */}
-      <div className="auto-carousel-container">
-        <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-12 col-md-8 col-lg-6">
-              <Box sx={{ justifyContent: 'center', alignItems: 'center', height: 'auto' }}>
-                <Slider {...autoCarouselSettings}>
-                  {promoImages.map((image, index) => (
-                    <div key={index}>
-                      <img
-                        src={image}
-                        alt={`Promo ${index}`}
-                        style={{
-                          paddingTop: '15px',
-                          width: '100%', // Fill the entire width of the container
-                          height: 'auto', // Hauteur automatique en fonction de la largeur
-                          objectFit: 'cover', // S'assure que l'image couvre la zone sans déformer l'image
-                          objectPosition: 'center',
-                        }}
-                        className="promo-image"
-                      />
-                    </div>
-                  ))}
-                </Slider>
-              </Box>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Box sx={{ marginBottom: '20px' }}>
+        <Grid container justifyContent="center">
+          <Grid item xs={12} sm={8} md={6}>
+            <Box sx={{ justifyContent: 'center', alignItems: 'center', height: 'auto' }}>
+              <Slider {...autoCarouselSettings}>
+                {promoImages.map((image, index) => (
+                  <div key={index}>
+                    <img
+                      src={image}
+                      alt={`Promo ${index}`}
+                      style={{
+                        width: '100%', // Remplir toute la largeur du conteneur
+                        height: 'auto', // Hauteur automatique en fonction de la largeur
+                        objectFit: 'cover', // L'image couvre la zone sans déformer l'image
+                        objectPosition: 'center',
+                      }}
+                      className="promo-image"
+                    />
+                  </div>
+                ))}
+              </Slider>
+            </Box>
+          </Grid>
+        </Grid>
+      </Box>
 
       {/* Carrousel manuel avec titre et phrase */}
-      <div className="manual-carousel-container">
-        <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-12 col-md-8 col-lg-10">
-              {/* Titre "Nos Marques" */}
-              <Box sx={{ textAlign: 'center', marginBottom: '20px' }}>
-                <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#000' }}>
-                  Nos Marques
-                </Typography>
-                {/* Phrase sous le titre */}
-                <Typography variant="body2" sx={{ fontWeight: 'normal', color: '#555' }}>
-                  Offrez-vous le meilleur pour votre bien-être et votre maison.
-                </Typography>
-              </Box>
+      <Box sx={{ marginTop: '20px' }}>
+        <Grid container justifyContent="center">
+          <Grid item xs={12} sm={10} md={8}>
+            {/* Titre "Nos Marques" */}
+            <Box sx={{ textAlign: 'center', marginBottom: '20px' }}>
+              <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#000' }}>
+                Nos Marques
+              </Typography>
+              {/* Phrase sous le titre */}
+              <Typography variant="body2" sx={{ fontWeight: 'normal', color: '#555' }}>
+                Offrez-vous le meilleur pour votre bien-être et votre maison.
+              </Typography>
+            </Box>
 
-              {/* Carrousel manuel */}
-              <Box sx={{
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '250px', // Hauteur de la Box ajustée
-                overflow: 'hidden', // Masque les excédents
-                marginBottom: '20px', // Espacement sous le carrousel manuel
-                textAlign: 'center', // Centrer le contenu à l'intérieur de la box
-              }}>
-                <Slider {...manualCarouselSettings}>
-                  {manualImages.map((image, index) => (
-                    <div key={index}>
-                      <img
-                        src={image}
-                        alt={`Image ${index}`}
-                        style={{
-                          width: '100%', // L'image prend toute la largeur du conteneur
-                          height: '100%', // Hauteur ajustée
-                          objectFit: 'cover', // Maintient l'aspect des images
-                          borderRadius: '10px',
-                          paddingLeft: '11px', // Espacement entre les images
-                          paddingRight: '12px',
-                        }}
-                      />
-                    </div>
-                  ))}
-                </Slider>
-              </Box>
-            </div>
-          </div>
-        </div>
-      </div>
+            {/* Carrousel manuel */}
+            <Box sx={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '250px', // Hauteur de la Box ajustée
+              overflow: 'hidden', // Masque les excédents
+              marginBottom: '20px', // Espacement sous le carrousel manuel
+              textAlign: 'center', // Centrer le contenu à l'intérieur de la box
+            }}>
+              <Slider {...manualCarouselSettings}>
+                {manualImages.map((image, index) => (
+                  <div key={index}>
+                    <img
+                      src={image}
+                      alt={`Image ${index}`}
+                      style={{
+                        width: '100%', // L'image prend toute la largeur du conteneur
+                        height: '100%', // Hauteur ajustée
+                        objectFit: 'cover', // Maintient l'aspect des images
+                        borderRadius: '10px',
+                        paddingLeft: '11px', // Espacement entre les images
+                        paddingRight: '12px',
+                      }}
+                    />
+                  </div>
+                ))}
+              </Slider>
+            </Box>
+          </Grid>
+        </Grid>
+      </Box>
 
       {/* Affichage du Footer */}
       <Footer />

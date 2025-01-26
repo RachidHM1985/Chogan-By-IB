@@ -54,11 +54,8 @@ const Footer = () => {
           <Link href="/about" color="textSecondary" sx={{ fontSize: '0.65rem', marginBottom: 0.5 }}>
             À propos
           </Link>
-          <Link href="/privacy-policy" color="textSecondary" sx={{ fontSize: '0.65rem', marginBottom: 0.5 }}>
+          <Link href="/privacy-policy" color="textSecondary" sx={{ fontSize: '0.65rem' }}>
             Politique de confidentialité
-          </Link>
-          <Link href="/terms" color="textSecondary" sx={{ fontSize: '0.65rem', marginBottom: 0.5 }}>
-            Conditions d'utilisation
           </Link>
         </Box>
 
