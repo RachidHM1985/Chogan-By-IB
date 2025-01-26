@@ -2,6 +2,8 @@
 import React from 'react';
 import { Grid, Typography, Card, CardContent, CardMedia, Button, Box } from '@mui/material';
 import { useRouter } from 'next/router';
+import '../styles/globals.css'
+
 
 const SearchResults = ({ results }) => {
   const router = useRouter();

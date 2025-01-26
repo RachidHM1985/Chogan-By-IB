@@ -3,6 +3,7 @@ import { useCart } from './CartProvider'; // Your cart context
 import { Grid, TextField, Button, Typography } from '@mui/material'; // Material-UI
 import ConfirmationPopup from './ConfirmationPopup'; // Import the ConfirmationPopup component
 
+
 const ConfirmationForm = () => {
   const { totalPrice, cartItems, clearCart } = useCart();
 
@@ -76,7 +77,7 @@ const ConfirmationForm = () => {
         <Grid container justifyContent="space-between" alignItems="center" sx={{ mt: 2 }}>
           <Typography variant="h6">Total: {totalPrice}€</Typography>
           <Button type="submit" variant="contained" color="primary" disabled={formSubmitted}>
-            {formSubmitted ? 'Commande confirmée' : 'Confirmer la commande'}
+            {formSubmitted ? 'Commande confirmée' : 'Confirmer'}
           </Button>
         </Grid>
       </form>

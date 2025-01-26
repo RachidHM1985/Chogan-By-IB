@@ -27,6 +27,7 @@ import SearchOverlay from '../pages/SearchOverlay';
 import Sidebar from './SideBar';
 import { useCart } from '../pages/CartContext';
 import { loadStripe } from '@stripe/stripe-js';
+import '../styles/globals.css'
 
 const Header = () => {
   const [openSidebar, setOpenSidebar] = useState(false);
@@ -268,45 +269,63 @@ const Header = () => {
              <Typography variant="h6" align="center">Votre panier est vide.</Typography>
             ) : (
              <>
-              {cartItems.map((item, index) => (
-                <Grid container key={index} spacing={2} sx={{ marginBottom: 2 }}>
-                  <Grid item xs={12} className="d-flex align-items-center justify-content-between">
-                    <div className="d-flex align-items-center" style={{ borderBottom: '1px solid #ccc',  paddingBottom: '8px', marginBottom: '8px', width: '100%' }}>
-                      <Typography variant="body1" sx={{ marginRight: 2 }}>
+                {cartItems.map((item, index) => (
+                  <Grid container key={index} spacing={2} sx={{ marginBottom: 2 }}>
+                    <Grid item xs={12} sm={12} md={12} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '10px', borderBottom: '1px solid #ccc' }}>
+                      <Typography variant="body1" sx={{ flex: 1, fontSize: { xs: '0.775rem', sm: '1rem' } }}>
                         {item.product.nom_produit} - {item.product.nom_marque} - {item.size}
+                      </Typography>
+
+                      <Typography variant="body1" sx={{ marginLeft: 2, fontSize: { xs: '0.775rem', sm: '1rem' } }}>
+                        Quantité:
+                      </Typography>
+
+                      {isEditing ? (
+                        <TextField
+                          value={quantities[item.product.id]?.[item.size] || item.quantity}
+                          onChange={(e) => handleQuantityChange(index, Math.max(Number(e.target.value), 1))}
+                          variant="outlined"
+                          size="small"
+                          type="number"
+                          sx={{
+                            marginRight: 0, 
+                            marginLeft: 0, 
+                            width: { xs: '20%', sm: '7vh' },
+                            fontSize: { xs: '0.775rem', sm: '1rem' }
+                          }}
+                        />
+                      ) : (
+                        <Typography variant="body1" sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }}>
+                          {item.quantity}
                         </Typography>
-                        <Typography variant="body1">Quantité:</Typography>
-                        {isEditing ? (
-                          <TextField
-                          value={quantities[item.product.id]?.[item.size] || item.quantity} 
-                            onChange={(e) => handleQuantityChange(index, Math.max(Number(e.target.value), 1))}
-                            variant="outlined"
-                            size="small"
-                            type="number"
-                            style={{ marginLeft: '10px', width: '60px' }}
-                          />
-                        ) : (
-                          <Typography variant="body1" sx={{ marginRight: 2 }}>
-                           {item.quantity}
-                          </Typography>
-                        )}        
-                     
-                      <Typography variant="body1" color="textSecondary" sx={{ marginRight: 2, textAlign: 'right', flexGrow: 1 }}>
+                      )}
+
+                      <Typography
+                        variant="body1"
+                        color="textSecondary"
+                        sx={{
+                          textAlign: 'right',
+                          flexGrow: 1,
+                          fontSize: { xs: '0.8rem', sm: '1rem' }
+                        }}
+                      >
                         Prix: {(item.product[`prix_${item.size}`] * item.quantity).toFixed(2)}€
                       </Typography>
-                      <IconButton onClick={handleEdit}>
+
+                      <IconButton onClick={handleEdit} sx={{ padding: 0 }}>
                         <EditIcon />
                       </IconButton>
+
                       <IconButton
                         color="error"
                         onClick={() => removeFromCart(item.product.id, item.size)}
+                        sx={{ padding: 0 }}
                       >
                         <DeleteIcon />
                       </IconButton>
-                    </div>
+                    </Grid>
                   </Grid>
-                </Grid>
-              ))}
+                ))}
               {totalPriceWithDelivery < 150 && (
                 <FormControlLabel
                   control={
@@ -347,7 +366,7 @@ const Header = () => {
           </Button>
           {cartItems.length > 0 && (
             <Button variant="outlined" onClick={handleConfirmOrder} color="primary">
-              Confirmer la commande
+              Confirmer
             </Button>
           )}
         </DialogActions>

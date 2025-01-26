@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { Typography, Button } from '@mui/material';
 import Header from '../components/Header.js';
 import Footer from '../components/Footer';
+import '../styles/globals.css'
 
 const Success = () => {
   const [loading, setLoading] = useState(true);

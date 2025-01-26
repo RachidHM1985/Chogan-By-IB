@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import styles from './about.module.css';
 import Header from '../components/Header';
-import Footer from '../components/Footer';
 
 const About = () => {
   const [isVisible, setIsVisible] = useState(false);

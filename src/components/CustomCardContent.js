@@ -2,6 +2,7 @@ import React from 'react';
 import { CardContent, Typography, Box, CardMedia } from '@mui/material';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+
 const CustomCardContent = ({ perfume, getLowestPrice }) => {
   return (
     <CardContent 

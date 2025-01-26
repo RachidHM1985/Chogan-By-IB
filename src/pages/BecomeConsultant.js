@@ -1,7 +1,7 @@
 import { Container, Grid, Typography, Box, Button, Card, CardContent, TextField } from '@mui/material';
 import { useState } from 'react';
 import Header from '../components/Header';
-import Footer from '../components/Footer';
+import '../styles/globals.css'
 
 const BecomeConsultant = () => {
   // Initialisation de l'état

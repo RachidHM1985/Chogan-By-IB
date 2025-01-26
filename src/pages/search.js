@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import SearchBar from '../components/SearchBar'; // Barre de recherche si nécessaire
 import SearchResults from '../components/SearchResults'; // Résultats de la recherche
+import '../styles/globals.css'
 
 const SearchPage = () => {
   const router = useRouter();

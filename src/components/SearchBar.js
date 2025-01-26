@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Autocomplete, TextField, InputAdornment, CircularProgress, Grid } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { useRouter } from 'next/router';
+import '../styles/globals.css'
+
 
 const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState('');

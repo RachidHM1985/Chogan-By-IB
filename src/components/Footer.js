@@ -4,6 +4,8 @@ import { Typography, Container, Box, IconButton, Link } from '@mui/material';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import { FaTiktok } from 'react-icons/fa'; // TikTok avec react-icons
 import { FaSnapchatSquare } from 'react-icons/fa'; // Snapchat avec react-icons
+import '../styles/globals.css'
+
 
 const Footer = () => {
   return (

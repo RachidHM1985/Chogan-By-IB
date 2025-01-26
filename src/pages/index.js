@@ -6,6 +6,8 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
+import '../styles/globals.css'
+
 
 export default function Home() {
   const [isClient, setIsClient] = useState(false);
