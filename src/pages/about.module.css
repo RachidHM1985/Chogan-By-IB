@@ -1,0 +1,127 @@
+/* Style principal du container */
+.container {
+    height: auto;
+    padding-top: 6rem;
+    padding-bottom: 5rem;
+    background-color: #f7f7f7; /* Fond légèrement clair pour garder un look épuré */
+    overflow-y: auto; /* Permet le défilement vertical */
+    max-height: 100vh; /* Empêche que la taille dépasse la hauteur de la fenêtre */
+  }
+  
+  /* Section Héro avec animation */
+  .heroSection {
+    background: linear-gradient(135deg, #c8e6c9, #f1f8e9); /* Dégradé entre un gris anthracite et un doré subtil */
+    padding: 50px 20px;
+    border-radius: 12px;
+    color: white;
+    margin-bottom: 2rem; /* Espacement sous la section héro */
+  }
+  
+  /* Titre de section */
+  .sectionTitle {
+    font-size: 3rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1rem;
+    opacity: 0;
+  }
+  
+  /* Texte d'introduction */
+  .introText {
+    font-size: 1.4rem;
+    margin-top: 1rem;
+    opacity: 0;
+    color: #fdfdfd;
+  }
+  
+  /* Animation fadeIn */
+  .fadeIn {
+    opacity: 1;
+    transition: opacity 1.5s ease-in-out;
+  }
+  
+  /* Cartes d'information */
+  .infoCard {
+    padding: 1.5rem;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-right: 20%;
+    margin-left: 20%;
+    transition: transform 0.3s ease;
+  }
+  
+  /* Effet de survol sur les cartes */
+  .infoCard:hover {
+    transform: translateY(-5px);
+  }
+  
+  /* Boîtes de fonctionnalités */
+  .featureBox {
+    background-color: #e8f5e9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+  }
+  
+  .featureBox h6 {
+    color: #1b5e20; /* Vert très foncé */
+  }
+  
+  /* Changement de fond au survol */
+  .featureBox:hover {
+    background-color: #c8e6c9;
+    cursor: pointer;
+  }
+  
+  /* Effet de survol des boîtes de fonctionnalités */
+  .featureHover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Image */
+  .image {
+    width: 65%;
+    max-width: 500px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    object-position: center;
+    object-fit: cover;
+  }
+  
+  /* Vision box */
+  .visionBox {
+    background-color: #f1f8e9;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Bouton "Rejoindre" */
+  .joinButton {
+    background-color: #b88b4a; /* Doré pour le bouton */
+    color: white;
+    padding: 12px 24px;
+    font-weight: bold;
+    border-radius: 30px;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+  }
+  
+  .joinButton:hover {
+    background-color: #f1c40f; /* Doré plus lumineux */
+    transform: scale(1.1);
+  }
+  
+  /* Gestion du défilement global */
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    overflow-y: scroll; /* Assure que l'utilisateur peut toujours faire défiler la page */
+    background-color: #f7f7f7; /* Fond global */
+  }
+  
