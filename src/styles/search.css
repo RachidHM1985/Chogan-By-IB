@@ -1,0 +1,8 @@
+/* search.css */
+
+.search-results {
+    position: sticky;
+    top: 0; /* Fixer juste sous l'en-tête */
+    z-index: 10; /* Assurer que la recherche est au-dessus */
+  }
+  

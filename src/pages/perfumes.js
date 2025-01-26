@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
-import '../styles/globals.css'
 import { Card, Typography, Select, MenuItem, Box, CircularProgress, Button, TextField } from '@mui/material';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Header from '../components/Header';
@@ -8,7 +7,6 @@ import Footer from '../components/Footer';
 import { supabase } from '../supabaseClient';
 import { useRouter } from 'next/router';
 import CustomCardContent from '../components/CustomCardContent';
-import { useCart } from './CartContext'; // Import Cart Context
 
 const PerfumesPage = () => {
   const [category, setCategory] = useState('All');

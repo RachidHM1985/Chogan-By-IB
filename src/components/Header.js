@@ -25,9 +25,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import SearchOverlay from '../pages/SearchOverlay';
 import Sidebar from './SideBar';
-import { useCart } from '../pages/CartContext';
+import { useCart } from '../context/CartContext';
 import { loadStripe } from '@stripe/stripe-js';
-import '../styles/globals.css'
 
 const Header = () => {
   const [openSidebar, setOpenSidebar] = useState(false);

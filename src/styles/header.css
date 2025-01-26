@@ -1,0 +1,15 @@
+/* header.css */
+
+/* Changer la couleur de fond du Header */
+.MuiAppBar-root {
+    background-color: #F8F8F8 !important;
+    box-shadow: none;
+    position: fixed;
+    z-index: 1 !important; /* Si votre header utilise un z-index plus élevé */
+  }
+  
+  /* Optionnel : Cibler les liens du header pour les rendre blancs */
+  .MuiButton-root, .MuiTypography-root {
+    color: black !important;
+  }
+  

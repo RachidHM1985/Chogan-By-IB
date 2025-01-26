@@ -1,0 +1,32 @@
+/* tooltip.css */
+
+.tooltip {
+    display: flex;
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px;
+    background-color: #ff6f61;
+    color: white;
+    border-radius: 5px;
+    font-size: 14px;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s, opacity 0.3s linear;
+    z-index: 9999;
+  }
+  
+  .tooltip.show {
+    visibility: visible;
+    opacity: 1;
+  }
+  
+  .tooltip-error {
+    background-color: #d9534f;
+  }
+  
+  .tooltip-succes {
+    background-color: #28a745;
+  }
+  

@@ -3,8 +3,6 @@ import PropTypes from 'prop-types';
 import { Paper, List, ListItem, ListItemText, Box } from '@mui/material';
 import Link from 'next/link';
 import { useRouter } from 'next/router'; // Importer useRouter
-import '../styles/globals.css'
-
 
 const Sidebar = ({ onCategorySelect = () => { } }) => {
   const [showSubCategories, setShowSubCategories] = useState(false);

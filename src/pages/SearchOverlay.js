@@ -6,9 +6,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import CustomCardContent from '../components/CustomCardContent';
 import { debounce } from 'lodash';
-import { useCart } from './CartContext'; // Import Cart Context
+import { useCart } from '../context/CartContext'; // Import Cart Context
 import { useRouter } from 'next/router';  // Importer useRouter depuis next/router
-import '../styles/globals.css'
 
 const SearchOverlay = () => {
   const [searchQuery, setSearchQuery] = useState('');
