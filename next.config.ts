@@ -5,9 +5,6 @@ const nextConfig: NextConfig = {
 };
 
 module.exports = {
-  experimental: {
-    turbopack: true, // Active Turbopack
-  },
 };
 
 
