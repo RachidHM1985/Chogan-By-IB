@@ -40,10 +40,10 @@ const Footer = () => {
             Contact
           </Typography>
           <Typography variant="body2" color="textSecondary" sx={{ fontSize: '0.65rem' }}>
-            Adresse : Montpellier
+            Adresse : Chogan Group s.p.a., Montpellier
           </Typography>
           <Typography variant="body2" color="textSecondary" sx={{ fontSize: '0.65rem' }}>
-            Email : contact@chogan.com
+            Email : ikram.bakmou@outlook.fr
           </Typography>
         </Box>
 
