@@ -409,7 +409,13 @@ const SearchOverlay = () => {
                             value={quantities[selectedPerfume.id]?.['30ml'] || 0}
                             onChange={(e) => updateQuantity(selectedPerfume.id, '30ml', Number(e.target.value))}
                             inputProps={{ min: 1 }}
-                            style={{ marginLeft: '10px', width: '60px' }}
+                            sx={{
+                              marginRight: 0,
+                              marginLeft: 0,
+                              width: { xs: '50%', sm: '150px' }, // Augmenter la largeur pour les petits écrans
+                              fontSize: { xs: '0.875rem', sm: '1rem' }, // Ajuster la taille de la police
+                              height: { xs: '45px', sm: '40px' }, // Ajuster la hauteur du champ
+                            }}
                           />
                         </div>
                       )}
@@ -434,7 +440,13 @@ const SearchOverlay = () => {
                             value={quantities[selectedPerfume.id]?.['50ml'] || 0}
                             onChange={(e) => updateQuantity(selectedPerfume.id, '50ml', Number(e.target.value))}
                             inputProps={{ min: 1 }}
-                            style={{ marginLeft: '10px', width: '60px' }}
+                            sx={{
+                              marginRight: 0,
+                              marginLeft: 0,
+                              width: { xs: '50%', sm: '150px' }, // Augmenter la largeur pour les petits écrans
+                              fontSize: { xs: '0.875rem', sm: '1rem' }, // Ajuster la taille de la police
+                              height: { xs: '45px', sm: '40px' }, // Ajuster la hauteur du champ
+                            }}
                           />
                         </div>
                       )}
@@ -459,7 +471,13 @@ const SearchOverlay = () => {
                             value={quantities[selectedPerfume.id]?.['70ml'] || 0}
                             onChange={(e) => updateQuantity(selectedPerfume.id, '70ml', Number(e.target.value))}
                             inputProps={{ min: 1 }}
-                            style={{ marginLeft: '10px', width: '60px' }}
+                            sx={{
+                              marginRight: 0,
+                              marginLeft: 0,
+                              width: { xs: '50%', sm: '150px' }, // Augmenter la largeur pour les petits écrans
+                              fontSize: { xs: '0.875rem', sm: '1rem' }, // Ajuster la taille de la police
+                              height: { xs: '45px', sm: '40px' }, // Ajuster la hauteur du champ
+                            }}
                           />
                         </div>
                       )}

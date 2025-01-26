@@ -4,71 +4,77 @@
 @import 'slick-carousel/slick/slick.css';
 @import 'slick-carousel/slick/slick-theme.css';
 
-/* Style de base pour le conteneur du carrousel automatique */
+/* Assurez-vous que les carrousels ne se chevauchent pas */
 .auto-carousel-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: auto;
-    position: fixed;
-    padding-top: 10vh;
-    padding-bottom: 1vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: auto;
+  position: relative; /* Pas de position fixe pour éviter le chevauchement */
+  padding-top: 10vh; /* Ajustez selon l'écran */
+  padding-bottom: 1vh; /* Ajustez selon l'écran */
+}
+
+/* Réduire l'espace pour les petits écrans */
+@media (max-width: 768px) {
+  .auto-carousel-container {
+    padding-top: 12vh;
   }
-  
-  /* Pour les écrans mobiles */
-  @media (max-width: 480px) {
-    .auto-carousel-container {
-      padding-top: 12vh;
-    }
+}
+
+/* Pour les écrans plus larges, ajustez le padding top */
+@media (min-width: 769px) {
+  .auto-carousel-container {
+    margin-top: 5vh;
+    padding-bottom: 10vh;
   }
-  
-  /* Pour les écrans moyens (tablettes) */
-  @media (max-width: 768px) {
-    .auto-carousel-container {
-      padding-top: 15vh;
-    }
-  }
-  
-  /* Pour les écrans plus larges (PC et tablettes larges) */
-  @media (min-width: 769px) {
-    .auto-carousel-container {
-      margin-top: 5vh;
-      padding-bottom: 10vh;
-    }
-  }
-  
-  /* Carrousel manuel */
+}
+
+/* Carrousel manuel ajusté pour ne pas chevaucher le carrousel automatique */
+.manual-carousel-container {
+  position: relative; /* Remplacer le positionnement fixe */
+  z-index: 999;
+  margin-top: 20px;
+  margin-bottom: 10vh; /* Ajoutez de l'espace en bas pour éviter les chevauchements */
+}
+
+/* Pour les écrans mobiles (moins de 768px) */
+@media (max-width: 768px) {
   .manual-carousel-container {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 999;
-    margin-top: 20px; /* Default margin */
+    margin-top: 10px; /* Réduit la marge pour les écrans mobiles */
+    margin-bottom: 10vh; /* 10% de la hauteur de la fenêtre pour les mobiles */
   }
-  
-  /* Pour les écrans mobiles (moins de 768px) */
-  @media (max-width: 768px) {
-    .manual-carousel-container {
-      margin-bottom: 10vh; /* 10% de la hauteur de la fenêtre pour les mobiles */
-      margin-top: 10px; /* Reduced margin for mobile screens */
-    }
+}
+
+/* Pour les écrans plus larges (PC et tablettes) */
+@media (min-width: 769px) {
+  .manual-carousel-container {
+    margin-bottom: 0; /* Pas d'espace pour les PC */
   }
-  
-  /* Pour les écrans plus larges (PC et tablettes) */
-  @media (min-width: 769px) {
-    .manual-carousel-container {
-      margin-bottom: 0; /* Pas d'espace pour les PC */
-    }
-  }
-  
-  /* Promo images responsive */
+}
+
+/* Réduit la hauteur des images dans le carrousel automatique sur les petits écrans */
+@media (max-width: 768px) {
   .promo-image {
-    width: 100%;
-    height: 35vh;
-    object-position: center;
+    height: 25vh; /* Ajustez pour les tablettes */
   }
+}
+
+@media (max-width: 576px) {
+  .promo-image {
+    height: 20vh; /* Ajustez encore pour les petits écrans */
+  }
+}
+
+/* Gardez une taille d'image raisonnable */
+.promo-image {
+  width: 100%;
+  height: auto; /* Hauteur automatique pour les images */
+  object-fit: cover;
+  object-position: center;
+}
+
   
   @media (max-width: 768px) {
     .promo-image {

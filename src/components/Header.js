@@ -15,7 +15,7 @@ import {
   Button,
   Typography,
   FormControlLabel,
-  Checkbox
+  Checkbox, InputAdornment 
 } from '@mui/material';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -27,6 +27,8 @@ import SearchOverlay from '../pages/SearchOverlay';
 import Sidebar from './SideBar';
 import { useCart } from '../context/CartContext';
 import { loadStripe } from '@stripe/stripe-js';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 
 const Header = () => {
   const [openSidebar, setOpenSidebar] = useState(false);
@@ -281,18 +283,19 @@ const Header = () => {
 
                       {isEditing ? (
                         <TextField
-                          value={quantities[item.product.id]?.[item.size] || item.quantity}
-                          onChange={(e) => handleQuantityChange(index, Math.max(Number(e.target.value), 1))}
-                          variant="outlined"
-                          size="small"
-                          type="number"
-                          sx={{
-                            marginRight: 0, 
-                            marginLeft: 0, 
-                            width: { xs: '25%', sm: '9vh' },
-                            fontSize: { xs: '0.775rem', sm: '1rem' }
-                          }}
-                        />
+                        value={quantities[item.product.id]?.[item.size] || item.quantity}
+                        onChange={(e) => handleQuantityChange(index, Math.max(Number(e.target.value), 1))}
+                        variant="outlined"
+                        size="small"
+                        type="number"
+                        sx={{
+                          marginRight: 0,
+                          marginLeft: 0,
+                          width: { xs: '50%', sm: '150px' }, // Augmenter la largeur pour les petits écrans
+                          fontSize: { xs: '0.875rem', sm: '1rem' }, // Ajuster la taille de la police
+                          height: { xs: '45px', sm: '40px' }, // Ajuster la hauteur du champ
+                        }}
+                      />
                       ) : (
                         <Typography variant="body1" sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }}>
                           {item.quantity}
