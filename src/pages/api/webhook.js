@@ -11,8 +11,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 
 // Initialise Supabase
 const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
 // Définir le type de contenu comme raw pour pouvoir récupérer le body de l'événement Stripe

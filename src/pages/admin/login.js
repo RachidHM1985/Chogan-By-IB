@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { supabase } from '../../supabaseClient'; // Assurez-vous d'importer votre client Supabase
+import { supabase } from '../../supabaseClient';
 import { useRouter } from 'next/router';
-import { Container, Grid, TextField, Button, Typography, Box, Paper } from '@mui/material';
-import { Alert } from 'react-bootstrap'; // Utiliser Bootstrap pour alertes
+import { TextField, Button, Container, Typography, Box } from '@mui/material';
 
 const AdminLogin = () => {
   const [email, setEmail] = useState('');
@@ -13,73 +12,87 @@ const AdminLogin = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    // Connexion avec Supabase
-    const { user, error } = await supabase.auth.signInWithPassword({
+    // Tentative de connexion à Supabase
+    const { user, error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    if (error) {
-      setError(error.message);
-    } else {
-      // Si la connexion réussie, rediriger vers la page d'administration
-      router.push('/admin/orders'); // Rediriger vers la page des commandes
+    if (authError) {
+      setError('Erreur d\'authentification : ' + authError.message);
+      return;
     }
+
+    // Récupérer la session pour obtenir les informations de l'utilisateur
+    const { data: { session } } = await supabase.auth.getSession();
+
+    // Si aucune session n'est disponible, afficher une erreur
+    if (!session || !session.user) {
+      setError('Utilisateur non trouvé');
+      return;
+    }
+
+    // Vérification du rôle de l'utilisateur dans la table `profiles`
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', session.user.id)
+      .single();
+
+    if (profileError) {
+      setError('Erreur lors de la récupération du rôle de l\'utilisateur');
+      return;
+    }
+
+    if (profile.role !== 'admin') {
+      setError('Accès refusé. Vous n\'avez pas le rôle d\'administrateur.');
+      return;
+    }
+
+    // Si tout est bon, rediriger vers la page des commandes
+    router.push('/admin/orders');
   };
 
   return (
     <Container component="main" maxWidth="xs">
-      <Paper elevation={6} sx={{ padding: '2rem' }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <Typography variant="h5" align="center" color="primary">
-            Connexion Admin
-          </Typography>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 8 }}>
+        <Typography variant="h5">Connexion Administrateur</Typography>
 
-          {/* Affichage d'erreurs avec Bootstrap */}
-          {error && (
-            <Alert variant="danger" style={{ marginTop: '1rem' }}>
-              {error}
-            </Alert>
-          )}
+        <form onSubmit={handleLogin} style={{ width: '100%', marginTop: '20px' }}>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            label="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoFocus
+          />
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            label="Mot de passe"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-          {/* Formulaire de connexion */}
-          <form onSubmit={handleLogin} style={{ width: '100%' }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  label="Email"
-                  variant="outlined"
-                  fullWidth
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  label="Mot de passe"
-                  variant="outlined"
-                  type="password"
-                  fullWidth
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </Grid>
-            </Grid>
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+            color="primary"
+          >
+            Se connecter
+          </Button>
 
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              color="primary"
-              sx={{ mt: 2 }}
-            >
-              Se connecter
-            </Button>
-          </form>
-        </Box>
-      </Paper>
+          {error && <Typography color="error" variant="body2">{error}</Typography>}
+        </form>
+      </Box>
     </Container>
   );
 };
