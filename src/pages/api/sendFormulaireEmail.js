@@ -1,58 +1,84 @@
-// server.js
-
-const express = require('express');
-const bodyParser = require('body-parser');
-const sendgrid = require('@sendgrid/mail');
-const cors = require('cors');
+import express from 'express';
+import sgMail from '@sendgrid/mail';
+import cors from 'cors';  // Importer le module cors
+import bodyParser from 'body-parser';  // Importer body-parser
 
 const app = express();
 
-// Configuration de SendGrid
+// Définir la clé API de SendGrid
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-// Middleware
-app.use(cors());
+// Configurer CORS pour accepter les requêtes venant de localhost en développement et du front-end en production
+const allowedOrigins = [
+  'http://localhost:3000', // Développement local
+  'https://chogan-by-ikram.vercel.app/', // Production, remplace par l'URL de ton front-end
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Si l'origine est dans la liste des origines autorisées, accepter la requête
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      // Si l'origine n'est pas autorisée, rejeter la requête
+      callback(new Error('CORS non autorisé'), false);
+    }
+  },
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
+// Utiliser body-parser pour analyser les données JSON dans les requêtes
 app.use(bodyParser.json());
 
-// Route pour envoyer le formulaire
-app.post('/send-email', (req, res) => {
-  const { name, email, phone, message } = req.body;
+app.post('/send-email', async (req, res) => {
+  const { email, name, prenom, cart, total } = req.body;
 
-  if (!name || !email || !phone || !message) {
-    return res.status(400).json({ error: 'Tous les champs doivent être remplis' });
+  // Vérifier les données
+  if (!email || !name || !prenom || !cart || !total) {
+    return res.status(400).json({ message: 'Données manquantes' });
   }
 
-  const msg = {
-    to: 'ikram.bakmou@outlook.fr', // L'email auquel vous voulez envoyer le formulaire
-    from: 'hachem.rach@gmail.com', // L'email de l'expéditeur (peut être un email vérifié SendGrid)
-    subject: `Nouveau message de ${name} pour renseignements Consultant`,
-    text: `
-      Nom: ${name}
-      Email: ${email}
-      Téléphone: ${phone}
-      Message: ${message}
-    `,
+  // Email à l'utilisateur
+  const userMailOptions = {
+    to: email,
+    from: 'ikram.bakmou@outlook.fr', // Utilisez un email validé dans SendGrid
+    subject: 'Confirmation de votre commande Chogan',
+    text: `Bonjour ${prenom} ${name},\n\nMerci pour votre commande ! Voici les détails :\n\n${cart.map(item => `${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}`).join('\n')}\n\nTotal : ${total}€.\n\nNous allons traiter votre commande et nous reviendrons vers vous pour vous indiquer les modalités de paiement et de livraison.\n\nCordialement,\n\nIkram B.`,
     html: `
-      <strong>Nom:</strong> ${name}<br>
-      <strong>Email:</strong> ${email}<br>
-      <strong>Téléphone:</strong> ${phone}<br>
-      <strong>Message:</strong><br><p>${message}</p>
+      <h1>Confirmation de votre commande</h1>
+      <p>Bonjour ${prenom} ${name},</p>
+      <p>Merci pour votre commande ! Voici les détails :</p>
+      <ul>
+        ${cart.map(item => `<li>${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}</li>`).join('')}
+      </ul>
+      <p><strong>Total : ${total}€</strong></p>
+      <p>Nous vous confirmons que nous avons enregistré votre commande et que nous allons la traiter.<br>Prochainement, nous allons vous contacter pour vous indiquer les modalités de paiement et de livraison.</p>
+      <p>Cordialement,<br>Ikram B.</p>
     `,
   };
 
-  sendgrid
-    .send(msg)
-    .then(() => {
-      res.status(200).json({ message: 'Email envoyé avec succès!' });
-    })
-    .catch((error) => {
-      console.error(error);
-      res.status(500).json({ error: 'Une erreur s\'est produite lors de l\'envoi de l\'email.' });
-    });
+  // Email à l'administrateur
+  const adminMailOptions = {
+    to: 'ikram.bakmou@outlook.fr',
+    from: 'hachem.rach@gmail.com',
+    subject: `Nouvelle commande de ${prenom} ${name}`,
+    text: `Nouvelle commande reçue :\n\nNom: ${prenom} ${name}\nTéléphone: ${req.body.phone}\nEmail: ${email}\n\nDétails de la commande:\n${cart.map(item => `${item.code} - ${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}`).join('\n')}\n\nTotal : ${total}€.\n\nMerci de traiter cette commande.`,
+  };
+
+  try {
+    // Envoi des emails
+    await sgMail.send(userMailOptions);
+    await sgMail.send(adminMailOptions);
+    return res.status(200).json({ message: 'Emails envoyés avec succès' });
+  } catch (error) {
+    console.error('Erreur lors de l\'envoi de l\'email', error);
+    return res.status(500).json({ message: 'Erreur d\'envoi de l\'email', error: error.message });
+  }
 });
 
-// Lancer le serveur
-const port = process.env.PORT || 5000;
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+// Démarrer le serveur Express
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

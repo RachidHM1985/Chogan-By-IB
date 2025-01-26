@@ -8,8 +8,25 @@ const app = express();
 // Définir la clé API de SendGrid
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-// Utiliser CORS
-app.use(cors());
+// Configurer CORS pour accepter les requêtes venant de localhost en développement et du front-end en production
+const allowedOrigins = [
+  'http://localhost:3000', // Développement local
+  'https://chogan-by-ikram.vercel.app/', // Production, remplace par l'URL de ton front-end
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Si l'origine est dans la liste des origines autorisées, accepter la requête
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      // Si l'origine n'est pas autorisée, rejeter la requête
+      callback(new Error('CORS non autorisé'), false);
+    }
+  },
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 // Utiliser body-parser pour analyser les données JSON dans les requêtes
 app.use(bodyParser.json());
