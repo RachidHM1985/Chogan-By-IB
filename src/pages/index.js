@@ -83,7 +83,7 @@ export default function Home() {
       <Header />
 
       {/* Carrousel automatique pour les images promotionnelles */}
-      <Box sx={{ marginBottom: '20px' }}>
+      <Box sx={{ marginBottom: '20px', marginLeft:'5%', marginRight:'5%' }}>
         <Grid container justifyContent="center">
           <Grid item xs={12} sm={8} md={6}>
             <Box sx={{ justifyContent: 'center', alignItems: 'center', height: 'auto' }}>
