@@ -1,10 +1,10 @@
 import express from 'express';
-import sgMail from '@sendgrid/mail';
+import sendGridMail from '@sendgrid/mail';
 
 const app = express();
 
 // Définir la clé API de SendGrid
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+sendGridMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export default async function handler(req, res) {
   // Si la méthode est POST, nous traitons l'envoi de l'email

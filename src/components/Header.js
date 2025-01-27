@@ -127,14 +127,15 @@ const Header = () => {
   };
 
   const handleQuantityChange = (index, newQuantity) => {
-    // Si la quantité devient 0 ou négatif, on peut la traiter ou supprimer l'élément
     if (newQuantity <= 0) {
-      removeFromCart(cartItems[index].product.id, cartItems[index].size); // Suppression de l'article
+      // Si la quantité devient 0 ou négative, supprimer l'élément du panier
+      removeFromCart(cartItems[index].product.id, cartItems[index].size);
     } else {
+      // Met à jour la quantité dans l'élément du panier
       const updatedCartItems = [...cartItems];
       updatedCartItems[index].quantity = newQuantity;
-      const { productId, size } = updatedCartItems[index];
-      // Met à jour la quantité dans l'état
+  
+      // Met à jour les quantités dans l'état
       setQuantities(prev => ({
         ...prev,
         [cartItems[index].product.id]: {

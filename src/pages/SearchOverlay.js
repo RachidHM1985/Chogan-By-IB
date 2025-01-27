@@ -203,6 +203,7 @@ const SearchOverlay = () => {
         onClick={toggleOverlay}
         className="justify-content-center"
         style={{
+          placeholder:"Que cherchez-vous",
           borderRadius: '8px',
           justifyContent: 'center',
           alignItems: 'center',
