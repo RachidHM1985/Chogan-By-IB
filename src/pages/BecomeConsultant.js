@@ -27,7 +27,7 @@ const BecomeConsultant = () => {
     if (formData.name && formData.email && formData.phone && formData.message) {
       console.log('Form submitted:', formData);
       
-      fetch('/api/send-email', {
+      fetch('/api/sendFormulaireEmail', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
