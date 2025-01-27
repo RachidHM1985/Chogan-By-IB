@@ -232,7 +232,7 @@ const PerfumesPage = () => {
                     <Typography variant="h5">{selectedPerfume.nom_marque}</Typography>
                     <Typography variant="body1">Réf: {selectedPerfume.code}</Typography>
                     <Typography variant="body1">Choisissez une contenance :</Typography>
-                    <div className="size-selection" style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '10px' }}>
+                    <div className="size-selection" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px' }}>
                       {selectedPerfume.prix_30ml && (
                         <div className="d-flex flex-column align-items-start mb-2">
                           <div className="form-check">

@@ -315,7 +315,7 @@ const Header = () => {
       sx={{
         marginRight: 0,
         marginLeft: 0,
-        width: { xs: '50%', sm: '150px' }, // Augmenter la largeur pour les petits écrans
+        width: { xs: '80%', sm: '150px' }, // Augmenter la largeur pour les petits écrans
         fontSize: { xs: '0.875rem', sm: '1rem' }, // Ajuster la taille de la police
         height: { xs: '45px', sm: '40px' }, // Ajuster la hauteur du champ
         textAlign: 'center', // Centrer le texte dans le TextField
