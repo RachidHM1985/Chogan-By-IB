@@ -26,9 +26,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import SearchOverlay from '../pages/SearchOverlay';
 import Sidebar from './SideBar';
 import { useCart } from '../context/CartContext';
-import { loadStripe } from '@stripe/stripe-js';
-import AddIcon from '@mui/icons-material/Add';
-import RemoveIcon from '@mui/icons-material/Remove';
+import { loadStripe } from '@stripe/stripe-js';     
+import { Add, Remove } from '@mui/icons-material'; // Importer les icônes
 
 const Header = () => {
   const [openSidebar, setOpenSidebar] = useState(false);
@@ -128,21 +127,24 @@ const Header = () => {
   };
 
   const handleQuantityChange = (index, newQuantity) => {
-    // Update the quantity in the cartItems array
-    const updatedCartItems = [...cartItems];
-    updatedCartItems[index].quantity = newQuantity;
-  
-    // Update the quantities object (in the context or local state)
-    const { productId, size } = updatedCartItems[index]; // Assuming productId and size exist in cartItems
-    setQuantities((prevQuantities) => ({
-      ...prevQuantities,
-      [productId]: {
-        ...prevQuantities[productId],
-        [size]: newQuantity,
-      },
-    }));
-  
+    // Si la quantité devient 0 ou négatif, on peut la traiter ou supprimer l'élément
+    if (newQuantity <= 0) {
+      removeFromCart(cartItems[index].product.id, cartItems[index].size); // Suppression de l'article
+    } else {
+      const updatedCartItems = [...cartItems];
+      updatedCartItems[index].quantity = newQuantity;
+      const { productId, size } = updatedCartItems[index];
+      // Met à jour la quantité dans l'état
+      setQuantities(prev => ({
+        ...prev,
+        [cartItems[index].product.id]: {
+          ...prev[cartItems[index].product.id],
+          [cartItems[index].size]: newQuantity,
+        },
+      }));
+    }
   };
+  
   
 
   const calculerFraisLivraison = (cartItems, totalPrice) => {
@@ -270,64 +272,97 @@ const Header = () => {
              <Typography variant="h6" align="center">Votre panier est vide.</Typography>
             ) : (
              <>
-                {cartItems.map((item, index) => (
-                  <Grid container key={index} spacing={2} sx={{ marginBottom: 2 }}>
-                    <Grid item xs={12} sm={12} md={12} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '10px', borderBottom: '1px solid #ccc' }}>
-                      <Typography variant="body2" sx={{ flex: 1, fontSize: { xs: '0.775rem', sm: '1rem' } }}>
-                        {item.product.nom_produit} - {item.product.nom_marque} - {item.size}
-                      </Typography>
+               {cartItems.map((item, index) => (
+  <Grid container key={index} spacing={2} sx={{ marginBottom: 2 }}>
+    {/* Première ligne : Informations sur le produit */}
+    <Grid item xs={12} sm={12} md={12} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '2px'}}>
+      <Typography variant="body2" sx={{ flex: 1, fontSize: { xs: '0.775rem', sm: '1rem' } }}>
+        {item.product.nom_produit} - {item.product.nom_marque} - {item.size}
+      </Typography>
+    </Grid>
 
-                      <Typography variant="body1" sx={{ marginLeft: 2, fontSize: { xs: '0.775rem', sm: '1rem' } }}>
-                        Quantité :
-                      </Typography>
+    {/* Deuxième ligne : Quantité, Prix et Boutons */}
+    <Grid item xs={12} sm={12} md={12} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #ccc'  }}>
+      <Typography variant="body1" sx={{fontSize: { xs: '0.775rem', sm: '1rem' } }}>
+        Quantité :
+      </Typography>
+  
+  {isEditing ? (
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+      {/* Icone "-" pour réduire */}
+      <IconButton
+      onClick={() => handleQuantityChange(index, Math.max(quantities[item.product.id]?.[item.size] - 1, 0))}
+      sx={{
+        padding: '0 8px',
+      }}
+    >
+      <Remove />
+    </IconButton>
 
-                      {isEditing ? (
-                        <TextField
-                        value={quantities[item.product.id]?.[item.size] || item.quantity}
-                        onChange={(e) => handleQuantityChange(index, Math.max(Number(e.target.value), 1))}
-                        variant="outlined"
-                        size="small"
-                        type="number"
-                        sx={{
-                          marginRight: 0,
-                          marginLeft: 0,
-                          width: { xs: '50%', sm: '150px' }, // Augmenter la largeur pour les petits écrans
-                          fontSize: { xs: '0.875rem', sm: '1rem' }, // Ajuster la taille de la police
-                          height: { xs: '45px', sm: '40px' }, // Ajuster la hauteur du champ
-                        }}
-                      />
-                      ) : (
-                        <Typography variant="body1" sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }}>
-                          {item.quantity}
-                        </Typography>
-                      )}
+    <TextField
+      value={quantities[item.product.id]?.[item.size] || item.quantity}
+      onChange={(e) => handleQuantityChange(index, Math.max(Number(e.target.value), 0))} // Empêche d'entrer une valeur inférieure à 0
+      onBlur={() => {
+        if (quantities[item.product.id]?.[item.size] <= 0 || item.quantity <= 0) {
+          removeFromCart(item.product.id, item.size);
+        }
+        setIsEditing(false); // Perd le focus après l'édition
+      }}
+      variant="outlined"
+      size="small"
+      type="number"
+      sx={{
+        marginRight: 0,
+        marginLeft: 0,
+        width: { xs: '50%', sm: '150px' }, // Augmenter la largeur pour les petits écrans
+        fontSize: { xs: '0.875rem', sm: '1rem' }, // Ajuster la taille de la police
+        height: { xs: '45px', sm: '40px' }, // Ajuster la hauteur du champ
+        textAlign: 'center', // Centrer le texte dans le TextField
+      }}
+    />
 
-                      <Typography
-                        variant="body1"
-                        color="textSecondary"
-                        sx={{
-                          textAlign: 'right',
-                          flexGrow: 1,
-                          fontSize: { xs: '0.8rem', sm: '1rem' }
-                        }}
-                      >
-                        Prix: {(item.product[`prix_${item.size}`] * item.quantity).toFixed(2)}€
-                      </Typography>
+    {/* Icone "+" pour augmenter */}
+    <IconButton
+      onClick={() => handleQuantityChange(index, (quantities[item.product.id]?.[item.size] || item.quantity) + 1)}
+      sx={{
+        padding: '0 8px',
+      }}
+    >
+      <Add />
+    </IconButton>
+    </div>
+  ) : (
+    <Typography variant="body1" sx={{ marginLeft:'10px', fontSize: { xs: '0.8rem', sm: '1rem' } }}>
+      {item.quantity}
+    </Typography>
+  )}
+      <Typography
+        variant="body1"
+        color="textSecondary"
+        sx={{marginRight:'15px',
+          textAlign: 'right',
+          flexGrow: 1,
+          fontSize: { xs: '0.8rem', sm: '1rem' }
+        }}
+      >
+        Prix: {(item.product[`prix_${item.size}`] * item.quantity).toFixed(2)}€
+      </Typography>
 
-                      <IconButton onClick={handleEdit} sx={{ padding: 0 }}>
-                        <EditIcon />
-                      </IconButton>
+      <IconButton onClick={handleEdit} sx={{marginRight:'15px', padding: 0 }}>
+        <EditIcon />
+      </IconButton>
 
-                      <IconButton
-                        color="error"
-                        onClick={() => removeFromCart(item.product.id, item.size)}
-                        sx={{ padding: 0 }}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Grid>
-                  </Grid>
-                ))}
+      <IconButton
+        color="error"
+        onClick={() => removeFromCart(item.product.id, item.size)}
+        sx={{ padding: 0 }}
+      >
+        <DeleteIcon />
+      </IconButton>
+    </Grid>
+  </Grid>
+))}
+
               {totalPriceWithDelivery < 150 && (
                 <FormControlLabel
                   control={

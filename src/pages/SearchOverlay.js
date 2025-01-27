@@ -8,6 +8,7 @@ import CustomCardContent from '../components/CustomCardContent';
 import { debounce } from 'lodash';
 import { useCart } from '../context/CartContext'; // Import Cart Context
 import { useRouter } from 'next/router';  // Importer useRouter depuis next/router
+import { Add, Remove } from '@mui/icons-material'; // Importer les icônes
 
 const SearchOverlay = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -71,12 +72,6 @@ const SearchOverlay = () => {
     }
   };
   
-
-  // Gérer le changement de la valeur de recherche
-  const handleChange = (e) => {
-    setSearchQuery(e.target.value);
-  };
-  
   useEffect(() => {
     const debouncedSearch = debounce(searchProducts, 500); // Use debounce
     debouncedSearch(searchQuery);  // Trigger debounced search
@@ -111,16 +106,17 @@ const SearchOverlay = () => {
     }));
   };
 
-  const updateQuantity = (productId, size, value) => {
-    setQuantities((prev) => ({
-      ...prev,
-      [productId]: {
-        ...prev[productId],
-        [size]: value,
-      }
+  const updateQuantity = (perfumeId, size, quantity) => {
+    // Met à jour l'état des quantités
+    setQuantities((prevQuantities) => ({
+      ...prevQuantities,
+      [perfumeId]: {
+        ...prevQuantities[perfumeId],
+        [size]: quantity,
+      },
     }));
   };
-
+  
   const handleAddToCart = (product) => {
     const sizes = selectedSizes[product.id] || {}; // Récupérer les tailles sélectionnées pour ce produit
     let isValid = false;
@@ -401,22 +397,46 @@ const SearchOverlay = () => {
                               checked={selectedSizes[selectedPerfume.id]?.['30ml'] || false}
                             />
                             <label className="form-check-label" htmlFor={`size-30ml-${selectedPerfume.id}`}>
-                              30ml - {selectedPerfume.prix_30ml.toFixed(2)}€
+                              30ml - {selectedPerfume.prix_70ml.toFixed(2)}€
                             </label>
                           </div>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          {/* Icone "-" pour réduire */}
+                          <IconButton
+                            onClick={() => updateQuantity(selectedPerfume.id, '30ml', Math.max(quantities[selectedPerfume.id]?.['30ml'] - 1, 1))}
+                            sx={{
+                              padding: '0 8px',
+                            }}
+                          >
+                            <Remove />
+                          </IconButton>
+
+                          {/* TextField pour la quantité */}
                           <TextField
                             type="number"
                             value={quantities[selectedPerfume.id]?.['30ml'] || 0}
-                            onChange={(e) => updateQuantity(selectedPerfume.id, '30ml', Number(e.target.value))}
+                            onChange={(e) => updateQuantity(selectedPerfume.id, '30ml', Math.max(Number(e.target.value), 1))} // Empêcher les valeurs inférieures à 1
                             inputProps={{ min: 1 }}
                             sx={{
                               marginRight: 0,
                               marginLeft: 0,
-                              width: { xs: '50%', sm: '150px' }, // Augmenter la largeur pour les petits écrans
+                              width: { xs: '30%', sm: '60px' }, // Augmenter la largeur pour les petits écrans
                               fontSize: { xs: '0.875rem', sm: '1rem' }, // Ajuster la taille de la police
                               height: { xs: '45px', sm: '40px' }, // Ajuster la hauteur du champ
+                              textAlign: 'center', // Centrer le texte à l'intérieur du TextField
                             }}
                           />
+
+                          {/* Icone "+" pour augmenter */}
+                          <IconButton
+                            onClick={() => updateQuantity(selectedPerfume.id, '30ml', (quantities[selectedPerfume.id]?.['30ml'] || 0) + 1)}
+                            sx={{
+                              padding: '0 8px',
+                            }}
+                          >
+                            <Add />
+                          </IconButton>
+                        </div>
                         </div>
                       )}
                       {selectedPerfume.prix_50ml && (
@@ -432,22 +452,46 @@ const SearchOverlay = () => {
                               checked={selectedSizes[selectedPerfume.id]?.['50ml'] || false}
                             />
                             <label className="form-check-label" htmlFor={`size-50ml-${selectedPerfume.id}`}>
-                              50ml - {selectedPerfume.prix_50ml.toFixed(2)}€
+                              70ml - {selectedPerfume.prix_50ml.toFixed(2)}€
                             </label>
                           </div>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          {/* Icone "-" pour réduire */}
+                          <IconButton
+                            onClick={() => updateQuantity(selectedPerfume.id, '50ml', Math.max(quantities[selectedPerfume.id]?.['50ml'] - 1, 1))}
+                            sx={{
+                              padding: '0 8px',
+                            }}
+                          >
+                            <Remove />
+                          </IconButton>
+
+                          {/* TextField pour la quantité */}
                           <TextField
                             type="number"
-                            value={quantities[selectedPerfume.id]?.['50ml'] || 0}
-                            onChange={(e) => updateQuantity(selectedPerfume.id, '50ml', Number(e.target.value))}
+                            value={quantities[selectedPerfume.id]?.['50ml'] || 1}
+                            onChange={(e) => updateQuantity(selectedPerfume.id, '70ml', Math.max(Number(e.target.value), 1))} // Empêcher les valeurs inférieures à 1
                             inputProps={{ min: 1 }}
                             sx={{
                               marginRight: 0,
                               marginLeft: 0,
-                              width: { xs: '50%', sm: '150px' }, // Augmenter la largeur pour les petits écrans
+                              width: { xs: '30%', sm: '60px' }, // Augmenter la largeur pour les petits écrans
                               fontSize: { xs: '0.875rem', sm: '1rem' }, // Ajuster la taille de la police
                               height: { xs: '45px', sm: '40px' }, // Ajuster la hauteur du champ
+                              textAlign: 'center', // Centrer le texte à l'intérieur du TextField
                             }}
                           />
+
+                          {/* Icone "+" pour augmenter */}
+                          <IconButton
+                            onClick={() => updateQuantity(selectedPerfume.id, '50ml', (quantities[selectedPerfume.id]?.['50ml'] || 0) + 1)}
+                            sx={{
+                              padding: '0 8px',
+                            }}
+                          >
+                            <Add />
+                          </IconButton>
+                        </div>
                         </div>
                       )}
                       {selectedPerfume.prix_70ml && (
@@ -466,19 +510,48 @@ const SearchOverlay = () => {
                               70ml - {selectedPerfume.prix_70ml.toFixed(2)}€
                             </label>
                           </div>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          {/* Icone "-" pour réduire */}
+                          <IconButton
+                            onClick={() => updateQuantity(selectedPerfume.id, '70ml', Math.max(quantities[selectedPerfume.id]?.['70ml'] - 1, 1))}
+                            sx={{
+                              padding: '0 8px',
+                            }}
+                          >
+                            <Remove />
+                          </IconButton>
+
+                          {/* TextField pour la quantité */}
                           <TextField
                             type="number"
                             value={quantities[selectedPerfume.id]?.['70ml'] || 0}
-                            onChange={(e) => updateQuantity(selectedPerfume.id, '70ml', Number(e.target.value))}
+                            onChange={(e) => updateQuantity(selectedPerfume.id, '70ml', Math.max(Number(e.target.value), 1))} // Empêcher les valeurs inférieures à 1
                             inputProps={{ min: 1 }}
                             sx={{
                               marginRight: 0,
                               marginLeft: 0,
-                              width: { xs: '50%', sm: '150px' }, // Augmenter la largeur pour les petits écrans
+                              width: { xs: '30%', sm: '60px' }, // Augmenter la largeur pour les petits écrans
                               fontSize: { xs: '0.875rem', sm: '1rem' }, // Ajuster la taille de la police
                               height: { xs: '45px', sm: '40px' }, // Ajuster la hauteur du champ
+                              textAlign: 'center', // Centrer le texte à l'intérieur du TextField
+                              textAlign: 'center', // Centrer le texte à l'intérieur du TextField
+                              '& input[type="number"]': {
+                                '-moz-appearance': 'textfield', // Désactiver les boutons dans Firefox
+                                '-webkit-appearance': 'none',
+                              }
                             }}
                           />
+
+                          {/* Icone "+" pour augmenter */}
+                          <IconButton
+                            onClick={() => updateQuantity(selectedPerfume.id, '70ml', (quantities[selectedPerfume.id]?.['70ml'] || 0) + 1)}
+                            sx={{
+                              padding: '0 8px',
+                            }}
+                          >
+                            <Add />
+                          </IconButton>
+                        </div>
                         </div>
                       )}
                     </div>

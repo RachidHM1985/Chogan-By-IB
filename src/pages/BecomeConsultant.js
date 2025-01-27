@@ -27,8 +27,7 @@ const BecomeConsultant = () => {
     if (formData.name && formData.email && formData.phone && formData.message) {
       console.log('Form submitted:', formData);
       
-      // Envoi des données du formulaire au backend (Serveur Node.js)
-      fetch('http://localhost:5000/send-email', {
+      fetch('/api/send-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
