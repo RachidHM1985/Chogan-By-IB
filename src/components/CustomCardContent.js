@@ -8,6 +8,7 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
     <CardContent 
       className="custom-card-content p-3 d-flex" 
       style={{
+        width:'350px',
         borderRadius: '10px',
         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
         overflow: 'hidden',
