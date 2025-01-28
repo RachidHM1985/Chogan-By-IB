@@ -3,6 +3,12 @@ import { CardContent, Typography, Box, CardMedia } from '@mui/material';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const CustomCardContent = ({ perfume, getLowestPrice }) => {
+
+  const capitalizeFirstLetter = (text) => {
+    if (!text) return '';
+    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+  };
+
   return (
     <CardContent
       className="custom-card-content p-3 d-flex flex-column position-relative"
@@ -59,16 +65,6 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
     },
   }}
 />
-<Typography
-          variant="body2"
-          sx={{
-            fontSize: '0.7rem',
-            opacity: 0.7,
-            marginBottom: '2px', // Espacement réduit
-          }}
-        >
-         Inspiré de : 
-        </Typography>
 
       </Box>
 
@@ -83,6 +79,17 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
           textAlign: 'left', // Alignement à gauche pour les informations
         }}
       >
+        <Typography
+         variant="body2"
+         sx={{
+           fontSize: '0.7rem',
+           opacity: 0.7,
+           marginBottom: '2px', // Espacement réduit
+         }}
+        >
+         Inspiré de : 
+        </Typography>
+
         {/* Product Name */}
         <Typography
           variant="h6"
@@ -97,7 +104,7 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
             textOverflow: 'ellipsis',
           }}
         >
-          {perfume.nom_produit}
+          {capitalizeFirstLetter(perfume.nom_produit)}
         </Typography>
 
         {/* Brand Name */}
@@ -120,9 +127,8 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
         <Typography
           variant="body2"
           sx={{
-            fontSize: '0.9rem',
+            fontSize: '0.8rem',
             opacity: 0.7,
-            marginBottom: '6px', // Espacement réduit
           }}
         >
           Code: {perfume.code}
@@ -132,8 +138,8 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
         <Typography
           variant="body1"
           sx={{
-            fontSize: '1rem',
-            fontWeight: '600', // Mettre en gras
+            fontSize: '0.8rem',
+            fontWeight: '400', // Mettre en gras
           }}
         >
           À partir de {getLowestPrice(perfume)} €

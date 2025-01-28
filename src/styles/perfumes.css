@@ -1,8 +1,16 @@
 .perfume-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr); /* 2 cartes sur mobile */
-    gap: 16px; /* Espacement entre les cartes */
+    gap: 0px; /* Espace réduit entre les cartes */
+    padding: 0; /* Retirer toute marge interne */
   }
+  
+  @media (min-width: 768px) {
+    .perfume-grid {
+      grid-template-columns: repeat(4, 1fr); /* 4 cartes sur grand écran */
+    }
+  }
+  
   
   .perfume-grid::-webkit-scrollbar {
     display: none;
@@ -28,7 +36,7 @@
   
   .perfume-card-inner {
     position: relative;
-    height: 100%;
+    height: 90%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -37,7 +45,7 @@
   .perfume-card-content {
     background-size: cover;
     background-position: center;
-    height: 100%;
+    height: 90%;
     width: 100%;
     display: flex;
     justify-content: center;

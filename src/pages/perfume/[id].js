@@ -20,6 +20,12 @@ const PerfumeDetailPage = () => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipMessage, setTooltipMessage] = useState('');
 
+  const capitalizeFirstLetter = (text) => {
+    if (!text) return '';
+    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+  };
+
+
   // Récupérer les détails du parfum à partir de Supabase
   useEffect(() => {
     if (!id) return;
@@ -123,8 +129,8 @@ const PerfumeDetailPage = () => {
               <Row className="d-flex justify-content-center align-items-center" style={{ width: '100%' }}>
                 <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">
                 <Typography variant="body1" align="center">Inspiré de :</Typography>
-                <Typography variant="h6" align="center">{perfume.nom_produit}</Typography>
-                 <Typography variant="h6" align="center">{perfume.nom_marque}</Typography>
+                <Typography variant="h6" align="center" >{capitalizeFirstLetter(perfume.nom_produit)}</Typography>
+                 <Typography variant="h6" align="center">{capitalizeFirstLetter(perfume.nom_marque)}</Typography>
                   <img
                     src={`../../photos/products/${perfume.genre.toLowerCase()}.png`}
                     alt={perfume.nom_produit}
@@ -138,7 +144,7 @@ const PerfumeDetailPage = () => {
                 </Col>
                 <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">                  
                   <Typography variant="body1" align="center">Réf: {perfume.code}</Typography>
-                  <Typography variant="body1" align="center" sx={{ marginTop: '20px' }}>
+                  <Typography variant="body1" align="center">
                     Choisissez une contenance :
                   </Typography>
                   <div className="size-selection" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px' }}>
@@ -195,7 +201,7 @@ const PerfumeDetailPage = () => {
                     variant="contained"
                     color="primary"
                     onClick={handleAddToCart}
-                    sx={{ marginTop: '20px' }}
+                    sx={{ marginTop: '20px' }}                   
                   >
                     Ajouter au panier
                   </Button>

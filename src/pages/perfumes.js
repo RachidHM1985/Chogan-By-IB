@@ -122,8 +122,7 @@ const PerfumesPage = () => {
               width: '100%',
               flexGrow: 1,
               overflowY: 'scroll',
-              height: 'calc(13vh - 280px)', // Ajuster la hauteur de la liste des parfums
-              marginTop: '5vh',
+              height: 'calc(15vh - 300px)', // Ajuster la hauteur de la liste des parfums
             }}
           >
             <div className="perfume-grid">

@@ -27,11 +27,12 @@ const SearchOverlay = () => {
   const router = useRouter(); // Initialiser le hook router  
 
   const hideOnPages = ['/about', '/BecomeConsultant', '/perfume', '/perfume/[id]'];
+
   const shouldHideOnPages = hideOnPages.includes(router.pathname);
   const { category } = router.query;
   const shouldHideForCategory = category !== undefined;
   const shouldHide = shouldHideOnPages || shouldHideForCategory;
-
+  
   // Fonction de recherche
   const searchProducts = async (searchQuery) => {
     setLoading(true);
@@ -372,100 +373,6 @@ const SearchOverlay = () => {
               </Box>
             )}
           </div>
-
-          {/* Détails du produit sélectionné */}
-  {selectedPerfume && (
-    <div key={selectedPerfume.id} className="product-details-content" ref={detailsRef} style={{ width: '100%', height:'80%' }}>
-      <Row className="align-items-center" style={{ display: 'flex', justifyContent: 'center' }}>
-        <Col xs={12} md={6} className="d-flex justify-content-center">
-          <img
-            src={`./photos/products/${selectedPerfume.genre.toLowerCase()}.png`}
-            alt={selectedPerfume.nom_produit}
-            className="product-details-image"
-            onError={(e) => e.target.src = "/default-image.jpg"} // Fallback if image not found
-            style={{ width: '100%', borderRadius: '10px' }}
-          />
-        </Col>
-        <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">
-          <div className="product-details-info">
-            <Typography variant="h6" align="center">Inspiré de</Typography>
-            <Typography variant="h5" align="center">{selectedPerfume.nom_produit}</Typography>
-            <Typography variant="h5" align="center">{selectedPerfume.nom_marque}</Typography>
-            <Typography variant="body1" align="center">Réf: {selectedPerfume.code}</Typography>
-            <Typography variant="body1" align="center">Choisissez une contenance :</Typography>
-            <div className="size-selection" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-              {/* Contenance et quantité */}
-              {['30ml', '50ml', '70ml'].map((size) => selectedPerfume[`prix_${size}`] && (
-                <div key={size} className="d-flex flex-column align-items-center mb-2">                  
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <div className="form-check" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      id={`size-${size}-${selectedPerfume.id}`}
-                      name={`size-${selectedPerfume.id}`}
-                      value={size}
-                      onChange={() => handleSizeChange(selectedPerfume.id, size)}
-                      checked={selectedSizes[selectedPerfume.id]?.[size] || false}
-                    />
-                    <label className="form-check-label" htmlFor={`size-${size}-${selectedPerfume.id}`} style={{ marginLeft: '10px' }}>
-                      {size} - {selectedPerfume[`prix_${size}`].toFixed(2)}€
-                    </label>
-                  </div>
-                    <IconButton
-                      onClick={() => updateQuantity(selectedPerfume.id, size, Math.max(quantities[selectedPerfume.id]?.[size] - 1, 1))}
-                      sx={{ padding: '0 8px' }}
-                    >
-                      <Remove />
-                    </IconButton>
-
-                    <TextField
-                      type="number"
-                      value={quantities[selectedPerfume.id]?.[size] || 0}
-                      onChange={(e) => updateQuantity(selectedPerfume.id, size, Math.max(Number(e.target.value), 1))}
-                      inputProps={{ min: 1 }}
-                      sx={{
-                        marginRight: 0,
-                        marginLeft: 0,
-                        width: '60px',
-                        textAlign: 'center',
-                      }}
-                    />
-
-                    <IconButton
-                      onClick={() => updateQuantity(selectedPerfume.id, size, (quantities[selectedPerfume.id]?.[size] || 0) + 1)}
-                      sx={{ padding: '0 8px' }}
-                    >
-                      <Add />
-                    </IconButton>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="add-to-cart d-flex justify-content-center" style={{ marginTop: '20px' }}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => handleAddToCart(selectedPerfume)}
-              >
-                Ajouter au panier
-              </Button>
-            </div>
-          </div>
-        </Col>
-      </Row>
-    </div>
-  )}
-
-            {/* Tooltip */}
-        {showTooltip && (
-          <div 
-            className={`tooltip ${!selectedSizes[focusedCard] ? 'tooltip-error' : 'tooltip-succes'} ${showTooltip ? 'show' : ''}`}
-            style={{ top: `${window.scrollY + 10}px` }}
-          >
-            {tooltipMessage}
-          </div>
-        )}
         </Box>        
       </Modal>
     </div>
