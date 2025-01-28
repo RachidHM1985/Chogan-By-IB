@@ -27,8 +27,8 @@ export default async function handler(req, res) {
           quantity: item.quantity,
         })),
         mode: 'payment',
-       success_url: `http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}&status=succeeded`, // Rediriger vers success.js
-      cancel_url: `http://localhost:3000/echec?status=failed`,
+        success_url: `${process.env.URL}/success?session_id={CHECKOUT_SESSION_ID}&status=succeeded`, // Rediriger vers success.js
+        cancel_url: `${process.env.URL}/echec?status=failed`,
         metadata: {
           name: formData.name,
           email: formData.email,
@@ -36,6 +36,7 @@ export default async function handler(req, res) {
           phone: formData.phone,
         },
       });
+      ;
 
       // Renvoie l'ID de la session Stripe au frontend
       res.status(200).json({ sessionId: session.id });
