@@ -17,25 +17,25 @@ const Sidebar = ({ onCategorySelect = () => { } }) => {
   };
 
   return (
-    <Paper sx={{ paddingTop: '50px', paddingBottom: '20px', height: '100vh', overflowX: 'auto', width: '25vh' }}>
-      <List sx={{ display: 'flex', flexDirection: 'column' }}>
-        <ListItem button onClick={handleParfumsClick}>
+    <Paper sx={{ paddingTop: '50px', paddingBottom: '20px', height: '100vh', overflowX: 'auto', width: '25vh',  }}>
+      <List sx={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #ddd' }}>
+        <ListItem button onClick={handleParfumsClick} sx={{ borderBottom: '1px solid #ddd'}}>
           <ListItemText primary="Parfums" />
         </ListItem>
         {showSubCategories && (
-          <Box sx={{ display: 'flex', flexDirection: 'row', overflowX: 'auto', width: '100%', justifyContent: 'center' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'row', overflowX: 'auto', width: '100%', justifyContent: 'center', borderBottom: '1px solid #ddd' }}>
             <List sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', fontFamily: 'Arial, sans-serif' }}>
               <ListItem button onClick={() => handleCategorySelect('Homme')}>
-                <ListItemText primary="Homme" sx={{ textAlign: 'center', fontFamily: 'Courier New, monospace' }} />
+                <ListItemText primary="Homme" sx={{ textAlign: 'center', fontFamily: 'Courier New, monospace', borderBottom: '1px solid #ddd'  }} />
               </ListItem>
               <ListItem button onClick={() => handleCategorySelect('Femme')}>
-                <ListItemText primary="Femme" sx={{ textAlign: 'center', fontFamily: 'Courier New, monospace' }} />
+                <ListItemText primary="Femme" sx={{ textAlign: 'center', fontFamily: 'Courier New, monospace',borderBottom: '1px solid #ddd'  }} />
               </ListItem>
               <ListItem button onClick={() => handleCategorySelect('Unisex')}>
-                <ListItemText primary="Unisexe" sx={{ textAlign: 'center', fontFamily: 'Courier New, monospace' }} />
+                <ListItemText primary="Unisexe" sx={{ textAlign: 'center', fontFamily: 'Courier New, monospace', borderBottom: '1px solid #ddd'  }} />
               </ListItem>
               <ListItem button onClick={() => handleCategorySelect('Luxe')}>
-                <ListItemText primary="Luxe" sx={{ textAlign: 'center', fontFamily: 'Courier New, monospace' }} />
+                <ListItemText primary="Luxe" sx={{ textAlign: 'center', fontFamily: 'Courier New, monospace', borderBottom: '1px solid #ddd'  }} />
               </ListItem>
             </List>
           </Box>
