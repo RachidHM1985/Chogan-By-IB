@@ -266,149 +266,162 @@ const Header = () => {
       >
         <Sidebar />
       </Drawer>
-      <Dialog open={openCart} onClose={handleCloseCart} maxWidth="md" fullWidth>
-        <DialogTitle>Mon Panier</DialogTitle>
-        <DialogContent>
-          {cartItems.length === 0 ? (
-             <Typography variant="h6" align="center">Votre panier est vide.</Typography>
-            ) : (
-             <>
-               {cartItems.map((item, index) => (
-  <Grid container key={index} spacing={2} sx={{ marginBottom: 2 }}>
-    {/* Première ligne : Informations sur le produit */}
-    <Grid item xs={12} sm={12} md={12} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '2px'}}>
-      <Typography variant="body2" sx={{ flex: 1, fontSize: { xs: '0.775rem', sm: '1rem' } }}>
-        {item.product.nom_produit} - {item.product.nom_marque} - {item.size}
-      </Typography>
-    </Grid>
-
-    {/* Deuxième ligne : Quantité, Prix et Boutons */}
-    <Grid item xs={12} sm={12} md={12} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #ccc'  }}>
-      <Typography variant="body1" sx={{fontSize: { xs: '0.775rem', sm: '1rem' } }}>
-        Quantité :
-      </Typography>
-  
-  {isEditing ? (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
-      {/* Icone "-" pour réduire */}
-      <IconButton
-      onClick={() => handleQuantityChange(index, Math.max(quantities[item.product.id]?.[item.size] - 1, 0))}
-      sx={{
-        padding: '0 8px',
-      }}
-    >
-      <Remove />
-    </IconButton>
-
-    <TextField
-      value={quantities[item.product.id]?.[item.size] || item.quantity}
-      onChange={(e) => handleQuantityChange(index, Math.max(Number(e.target.value), 0))} // Empêche d'entrer une valeur inférieure à 0
-      onBlur={() => {
-        if (quantities[item.product.id]?.[item.size] <= 0 || item.quantity <= 0) {
-          removeFromCart(item.product.id, item.size);
-        }
-        setIsEditing(false); // Perd le focus après l'édition
-      }}
-      variant="outlined"
-      size="small"
-      type="number"
-      sx={{
-        marginRight: 0,
-        marginLeft: 0,
-        width: { xs: '80%', sm: '150px' }, // Augmenter la largeur pour les petits écrans
-        fontSize: { xs: '0.875rem', sm: '1rem' }, // Ajuster la taille de la police
-        height: { xs: '45px', sm: '40px' }, // Ajuster la hauteur du champ
-        textAlign: 'center', // Centrer le texte dans le TextField
-      }}
-    />
-
-    {/* Icone "+" pour augmenter */}
-    <IconButton
-      onClick={() => handleQuantityChange(index, (quantities[item.product.id]?.[item.size] || item.quantity) + 1)}
-      sx={{
-        padding: '0 8px',
-      }}
-    >
-      <Add />
-    </IconButton>
-    </div>
-  ) : (
-    <Typography variant="body1" sx={{ marginLeft:'10px', fontSize: { xs: '0.8rem', sm: '1rem' } }}>
-      {item.quantity}
-    </Typography>
-  )}
-      <Typography
-        variant="body1"
-        color="textSecondary"
-        sx={{marginRight:'15px',
-          textAlign: 'right',
-          flexGrow: 1,
-          fontSize: { xs: '0.8rem', sm: '1rem' }
-        }}
-      >
-        Prix: {(item.product[`prix_${item.size}`] * item.quantity).toFixed(2)}€
-      </Typography>
-
-      <IconButton onClick={handleEdit} sx={{marginRight:'15px', padding: 0 }}>
-        <EditIcon />
-      </IconButton>
-
-      <IconButton
-        color="error"
-        onClick={() => removeFromCart(item.product.id, item.size)}
-        sx={{ padding: 0 }}
-      >
-        <DeleteIcon />
-      </IconButton>
-    </Grid>
-  </Grid>
-))}
-
-              {totalPriceWithDelivery < 150 && (
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={delivery}
-                      onChange={handleDeliveryChange}
-                      color="primary"
-                    />
-                  }
-                  label="Souhaitez-vous une livraison ?"
-                  sx={{ mt: 2 }}
-                />
-              )}
-              {delivery && totalPriceWithDelivery < 150 && (
-                <Typography sx={{ mt: 2 }} align="right">
-                  Frais de livraison : {deliveryFee}€
-                </Typography>
-              )}
-              {!delivery && totalPriceWithDelivery < 150 && (
-                <Typography sx={{ mt: 2, color: 'red' }}>
-                  Si vous n'optez pas pour la livraison, vous devez récupérer votre commande physiquement.
-                </Typography>
-              )}
-              {totalPriceWithDelivery >= 150 && (
-                <Typography sx={{ mt: 2, color: 'red' }}>
-                  La livraison vous est offerte.
-                </Typography>
-              )}
-              <Typography variant="h5" sx={{ marginTop: 2 }} align="right">
-                Total: {totalPriceWithDelivery.toFixed(2)}€
+      <Dialog 
+  open={openCart} 
+  onClose={handleCloseCart}   
+  maxWidth="none" 
+  fullWidth
+  sx={{
+    '& .MuiDialog-paper': {
+      width: '95%',   // Largeur à 90% de l'écran
+      maxWidth: 'none', // Empêche la limite de largeur maximale par défaut
+      margin: 'auto', // Centre la modal horizontalement et verticalement
+    },
+  }}
+>
+  <DialogTitle>Récapitulatif de votre panier</DialogTitle>
+  <DialogContent sx={{ overflowY: 'auto' }}>
+    {cartItems.length === 0 ? (
+      <Typography variant="h6" align="center">Votre panier est vide.</Typography>
+    ) : (
+      <>
+        {cartItems.map((item, index) => (
+          <Grid container key={index} spacing={2} sx={{ marginBottom: 2, paddingBottom: 2, borderBottom: '1px solid #ddd' }}>
+            {/* Informations sur le produit */}
+            <Grid item xs={12} sm={8} md={9} sx={{ display: 'flex', flexDirection: 'column' }}>
+              <Typography variant="body2" sx={{ fontSize: { xs: '0.775rem', sm: '1rem' } }}>
+                {item.product.nom_produit} - {item.product.nom_marque} - {item.size}
               </Typography>
-            </>
-          )}
-        </DialogContent>
-        <DialogActions sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
-          <Button variant="outlined" color="secondary" onClick={handleCloseCart}>
-            Annuler
-          </Button>
-          {cartItems.length > 0 && (
-            <Button variant="outlined" onClick={handleConfirmOrder} color="primary">
-              Confirmer
-            </Button>
-          )}
-        </DialogActions>
-      </Dialog>
+            </Grid>
+
+            {/* Quantité, Prix et Boutons */}
+            <Grid item xs={12} sm={4} md={3} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="body1" sx={{ fontSize: { xs: '0.775rem', sm: '1rem' } }}>
+                Quantité :
+              </Typography>
+
+              {isEditing ? (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <IconButton
+                    onClick={() => handleQuantityChange(index, Math.max(quantities[item.product.id]?.[item.size] - 1, 0))}
+                    sx={{ padding: '0 8px' }}
+                  >
+                    <Remove />
+                  </IconButton>
+
+                  <TextField
+                    value={quantities[item.product.id]?.[item.size] || item.quantity}
+                    onChange={(e) => handleQuantityChange(index, Math.max(Number(e.target.value), 0))}
+                    onBlur={() => {
+                      if (quantities[item.product.id]?.[item.size] <= 0 || item.quantity <= 0) {
+                        removeFromCart(item.product.id, item.size);
+                      }
+                      setIsEditing(false);
+                    }}
+                    variant="outlined"
+                    size="small"
+                    type="number"
+                    sx={{
+                      marginRight: 0,
+                      marginLeft: 0,
+                      width: '80px',
+                      textAlign: 'center',
+                    }}
+                  />
+
+                  <IconButton
+                    onClick={() => handleQuantityChange(index, (quantities[item.product.id]?.[item.size] || item.quantity) + 1)}
+                    sx={{ padding: '0 8px' }}
+                  >
+                    <Add />
+                  </IconButton>
+                </div>
+              ) : (
+                <Typography variant="body1" sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }}>
+                  {item.quantity}
+                </Typography>
+              )}
+
+              {/* Prix */}
+              <Typography
+                variant="body1"
+                color="textSecondary"
+                sx={{
+                  textAlign: 'right',
+                  flexGrow: 1,
+                  fontSize: { xs: '0.8rem', sm: '1rem' },
+                }}
+              >
+                Prix: {(item.product[`prix_${item.size}`] * item.quantity).toFixed(2)}€
+              </Typography>
+
+              {/* Boutons Modifier / Supprimer */}
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <IconButton onClick={handleEdit} sx={{ padding: 0, marginRight: 1 }}>
+                  <EditIcon />
+                </IconButton>
+
+                <IconButton
+                  color="error"
+                  onClick={() => removeFromCart(item.product.id, item.size)}
+                  sx={{ padding: 0 }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </div>
+            </Grid>
+          </Grid>
+        ))}
+
+        {/* Livraison */}
+        {totalPriceWithDelivery < 150 && (
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={delivery}
+                onChange={handleDeliveryChange}
+                color="primary"
+              />
+            }
+            label="Souhaitez-vous une livraison ?"
+            sx={{ mt: 2 }}
+          />
+        )}
+        {delivery && totalPriceWithDelivery < 150 && (
+          <Typography sx={{ mt: 2 }} align="right">
+            Frais de livraison : {deliveryFee}€
+          </Typography>
+        )}
+        {!delivery && totalPriceWithDelivery < 150 && (
+          <Typography sx={{ mt: 2, color: 'red' }}>
+            Si vous n'optez pas pour la livraison, vous devez récupérer votre commande physiquement.
+          </Typography>
+        )}
+        {totalPriceWithDelivery >= 150 && (
+          <Typography sx={{ mt: 2, color: 'red' }}>
+            La livraison vous est offerte.
+          </Typography>
+        )}
+
+        {/* Total */}
+        <Typography variant="h5" sx={{ marginTop: 2 }} align="right">
+          Total: {totalPriceWithDelivery.toFixed(2)}€
+        </Typography>
+      </>
+    )}
+  </DialogContent>
+  <DialogActions sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
+    <Button variant="outlined" color="secondary" onClick={handleCloseCart}>
+      Annuler
+    </Button>
+    {cartItems.length > 0 && (
+      <Button variant="outlined" onClick={handleConfirmOrder} color="primary">
+        Confirmer votre panier
+      </Button>
+    )}
+  </DialogActions>
+</Dialog>
+
       <Dialog open={openConfirmation} onClose={() => setOpenConfirmation(false)} maxWidth="md" fullWidth>
         <DialogTitle>Confirmation de Commande</DialogTitle>
         <DialogContent>

@@ -371,211 +371,88 @@ const SearchOverlay = () => {
           </div>
 
           {/* Détails du produit sélectionné */}
-          {selectedPerfume && (
-            <div key={selectedPerfume.id} className="product-details-content" ref={detailsRef}>
-              <Row className="align-items-center">
-                <Col xs={12} md={6} className="d-flex justify-content-center">
-                  <img
-                    src={`./photos/products/${selectedPerfume.genre.toLowerCase()}.png`}
-                    alt={selectedPerfume.nom_produit}
-                    className="product-details-image"
-                    onError={(e) => e.target.src = "/default-image.jpg"} // Fallback if image not found
-                    style={{ width: '100%', borderRadius: '10px' }}
-                  />
-                </Col>
-                <Col xs={12} md={6} className="text-left">
-                  <div className="product-details-info">
-                    <Typography variant="h6">Inspiré de</Typography>
-                    <Typography variant="h4">{selectedPerfume.nom_produit}</Typography>
-                    <Typography variant="h5">{selectedPerfume.nom_marque}</Typography>
-                    <Typography variant="body1">Réf: {selectedPerfume.code}</Typography>
-                    <Typography variant="body1">Choisissez une contenance :</Typography>
-                    <div className="size-selection" style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '0' }}>
-                      {selectedPerfume.prix_30ml && (
-                        <div className="d-flex flex-column align-items-start mb-2">
-                          <div className="form-check">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id={`size-30ml-${selectedPerfume.id}`}
-                              name={`size-${selectedPerfume.id}`}
-                              value="30ml"
-                              onChange={() => handleSizeChange(selectedPerfume.id, '30ml')}
-                              checked={selectedSizes[selectedPerfume.id]?.['30ml'] || false}
-                            />
-                            <label className="form-check-label" htmlFor={`size-30ml-${selectedPerfume.id}`}>
-                              30ml - {selectedPerfume.prix_30ml.toFixed(2)}€
-                            </label>
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          {/* Icone "-" pour réduire */}
-                          <IconButton
-                            onClick={() => updateQuantity(selectedPerfume.id, '30ml', Math.max(quantities[selectedPerfume.id]?.['30ml'] - 1, 1))}
-                            sx={{
-                              padding: '0 8px',
-                            }}
-                          >
-                            <Remove />
-                          </IconButton>
-
-                          {/* TextField pour la quantité */}
-                          <TextField
-                            type="number"
-                            value={quantities[selectedPerfume.id]?.['30ml'] || 0}
-                            onChange={(e) => updateQuantity(selectedPerfume.id, '30ml', Math.max(Number(e.target.value), 1))} // Empêcher les valeurs inférieures à 1
-                            inputProps={{ min: 1 }}
-                            sx={{
-                              marginRight: 0,
-                              marginLeft: 0,
-                              width: { xs: '30%', sm: '60px' }, // Augmenter la largeur pour les petits écrans
-                              fontSize: { xs: '0.875rem', sm: '1rem' }, // Ajuster la taille de la police
-                              height: { xs: '45px', sm: '40px' }, // Ajuster la hauteur du champ
-                              textAlign: 'center', // Centrer le texte à l'intérieur du TextField
-                            }}
-                          />
-
-                          {/* Icone "+" pour augmenter */}
-                          <IconButton
-                            onClick={() => updateQuantity(selectedPerfume.id, '30ml', (quantities[selectedPerfume.id]?.['30ml'] || 0) + 1)}
-                            sx={{
-                              padding: '0 8px',
-                            }}
-                          >
-                            <Add />
-                          </IconButton>
-                        </div>
-                        </div>
-                      )}
-                      {selectedPerfume.prix_50ml && (
-                        <div className="d-flex flex-column mb-2"  style={{ display: 'flex', alignItems: 'center'}}>
-                          <div className="form-check">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id={`size-50ml-${selectedPerfume.id}`}
-                              name={`size-${selectedPerfume.id}`}
-                              value="50ml"
-                              onChange={() => handleSizeChange(selectedPerfume.id, '50ml')}
-                              checked={selectedSizes[selectedPerfume.id]?.['50ml'] || false}
-                            />
-                            <label className="form-check-label" htmlFor={`size-50ml-${selectedPerfume.id}`}>
-                              50ml - {selectedPerfume.prix_50ml.toFixed(2)}€
-                            </label>
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          {/* Icone "-" pour réduire */}
-                          <IconButton
-                            onClick={() => updateQuantity(selectedPerfume.id, '50ml', Math.max(quantities[selectedPerfume.id]?.['50ml'] - 1, 1))}
-                            sx={{
-                              padding: '0 8px',
-                            }}
-                          >
-                            <Remove />
-                          </IconButton>
-
-                          {/* TextField pour la quantité */}
-                          <TextField
-                            type="number"
-                            value={quantities[selectedPerfume.id]?.['50ml'] || 1}
-                            onChange={(e) => updateQuantity(selectedPerfume.id, '50ml', Math.max(Number(e.target.value), 1))} // Empêcher les valeurs inférieures à 1
-                            inputProps={{ min: 1 }}
-                            sx={{
-                              marginRight: 0,
-                              marginLeft: 0,
-                              width: { xs: '30%', sm: '60px' }, // Augmenter la largeur pour les petits écrans
-                              fontSize: { xs: '0.875rem', sm: '1rem' }, // Ajuster la taille de la police
-                              height: { xs: '45px', sm: '40px' }, // Ajuster la hauteur du champ
-                              textAlign: 'center', // Centrer le texte à l'intérieur du TextField
-                            }}
-                          />
-
-                          {/* Icone "+" pour augmenter */}
-                          <IconButton
-                            onClick={() => updateQuantity(selectedPerfume.id, '50ml', (quantities[selectedPerfume.id]?.['50ml'] || 0) + 1)}
-                            sx={{
-                              padding: '0 8px',
-                            }}
-                          >
-                            <Add />
-                          </IconButton>
-                        </div>
-                        </div>
-                      )}
-                      {selectedPerfume.prix_70ml && (
-                        <div className="d-flex flex-column align-items-start mb-2">
-                          <div className="form-check">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id={`size-70ml-${selectedPerfume.id}`}
-                              name={`size-${selectedPerfume.id}`}
-                              value="70ml"
-                              onChange={() => handleSizeChange(selectedPerfume.id, '70ml')}
-                              checked={selectedSizes[selectedPerfume.id]?.['70ml'] || false}
-                            />
-                            <label className="form-check-label" htmlFor={`size-70ml-${selectedPerfume.id}`}>
-                              70ml - {selectedPerfume.prix_70ml.toFixed(2)}€
-                            </label>
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          {/* Icone "-" pour réduire */}
-                          <IconButton
-                            onClick={() => updateQuantity(selectedPerfume.id, '70ml', Math.max(quantities[selectedPerfume.id]?.['70ml'] - 1, 1))}
-                            sx={{
-                              padding: '0 8px',
-                            }}
-                          >
-                            <Remove />
-                          </IconButton>
-
-                          {/* TextField pour la quantité */}
-                          <TextField
-                            type="number"
-                            value={quantities[selectedPerfume.id]?.['70ml'] || 0}
-                            onChange={(e) => updateQuantity(selectedPerfume.id, '70ml', Math.max(Number(e.target.value), 1))} // Empêcher les valeurs inférieures à 1
-                            inputProps={{ min: 1 }}
-                            sx={{
-                              marginRight: 0,
-                              marginLeft: 0,
-                              width: { xs: '30%', sm: '60px' }, // Augmenter la largeur pour les petits écrans
-                              fontSize: { xs: '0.875rem', sm: '1rem' }, // Ajuster la taille de la police
-                              height: { xs: '45px', sm: '40px' }, // Ajuster la hauteur du champ
-                              textAlign: 'center', // Centrer le texte à l'intérieur du TextField
-                              textAlign: 'center', // Centrer le texte à l'intérieur du TextField
-                              '& input[type="number"]': {
-                                '-moz-appearance': 'textfield', // Désactiver les boutons dans Firefox
-                                '-webkit-appearance': 'none',
-                              }
-                            }}
-                          />
-
-                          {/* Icone "+" pour augmenter */}
-                          <IconButton
-                            onClick={() => updateQuantity(selectedPerfume.id, '70ml', (quantities[selectedPerfume.id]?.['70ml'] || 0) + 1)}
-                            sx={{
-                              padding: '0 8px',
-                            }}
-                          >
-                            <Add />
-                          </IconButton>
-                        </div>
-                        </div>
-                      )}
-                    </div>
-                    <div className="add-to-cart d-flex justify-content-center" style={{ marginTop: '20px' }}>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => handleAddToCart(selectedPerfume)}
-                      >
-                        Ajouter au panier
-                      </Button>
-                    </div>
+  {selectedPerfume && (
+    <div key={selectedPerfume.id} className="product-details-content" ref={detailsRef} style={{ width: '100%', height:'80%' }}>
+      <Row className="align-items-center" style={{ display: 'flex', justifyContent: 'center' }}>
+        <Col xs={12} md={6} className="d-flex justify-content-center">
+          <img
+            src={`./photos/products/${selectedPerfume.genre.toLowerCase()}.png`}
+            alt={selectedPerfume.nom_produit}
+            className="product-details-image"
+            onError={(e) => e.target.src = "/default-image.jpg"} // Fallback if image not found
+            style={{ width: '100%', borderRadius: '10px' }}
+          />
+        </Col>
+        <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">
+          <div className="product-details-info">
+            <Typography variant="h6" align="center">Inspiré de</Typography>
+            <Typography variant="h4" align="center">{selectedPerfume.nom_produit}</Typography>
+            <Typography variant="h5" align="center">{selectedPerfume.nom_marque}</Typography>
+            <Typography variant="body1" align="center">Réf: {selectedPerfume.code}</Typography>
+            <Typography variant="body1" align="center">Choisissez une contenance :</Typography>
+            <div className="size-selection" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+              {/* Contenance et quantité */}
+              {['30ml', '50ml', '70ml'].map((size) => selectedPerfume[`prix_${size}`] && (
+                <div key={size} className="d-flex flex-column align-items-center mb-2">                  
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div className="form-check" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      id={`size-${size}-${selectedPerfume.id}`}
+                      name={`size-${selectedPerfume.id}`}
+                      value={size}
+                      onChange={() => handleSizeChange(selectedPerfume.id, size)}
+                      checked={selectedSizes[selectedPerfume.id]?.[size] || false}
+                    />
+                    <label className="form-check-label" htmlFor={`size-${size}-${selectedPerfume.id}`} style={{ marginLeft: '10px' }}>
+                      {size} - {selectedPerfume[`prix_${size}`].toFixed(2)}€
+                    </label>
                   </div>
-                </Col>
-              </Row>
+                    <IconButton
+                      onClick={() => updateQuantity(selectedPerfume.id, size, Math.max(quantities[selectedPerfume.id]?.[size] - 1, 1))}
+                      sx={{ padding: '0 8px' }}
+                    >
+                      <Remove />
+                    </IconButton>
+
+                    <TextField
+                      type="number"
+                      value={quantities[selectedPerfume.id]?.[size] || 0}
+                      onChange={(e) => updateQuantity(selectedPerfume.id, size, Math.max(Number(e.target.value), 1))}
+                      inputProps={{ min: 1 }}
+                      sx={{
+                        marginRight: 0,
+                        marginLeft: 0,
+                        width: '60px',
+                        textAlign: 'center',
+                      }}
+                    />
+
+                    <IconButton
+                      onClick={() => updateQuantity(selectedPerfume.id, size, (quantities[selectedPerfume.id]?.[size] || 0) + 1)}
+                      sx={{ padding: '0 8px' }}
+                    >
+                      <Add />
+                    </IconButton>
+                  </div>
+                </div>
+              ))}
             </div>
-          )}
+            <div className="add-to-cart d-flex justify-content-center" style={{ marginTop: '20px' }}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => handleAddToCart(selectedPerfume)}
+              >
+                Ajouter au panier
+              </Button>
+            </div>
+          </div>
+        </Col>
+      </Row>
+    </div>
+  )}
 
             {/* Tooltip */}
         {showTooltip && (
