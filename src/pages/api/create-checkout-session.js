@@ -37,8 +37,8 @@ export default async function handler(req, res) {
           };
         }),
         mode: 'payment',
-        success_url: `${process.env.URL}/success?session_id={CHECKOUT_SESSION_ID}&status=succeeded`, // Rediriger vers success.js
-        cancel_url: `${process.env.URL}/echec?status=failed`,
+        success_url: `https://chogan-by-ikram.vercel.app/success?session_id={CHECKOUT_SESSION_ID}&status=succeeded`, // Rediriger vers success.js
+        cancel_url: `https://chogan-by-ikram.vercel.app/echec?status=failed`,
         metadata: {
           name: formData.name,
           email: formData.email,
