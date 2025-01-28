@@ -101,7 +101,7 @@ const PerfumeDetailPage = () => {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          minHeight: '100vh', // Minimum height for the page
+          minHeight: '60vh', // Minimum height for the page
           overflow: 'hidden', // Prevent scrolling
         }}
       >
