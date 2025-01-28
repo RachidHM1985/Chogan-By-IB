@@ -10,12 +10,13 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
         position: 'relative', // Nécessaire pour gérer l'effet de superposition
         borderRadius: '10px',
         overflow: 'hidden',
-        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.4)',
+        boxShadow: '0 8px 8px rgba(0.4, 0.4, 0.4, 0.4)',
         transition: 'transform 0.3s ease',
         '&:hover': {
           transform: 'scale(1.05)', // Légère animation de zoom au survol
         },
         marginBottom: '10px',
+        backgroundColor: '#e9dfdf1f',
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'scale(1.05)'; // Zoom léger au survol

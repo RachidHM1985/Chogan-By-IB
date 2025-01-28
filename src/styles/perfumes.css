@@ -23,7 +23,7 @@
     overflow: hidden;
     transition: transform 0.3s ease;
     cursor: pointer;
-    height: 300px; /* Fixe la hauteur des cartes */
+    height: 350px; /* Fixe la hauteur des cartes */
   }
   
   .perfume-card-inner {

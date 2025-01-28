@@ -85,7 +85,7 @@ const PerfumesPage = () => {
           
         }}
       >
-        <Typography variant="h5" gutterBottom sx={{ marginTop:'10%' }}>
+        <Typography variant="h5" gutterBottom sx={{ marginTop:'8vh' }}>
           Nos Parfums {nameCategory}
         </Typography>
 
@@ -123,7 +123,7 @@ const PerfumesPage = () => {
               flexGrow: 1,
               overflowY: 'scroll',
               height: 'calc(13vh - 280px)', // Ajuster la hauteur de la liste des parfums
-              marginTop: '5px',
+              marginTop: '5vh',
             }}
           >
             <div className="perfume-grid">

@@ -111,7 +111,7 @@ const PerfumeDetailPage = () => {
             flexGrow: 1,
             width: '100%',
             maxWidth: '100%', // Ensure the content doesn't overflow horizontally
-            paddingTop: '150px',
+            paddingTop: '100px',
           }}
         >
           {loading ? (
