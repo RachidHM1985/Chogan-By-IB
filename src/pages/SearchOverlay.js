@@ -277,8 +277,8 @@ const SearchOverlay = () => {
             backgroundColor: 'white',
             borderRadius: '8px',
             padding: '20px',
-            width: '95%',
-            height: '95%',
+            width: '100%',
+            height: '100%',
             maxHeight: '90vh',
             overflowY: 'auto',
             transition: 'transform 0.3s ease-out',
@@ -337,41 +337,40 @@ const SearchOverlay = () => {
             {loading && <CircularProgress />}
             {!loading && results.length === 0 && <Typography>Aucun résultat trouvé</Typography>}
             {results.length > 0 && !loading && (
-              <Box
-                sx={{
-                  width: '100%',
-                  flexGrow: 1,
-                  overflowY: 'scroll',
-                  height: 'calc(77vh - 50px)',
-                  marginTop: '10px',
-                }}
-              >
-                <Grid container spacing={2}>
-                  {results.map((perfume) => (
-                    <Grid item xs={12} sm={6} md={4} lg={3} key={perfume.id}>
-                      <Card
-                        sx={{
-                          flexDirection: 'row',
-                          height: '200px',
-                          borderRadius: '10px',
-                          border: '1px solid #ddd',
-                          '&:hover': { boxShadow: '0 0 15px rgba(0, 0, 0, 0.3)' },
-                          backgroundImage: `url(${perfume.image_url})`,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center',
-                          cursor: 'pointer',
-                          height: 'inherit',
-                          marginBottom: '20px',
-                        }}
-                        onClick={() => handleCardClick(perfume.id)}
-                      >
-                        <CustomCardContent perfume={perfume} getLowestPrice={getLowestPrice} />
-                      </Card>
-                    </Grid>
-                  ))}
-                </Grid>
-              </Box>
-            )}
+                <Box
+                  sx={{
+                    width: '100%',
+                    flexGrow: 1,
+                    overflowY: 'scroll',
+                    height: 'calc(77vh - 50px)',
+                    marginTop: '10px',
+                  }}
+                >
+              <Grid container spacing={2}>
+                {results.map((perfume) => (
+                  <Grid item xs={6} sm={6} md={3} lg={3} key={perfume.id}>
+                    <Card
+                      sx={{
+                        flexDirection: 'row',
+                        borderRadius: '20px',
+                        border: '1px solid #ddd',
+                        '&:hover': { boxShadow: '0 0 15px rgba(0, 0, 0, 0.3)' },
+                        backgroundImage: `url(${perfume.image_url})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        cursor: 'pointer',
+                        height: 'inherit',
+                        marginBottom: '20px',
+                      }}
+                      onClick={() => handleCardClick(perfume.id)}
+                    >
+                      <CustomCardContent perfume={perfume} getLowestPrice={getLowestPrice} />
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
+          )}
           </div>
         </Box>        
       </Modal>
