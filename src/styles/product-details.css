@@ -61,13 +61,14 @@
   /* Responsive design pour les écrans mobiles */
   @media (max-width: 768px) {
     .product-details-content {
-      width: 85%;
-      height: 85%;
+      width: 100%;
+      height: 75%;
+      overflow: hidden;
     }
   
     .product-details-image {
       max-width: 80%;
-      margin-bottom: 20px;
+      height: auto;
     }
   
     .product-details-info {

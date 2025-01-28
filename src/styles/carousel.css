@@ -33,6 +33,7 @@
 
 /* Carrousel manuel ajusté pour ne pas chevaucher le carrousel automatique */
 .manual-carousel-container {
+  border-radius: 0 10px;
   position: relative; /* Remplacer le positionnement fixe */
   z-index: 999;
   margin-top: 20px;

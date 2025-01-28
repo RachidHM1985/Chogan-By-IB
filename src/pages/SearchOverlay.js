@@ -24,12 +24,11 @@ const SearchOverlay = () => {
   const detailsRef = useRef(null);
   const [focusedCard, setFocusedCard] = useState(null);
   const { addToCart } = useCart(); // Use Cart Context
-  const router = useRouter(); // Initialiser le hook router
+  const router = useRouter(); // Initialiser le hook router  
 
   const hideOnPages = ['/about', '/BecomeConsultant']; // Définir les pages où l'élément ne doit pas apparaître
   const shouldHide = hideOnPages.includes(router.pathname); // Vérifier si on est sur une page à exclure
 
-  
   // Fonction de recherche
   const searchProducts = async (searchQuery) => {
     setLoading(true);
@@ -86,7 +85,6 @@ const SearchOverlay = () => {
       fetchRandomPerfumes();
     }
   };
-  
 
   const handleCardClick = (perfume) => {
     setSelectedPerfume(perfume);
@@ -154,7 +152,7 @@ const SearchOverlay = () => {
   };
 
   const getLowestPrice = (perfume) => {
-    const prices = [perfume.prix_15ml, perfume.prix_30ml, perfume.prix_50ml, perfume.prix_70ml].filter(price => price !== null);
+    const prices = [perfume.prix_30ml, perfume.prix_50ml, perfume.prix_70ml].filter(price => price !== null);
     const lowestPrice = Math.min(...prices);
     return lowestPrice.toFixed(2);
   };
@@ -175,28 +173,33 @@ const SearchOverlay = () => {
     setOpen(false);       // Ferme la modal
   };
 
+  
+  const closeModal = () => {
+    setOpen(false);  // Cela ferme la modal
+    setSelectedPerfume(null); // Réinitialiser la sélection du produit lorsqu'on ferme la modal
+  };
+
   useEffect(() => {
+    // Fonction pour détecter les clics à l'extérieur de la section
     const handleClickOutside = (event) => {
       if (detailsRef.current && !detailsRef.current.contains(event.target)) {
-        handleCloseCard();
-        handleCloseSearch()
+        setSelectedPerfume(null); // Fermer les détails du produit
+        setOpen(true); // Réouvrir la modal de recherche
       }
     };
 
+    // Ajouter l'événement au document
     document.addEventListener('mousedown', handleClickOutside);
+
+    // Nettoyage de l'écouteur d'événement
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [detailsRef]);
-
-  const closeModal = () => {
-    setOpen(false);  // Cela ferme la modal
-  };
-
+  }, []); // L'effet se lance une seule fois au montage
  
   return(
     <div style={{ width: '100%' }}>
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>      
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>      
     <Container>
     {!shouldHide && (
       <div
@@ -205,17 +208,18 @@ const SearchOverlay = () => {
         style={{
           placeholder:"Que cherchez-vous",
           borderRadius: '8px',
-          justifyContent: 'center',
           alignItems: 'center',
-          width: focus ? '60%' : '100%',
+          width: focus ? '60%' : '250px',
           height: '40px',
           backgroundColor: '#f0f0f0',
           border: '1px solid #000',
           boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
           cursor: 'pointer',
           transition: 'all 0.3s ease',
-          alignContent: 'end',
-        }}
+          position: 'fixed',
+          left: '50%',        
+          transform: 'translate(-50%)', 
+        }}       
       >
         <Col xs="auto">
           <IconButton
@@ -227,6 +231,9 @@ const SearchOverlay = () => {
           >
             <SearchIcon />
           </IconButton>
+          {!focus && (
+        <span style={{ color: '#999', fontStyle: 'italic' }}>Que cherchez-vous</span>
+      )}
         </Col>
         {focus && (
         <Autocomplete
@@ -241,7 +248,7 @@ const SearchOverlay = () => {
               placeholder="Que cherchez-vous"
               size="small"
               sx={{
-                width: focus ? '60%' : '100%', // Ajuste la largeur du champ en fonction du focus
+                width: focus ? '100%' : '100%', // Ajuste la largeur du champ en fonction du focus
                 marginBottom: '15px',
                 backgroundColor: 'white',
               }}
@@ -259,10 +266,9 @@ const SearchOverlay = () => {
         )}
       </div>)}
     </Container>
-  </div>
-
+    </div>
       <Modal open={open} onClose={toggleOverlay} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <div
+      <Box
           style={{
             backgroundColor: 'white',
             borderRadius: '8px',
@@ -271,15 +277,15 @@ const SearchOverlay = () => {
             height: '95%',
             maxHeight: '90vh',
             overflowY: 'auto',
-            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+            transition: 'transform 0.3s ease-out',
+            transform: open ? 'scale(1)' : 'scale(0.5)',
           }}
         >  {/* Icône de fermeture en haut à droite */}
         <IconButton
           onClick={closeModal}  // Appel de la fonction closeModal pour fermer la modal
           edge="end"
           sx={{
-            position: 'absolute', // Positionner absolument
-            top: '5%', // Espacement du haut
+            position: 'fixed', // Positionner absolument
             right: '5%', // Espacement de la droite
             '&:hover': {
               backgroundColor: '#e0e0e0',
@@ -291,7 +297,7 @@ const SearchOverlay = () => {
     
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Grid container justifyContent="center" alignItems="center" sx={{ paddingTop: '5px' }}>
-              <form onSubmit={handleSearchSubmit} style={{ width: '60%' }}>
+              <form onSubmit={handleSearchSubmit} style={{ width: '80%' }}>
                 <Autocomplete
                   value={searchQuery}
                   onInputChange={(_, newInputValue) => setSearchQuery(newInputValue)} // Handle input change correctly
@@ -384,7 +390,7 @@ const SearchOverlay = () => {
                     <Typography variant="h5">{selectedPerfume.nom_marque}</Typography>
                     <Typography variant="body1">Réf: {selectedPerfume.code}</Typography>
                     <Typography variant="body1">Choisissez une contenance :</Typography>
-                    <div className="size-selection" style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '10px' }}>
+                    <div className="size-selection" style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '0' }}>
                       {selectedPerfume.prix_30ml && (
                         <div className="d-flex flex-column align-items-start mb-2">
                           <div className="form-check">
@@ -398,7 +404,7 @@ const SearchOverlay = () => {
                               checked={selectedSizes[selectedPerfume.id]?.['30ml'] || false}
                             />
                             <label className="form-check-label" htmlFor={`size-30ml-${selectedPerfume.id}`}>
-                              30ml - {selectedPerfume.prix_70ml.toFixed(2)}€
+                              30ml - {selectedPerfume.prix_30ml.toFixed(2)}€
                             </label>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -441,7 +447,7 @@ const SearchOverlay = () => {
                         </div>
                       )}
                       {selectedPerfume.prix_50ml && (
-                        <div className="d-flex flex-column align-items-start mb-2">
+                        <div className="d-flex flex-column mb-2"  style={{ display: 'flex', alignItems: 'center'}}>
                           <div className="form-check">
                             <input
                               className="form-check-input"
@@ -453,7 +459,7 @@ const SearchOverlay = () => {
                               checked={selectedSizes[selectedPerfume.id]?.['50ml'] || false}
                             />
                             <label className="form-check-label" htmlFor={`size-50ml-${selectedPerfume.id}`}>
-                              70ml - {selectedPerfume.prix_50ml.toFixed(2)}€
+                              50ml - {selectedPerfume.prix_50ml.toFixed(2)}€
                             </label>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -471,7 +477,7 @@ const SearchOverlay = () => {
                           <TextField
                             type="number"
                             value={quantities[selectedPerfume.id]?.['50ml'] || 1}
-                            onChange={(e) => updateQuantity(selectedPerfume.id, '70ml', Math.max(Number(e.target.value), 1))} // Empêcher les valeurs inférieures à 1
+                            onChange={(e) => updateQuantity(selectedPerfume.id, '50ml', Math.max(Number(e.target.value), 1))} // Empêcher les valeurs inférieures à 1
                             inputProps={{ min: 1 }}
                             sx={{
                               marginRight: 0,
@@ -580,7 +586,7 @@ const SearchOverlay = () => {
             {tooltipMessage}
           </div>
         )}
-        </div>        
+        </Box>        
       </Modal>
     </div>
   );

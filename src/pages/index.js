@@ -87,21 +87,15 @@ export default function Home() {
         <Grid container justifyContent="center">
           <Grid item xs={12} sm={8} md={6}>
             <Box sx={{ justifyContent: 'center', alignItems: 'center', height: 'auto' }}>
-              <Slider {...autoCarouselSettings}>
-                {promoImages.map((image, index) => (
-                  <div key={index}>
-                    <img
-                      src={image}
-                      alt={`Promo ${index}`}
-                      style={{
-                        width: '100%', // Remplir toute la largeur du conteneur
-                        height: 'auto', // Hauteur automatique en fonction de la largeur
-                        objectFit: 'cover', // L'image couvre la zone sans déformer l'image
-                        objectPosition: 'center',
-                      }}
-                      className="promo-image"
-                    />
-                  </div>
+              <Slider {...autoCarouselSettings}>              
+                  {promoImages.map((image, index) => (
+                    <div key={index}>
+                      <img
+                        src={image}
+                        alt={`Promo ${index}`}
+                        style={{ width: '100%', height: 'auto', objectFit: 'cover', borderRadius: '10px' }}
+                      />
+                    </div>                 
                 ))}
               </Slider>
             </Box>
@@ -140,10 +134,10 @@ export default function Home() {
                       src={image}
                       alt={`Image ${index}`}
                       style={{
+                        borderRadius:'30px',
                         width: '100%', // L'image prend toute la largeur du conteneur
                         height: '100%', // Hauteur ajustée
                         objectFit: 'cover', // Maintient l'aspect des images
-                        borderRadius: '10px',
                         paddingLeft: '11px', // Espacement entre les images
                         paddingRight: '12px',
                       }}

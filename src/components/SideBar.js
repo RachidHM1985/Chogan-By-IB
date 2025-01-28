@@ -31,7 +31,7 @@ const Sidebar = ({ onCategorySelect = () => { } }) => {
               <ListItem button onClick={() => handleCategorySelect('Femme')}>
                 <ListItemText primary="Femme" sx={{ textAlign: 'center', fontFamily: 'Courier New, monospace' }} />
               </ListItem>
-              <ListItem button onClick={() => handleCategorySelect('Unisexe')}>
+              <ListItem button onClick={() => handleCategorySelect('Unisex')}>
                 <ListItemText primary="Unisexe" sx={{ textAlign: 'center', fontFamily: 'Courier New, monospace' }} />
               </ListItem>
               <ListItem button onClick={() => handleCategorySelect('Luxe')}>

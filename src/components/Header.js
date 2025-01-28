@@ -235,7 +235,7 @@ const Header = () => {
             </IconButton>
           </Grid>
 
-          <Grid item xs={6} sm={4} md={2} sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center', paddingTop: isAboutPage || isBecomeConsultantPage ? '10px' : '50px' }}>
+          <Grid item xs={6} sm={4} md={2} sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center', paddingTop:'10px' }}>
             <Link href="/" passHref>
               <IconButton edge="start" color="inherit" aria-label="logo">
                 <Image
