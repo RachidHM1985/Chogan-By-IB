@@ -122,8 +122,9 @@ const PerfumeDetailPage = () => {
             perfume && (
               <Row className="d-flex justify-content-center align-items-center" style={{ width: '100%' }}>
                 <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">
+                <Typography variant="body1" align="center">Inspiré de :</Typography>
                 <Typography variant="h5" align="center">{perfume.nom_produit}</Typography>
-                  <Typography variant="h6" align="center">{perfume.nom_marque}</Typography>
+                 <Typography variant="h6" align="center">{perfume.nom_marque}</Typography>
                   <img
                     src={`../../photos/products/${perfume.genre.toLowerCase()}.png`}
                     alt={perfume.nom_produit}
