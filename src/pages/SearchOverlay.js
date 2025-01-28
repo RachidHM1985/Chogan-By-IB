@@ -386,7 +386,7 @@ const SearchOverlay = () => {
         <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">
           <div className="product-details-info">
             <Typography variant="h6" align="center">Inspiré de</Typography>
-            <Typography variant="h4" align="center">{selectedPerfume.nom_produit}</Typography>
+            <Typography variant="h5" align="center">{selectedPerfume.nom_produit}</Typography>
             <Typography variant="h5" align="center">{selectedPerfume.nom_marque}</Typography>
             <Typography variant="body1" align="center">Réf: {selectedPerfume.code}</Typography>
             <Typography variant="body1" align="center">Choisissez une contenance :</Typography>

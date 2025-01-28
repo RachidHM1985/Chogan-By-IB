@@ -60,12 +60,12 @@
   @media (max-width: 768px) {
     .product-details-content {
       width: 100%;
-      height: 80%;
+      height: 90%;
       overflow: hidden;
     }
   
     .product-details-image {
-      max-width: 80%;
+      max-width: 70%;
       height: "250px";
     }
   
