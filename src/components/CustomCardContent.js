@@ -7,16 +7,21 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
     <CardContent
       className="custom-card-content p-3 d-flex flex-column position-relative"
       sx={{
-        position: 'relative', // Nécessaire pour gérer l'effet de superposition
-        borderRadius: '10px',
+        position: 'relative',
+        borderRadius: '15px', // Bordures arrondies de la carte
         overflow: 'hidden',
-        boxShadow: '0 8px 8px rgba(0.4, 0.4, 0.4, 0.4)',
+        boxShadow: '0 6px 8px rgba(0, 0, 0, 0.3)', // Ombre avec un léger flou
         transition: 'transform 0.3s ease',
         '&:hover': {
-          transform: 'scale(1.05)', // Légère animation de zoom au survol
+          transform: 'scale(1.05)', // Zoom au survol
+          boxShadow: '0 16px 30px rgba(0, 0, 0, 0.4)', // Ombre plus forte au survol
         },
-        marginBottom: '10px',
         backgroundColor: '#e9dfdf1f',
+        border: '2px solid rgba(0, 0, 0, 0.1)', // Bordure fine pour délimiter la carte
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'scale(1.05)'; // Zoom léger au survol
@@ -57,9 +62,9 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
 <Typography
           variant="body2"
           sx={{
-            fontSize: '0.9rem',
+            fontSize: '0.7rem',
             opacity: 0.7,
-            marginBottom: '6px', // Espacement réduit
+            marginBottom: '2px', // Espacement réduit
           }}
         >
          Inspiré de : 
@@ -70,11 +75,11 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
       {/* Card Content Section */}
       <Box
         sx={{
-          padding: '10px',
+          padding: '5px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          height: '130px', // Garder la hauteur fixe pour la structure
+          height: '150px', // Garder la hauteur fixe pour la structure
           textAlign: 'left', // Alignement à gauche pour les informations
         }}
       >
@@ -84,9 +89,9 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
           sx={{
             fontFamily: '"Netto Pro Bold', // Police moderne et classe
             fontWeight: '600',
-            fontSize: '1.1rem',
+            fontSize: '0.8rem',
             textTransform: 'capitalize',
-            marginBottom: '8px', // Un peu plus d'espace en bas
+            marginBottom: '4px', // Un peu plus d'espace en bas
             whiteSpace: 'normal',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -99,10 +104,10 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
         <Typography
           variant="body2"
           sx={{
-            fontSize: '1rem',
+            fontSize: '0.8rem',
             fontWeight: '400',
             opacity: 0.8,
-            marginBottom: '6px', // Espacement réduit
+            marginBottom: '4px', // Espacement réduit
             whiteSpace: 'normal',
             overflow: 'hidden',
             textOverflow: 'ellipsis',

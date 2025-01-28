@@ -85,7 +85,7 @@ const PerfumesPage = () => {
           
         }}
       >
-        <Typography variant="h5" gutterBottom sx={{ marginTop:'8vh' }}>
+        <Typography variant="h5" gutterBottom sx={{ marginTop:'10vh' }}>
           Nos Parfums {nameCategory}
         </Typography>
 
