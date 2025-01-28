@@ -52,6 +52,10 @@ const SearchOverlay = () => {
     }
   };
   
+  const handleCardClick = (perfumeId) => {
+    router.push(`/perfume/${perfumeId}`); // Navigue vers la page de détails du parfum
+  };
+  
   const fetchRandomPerfumes = async () => {
     setLoading(true);
     try {
@@ -84,10 +88,6 @@ const SearchOverlay = () => {
     }else {
       fetchRandomPerfumes();
     }
-  };
-
-  const handleCardClick = (perfume) => {
-    setSelectedPerfume(perfume);
   };
 
   const handleCloseCard = () => {
@@ -359,7 +359,7 @@ const SearchOverlay = () => {
                           height: 'inherit',
                           marginBottom: '20px',
                         }}
-                        onClick={() => handleCardClick(perfume)}
+                        onClick={() => handleCardClick(perfume.id)}
                       >
                         <CustomCardContent perfume={perfume} getLowestPrice={getLowestPrice} />
                       </Card>
