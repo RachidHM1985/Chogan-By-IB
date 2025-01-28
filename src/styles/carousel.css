@@ -37,7 +37,7 @@
   position: relative; /* Remplacer le positionnement fixe */
   z-index: 999;
   margin-top: 20px;
-  margin-bottom: 10vh; /* Ajoutez de l'espace en bas pour éviter les chevauchements */
+  margin-bottom: 5vh; /* Ajoutez de l'espace en bas pour éviter les chevauchements */
 }
 
 /* Pour les écrans mobiles (moins de 768px) */
@@ -88,12 +88,7 @@
       height: 20vh; /* Réduit encore la hauteur pour les petits écrans */
     }
   }
-  
-  /* Style du carrousel manuel */
-  .manual-carousel-container {
-    margin-top: 20px; /* Default margin */
-  }
-  
+   
   @media (max-width: 768px) {
     .manual-carousel-container {
       margin-top: 10px; /* Réduit la marge pour les écrans mobiles */

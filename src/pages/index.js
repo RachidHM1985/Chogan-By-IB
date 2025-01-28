@@ -83,7 +83,7 @@ export default function Home() {
       <Header />
 
       {/* Carrousel automatique pour les images promotionnelles */}
-      <Box sx={{ marginBottom: '20px', marginLeft:'5%', marginRight:'5%', }}>
+      <Box sx={{ marginBottom: '5px', marginLeft:'5%', marginRight:'5%', }}>
         <Grid container justifyContent="center">
           <Grid item xs={12} sm={8} md={6}>
             <Box sx={{ justifyContent: 'center', alignItems: 'center', height: 'auto' }}>
@@ -108,7 +108,7 @@ export default function Home() {
         <Grid container justifyContent="center">
           <Grid item xs={12} sm={10} md={8}>
             {/* Titre "Nos Marques" */}
-            <Box sx={{ textAlign: 'center', marginBottom: '20px' }}>
+            <Box sx={{ textAlign: 'center', marginBottom: '5px' }}>
               <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#000' }}>
                 Nos Marques
               </Typography>
@@ -124,7 +124,7 @@ export default function Home() {
               alignItems: 'center',
               height: '250px', // Hauteur de la Box ajustée
               overflow: 'hidden', // Masque les excédents
-              marginBottom: '20px', // Espacement sous le carrousel manuel
+              marginBottom: '5px', // Espacement sous le carrousel manuel
               textAlign: 'center', // Centrer le contenu à l'intérieur de la box
             }}>
               <Slider {...manualCarouselSettings}>

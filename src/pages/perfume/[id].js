@@ -130,7 +130,7 @@ const PerfumeDetailPage = () => {
                 <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">
                 <Typography variant="body1" align="center">Inspiré de :</Typography>
                 <Typography variant="h6" align="center" >{capitalizeFirstLetter(perfume.nom_produit)}</Typography>
-                 <Typography variant="h6" align="center">{capitalizeFirstLetter(perfume.nom_marque)}</Typography>
+                 <Typography variant="h6" align="center">{perfume.nom_marque}</Typography>
                   <img
                     src={`../../photos/products/${perfume.genre.toLowerCase()}.png`}
                     alt={perfume.nom_produit}
