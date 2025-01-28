@@ -78,12 +78,12 @@ export default function Home() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%',paddingTop: '17vh'}}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%',  top: '17vh',  position:'relative'}}>
       {/* Affichage du Header */}
       <Header />
 
       {/* Carrousel automatique pour les images promotionnelles */}
-      <Box sx={{ marginBottom: '20px', marginLeft:'5%', marginRight:'5%' }}>
+      <Box sx={{ marginBottom: '20px', marginLeft:'5%', marginRight:'5%', }}>
         <Grid container justifyContent="center">
           <Grid item xs={12} sm={8} md={6}>
             <Box sx={{ justifyContent: 'center', alignItems: 'center', height: 'auto' }}>
