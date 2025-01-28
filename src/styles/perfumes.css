@@ -1,0 +1,61 @@
+.perfume-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 cartes sur mobile */
+    gap: 16px; /* Espacement entre les cartes */
+  }
+  
+  .perfume-grid::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Masquer la barre de défilement dans Firefox */
+  .perfume-grid {
+    scrollbar-width: none; /* Firefox */
+  }
+  
+  /* Masquer la barre de défilement dans IE et Edge */
+  .perfume-grid {
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+  }
+  
+  .perfume-card {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+    height: 300px; /* Fixe la hauteur des cartes */
+  }
+  
+  .perfume-card-inner {
+    position: relative;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .perfume-card-content {
+    background-size: cover;
+    background-position: center;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.3s ease;
+  }
+  
+  .perfume-card:hover {
+    transform: translateY(-10px);
+  }
+  
+  .perfume-card-content:hover {
+    transform: scale(1.05);
+  }
+  
+  /* Effet de zoom sur les cartes au survol */
+  @media (min-width: 768px) {
+    .perfume-grid {
+      grid-template-columns: repeat(4, 1fr); /* 4 cartes sur écran PC */
+    }
+  }

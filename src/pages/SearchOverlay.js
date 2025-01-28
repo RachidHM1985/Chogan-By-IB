@@ -26,8 +26,11 @@ const SearchOverlay = () => {
   const { addToCart } = useCart(); // Use Cart Context
   const router = useRouter(); // Initialiser le hook router  
 
-  const hideOnPages = ['/about', '/BecomeConsultant', '/perfume/[id]']; // Définir les pages où l'élément ne doit pas apparaître
-  const shouldHide = hideOnPages.includes(router.pathname); // Vérifier si on est sur une page à exclure
+  const hideOnPages = ['/about', '/BecomeConsultant', '/perfume', '/perfume/[id]'];
+  const shouldHideOnPages = hideOnPages.includes(router.pathname);
+  const { category } = router.query;
+  const shouldHideForCategory = category !== undefined;
+  const shouldHide = shouldHideOnPages || shouldHideForCategory;
 
   // Fonction de recherche
   const searchProducts = async (searchQuery) => {

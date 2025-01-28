@@ -121,7 +121,9 @@ const PerfumeDetailPage = () => {
           ) : (
             perfume && (
               <Row className="d-flex justify-content-center align-items-center" style={{ width: '100%' }}>
-                <Col xs={12} md={6} className="d-flex justify-content-center">
+                <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">
+                <Typography variant="h5" align="center">{perfume.nom_produit}</Typography>
+                  <Typography variant="h6" align="center">{perfume.nom_marque}</Typography>
                   <img
                     src={`../../photos/products/${perfume.genre.toLowerCase()}.png`}
                     alt={perfume.nom_produit}
@@ -133,15 +135,12 @@ const PerfumeDetailPage = () => {
                     }}
                   />
                 </Col>
-                <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">
-                  <Typography variant="h5" align="center">{perfume.nom_produit}</Typography>
-                  <Typography variant="h6" align="center">{perfume.nom_marque}</Typography>
+                <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">                  
                   <Typography variant="body1" align="center">Réf: {perfume.code}</Typography>
                   <Typography variant="body1" align="center" sx={{ marginTop: '20px' }}>
                     Choisissez une contenance :
                   </Typography>
-
-                  <div className="size-selection" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                  <div className="size-selection" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px' }}>
                     {['30ml', '50ml', '70ml'].map((size) => perfume[`prix_${size}`] && (
                       <div key={size} className="d-flex flex-column align-items-center mb-2">
                         <div className="form-check" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
