@@ -173,7 +173,7 @@ export default function Home() {
       </Box>
 
       {/* Section des Avis Clients */}
-      <Box sx={{ marginTop: '40px', backgroundColor: '#f8f8f8', padding: '40px 20px' }}>
+      <Box sx={{ marginTop: '40px', backgroundColor: '#f8f8f8', padding: '5px 5px' }}>
         <ReviewsSection productId={'*'} isInsertComment={false} />
       </Box>
       {/* Footer */}

@@ -24,6 +24,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import SearchOverlay from '../pages/SearchOverlay';
+import SearchIcon from '@mui/icons-material/Search';  // Correct import path
 import Sidebar from './SideBar';
 import { useCart } from '../context/CartContext';
 import { loadStripe } from '@stripe/stripe-js';     
@@ -47,10 +48,10 @@ const Header = () => {
   const router = useRouter();
   const { getTotalQuantity, cartItems, removeFromCart, totalPrice } = useCart();
   const [quantities, setQuantities] = useState({});
+  const [openSearch, setOpenSearch] = useState(false); // Updated state for search modal
 
-  const isAboutPage = router.pathname === '/about';
-  const isBecomeConsultantPage = router.pathname === '/BecomeConsultant';
-
+  const handleOpenSearch = () => setOpenSearch(true); // Open Search Overlay
+  const handleCloseSearch = () => setOpenSearch(false);
 
   const toggleSidebar = () => {
     setOpenSidebar(!openSidebar);
@@ -209,6 +210,10 @@ const Header = () => {
     };
   }, [router.events]);
 
+  const handleSearchIconClick = () => {
+    setOpenSearchOverlay(true);
+  };
+
   return (
     <AppBar
       position="fixed"
@@ -235,7 +240,7 @@ const Header = () => {
             </IconButton>
           </Grid>
 
-          <Grid item xs={6} sm={4} md={2} sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center', paddingTop:'10px' }}>
+          <Grid item xs={6} sm={4} md={2} sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'row', alignItems: 'center', paddingTop:'10px' }}>
             <Link href="/" passHref>
               <IconButton edge="start" color="inherit" aria-label="logo">
                 <Image
@@ -246,8 +251,12 @@ const Header = () => {
                 />
               </IconButton>
             </Link>
-            <SearchOverlay />
+            <IconButton color="inherit" onClick={handleOpenSearch}>
+              <SearchIcon sx={{ color: 'black' }} />
+            </IconButton>
           </Grid>
+         
+     
 
           <Grid item xs={2} sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingRight: '20px' }}>
             <IconButton color="inherit" sx={{ color: 'black' }} onClick={handleOpenCart}>
@@ -266,26 +275,29 @@ const Header = () => {
       >
         <Sidebar />
       </Drawer>
-      <Dialog 
-  open={openCart} 
-  onClose={handleCloseCart}   
-  maxWidth="none" 
-  fullWidth
-  sx={{
-    '& .MuiDialog-paper': {
-      width: '95%',   // Largeur à 90% de l'écran
-      maxWidth: 'none', // Empêche la limite de largeur maximale par défaut
-      margin: 'auto', // Centre la modal horizontalement et verticalement
-    },
-  }}
->
-  <DialogTitle>Récapitulatif de votre panier</DialogTitle>
-  <DialogContent sx={{ overflowY: 'auto' }}>
-    {cartItems.length === 0 ? (
-      <Typography variant="h6" align="center">Votre panier est vide.</Typography>
-    ) : (
-      <>
-        {cartItems.map((item, index) => (
+        
+        {/* Search Overlay */}
+        {openSearch && <SearchOverlay open={openSearch} onClose={handleCloseSearch} />}     
+        <Dialog 
+          open={openCart} 
+          onClose={handleCloseCart}   
+          maxWidth="none" 
+          fullWidth
+          sx={{
+            '& .MuiDialog-paper': {
+              width: '95%',   // Largeur à 90% de l'écran
+              maxWidth: 'none', // Empêche la limite de largeur maximale par défaut
+              margin: 'auto', // Centre la modal horizontalement et verticalement
+            },
+          }}
+        >
+          <DialogTitle>Récapitulatif de votre panier</DialogTitle>
+          <DialogContent sx={{ overflowY: 'auto' }}>
+            {cartItems.length === 0 ? (
+              <Typography variant="h6" align="center">Votre panier est vide.</Typography>
+            ) : (
+              <>
+                {cartItems.map((item, index) => (
           <Grid container key={index} spacing={2} sx={{ marginBottom: 2, paddingBottom: 2, borderBottom: '1px solid #ddd' }}>
             {/* Informations sur le produit */}
             <Grid item xs={12} sm={8} md={9} sx={{ display: 'flex', flexDirection: 'column' }}>
