@@ -24,7 +24,7 @@ const ReviewsSection = ({ productId, isInsertComment }) => {
       let query = supabase
         .from('avis')
         .select('*')
-        .gt('rating', filterRating)  // Filter by rating
+        .gte('rating', filterRating)  // Filter by rating
         .order('created_at', { ascending: false });  // Sort by date (latest first)
 
       // If isInsertComment is false, get reviews for all products

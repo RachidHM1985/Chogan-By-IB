@@ -31,6 +31,7 @@ function MyApp({ Component, pageProps }) {
       <CartProvider>
       <Component {...pageProps} />
     </CartProvider>
+    <Analytics />
     </>
   );
 }
