@@ -134,9 +134,22 @@ const PerfumeDetailPage = () => {
                 <>
                   <Row className="d-flex justify-content-center align-items-center" style={{ width: '100%' }}>
                     <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">
-                      <Typography variant="body1" align="center">Inspiré de :</Typography>
-                      <Typography variant="h6" align="center">{capitalizeFirstLetter(perfume.nom_produit)}</Typography>
-                      <Typography variant="h6" align="center">{perfume.nom_marque}</Typography>
+                      <Typography
+                                variant="h6"
+                                sx={{
+                                  fontFamily: 'Noto Sans', // Police moderne et classe
+                                  fontWeight: '600',
+                                  fontSize: '1.2rem',
+                                  textTransform: 'capitalize',
+                                  marginBottom: '4px', // Un peu plus d'espace en bas
+                                  whiteSpace: 'normal',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                }}
+                              >
+                                 PARFUM N°{perfume.code}
+                              </Typography>
+                     
                       <img
                         src={`../../photos/products/${perfume.genre.toLowerCase()}.png`}
                         alt={perfume.nom_produit}
@@ -150,7 +163,16 @@ const PerfumeDetailPage = () => {
                       />
                     </Col>
                     <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">
-                      <Typography variant="body1" align="center">Réf: {perfume.code}</Typography>
+                     <Typography
+                             variant="body2"
+                             sx={{
+                               fontSize: '0.7rem',
+                               opacity: 0.7,
+                               marginBottom: '2px', // Espacement réduit
+                             }}
+                            >
+                             Inspiré de : {capitalizeFirstLetter(perfume.nom_produit)} -  {perfume.nom_marque}
+                            </Typography>
                       <Typography variant="body1" align="center">
                         Choisissez une contenance :
                       </Typography>
