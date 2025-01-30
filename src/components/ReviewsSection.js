@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Rating, TextField, Button, Select, MenuItem, Pagination } from '@mui/material';
+import { Box, Typography, Rating, TextField, Button, Select, MenuItem, Pagination, Tooltip } from '@mui/material';
 import { supabase } from '../supabaseClient';
 
 const ReviewsSection = ({ productId, isInsertComment }) => {
@@ -12,28 +12,30 @@ const ReviewsSection = ({ productId, isInsertComment }) => {
   const [filterRating, setFilterRating] = useState(0); // For filter rating
   const [page, setPage] = useState(1); // Pagination state
   const [reviewsPerPage, setReviewsPerPage] = useState(3); // Number of reviews to display per page
+  const [showSuccessTooltip, setShowSuccessTooltip] = useState(false); // State to control success tooltip visibility
+  const [reviewsUpdated, setReviewsUpdated] = useState(false); // State to trigger re-fetch after posting a review
 
-  // Fetch reviews from Supabase when the component mounts or when filterRating or productId changes
+  // Fetch reviews from Supabase when the component mounts or when filterRating, productId, or reviewsUpdated changes
   useEffect(() => {
     const fetchReviews = async () => {
       setLoading(true);
 
-      // Créer la base de la requête
+      // Create the base query
       let query = supabase
         .from('avis')
         .select('*')
-        .gt('rating', filterRating)  // Filtrer par note
-        .order('created_at', { ascending: false });  // Trier par date (le plus récent en premier)
+        .gt('rating', filterRating)  // Filter by rating
+        .order('created_at', { ascending: false });  // Sort by date (latest first)
 
-      // Si isInsertComment est false, récupérez les avis de tous les produits
+      // If isInsertComment is false, get reviews for all products
       if (!isInsertComment) {
-        query = query;  // Pas de changement dans la requête
+        query = query;  // No change in query
       } else {
-        // Si isInsertComment est true, on filtre par produit
-        query = query.eq('product_id', productId);  // Filtrer par product_id spécifique
+        // If isInsertComment is true, filter by product_id
+        query = query.eq('product_id', productId);  // Filter by product_id
       }
 
-      // Exécution de la requête
+      // Execute the query
       const { data, error } = await query;
 
       if (error) {
@@ -47,7 +49,7 @@ const ReviewsSection = ({ productId, isInsertComment }) => {
     };
 
     fetchReviews();
-  }, [productId, filterRating, isInsertComment]); // Re-fetch reviews when productId, filterRating, or isInsertComment changes
+  }, [productId, filterRating, reviewsUpdated, isInsertComment]); // Re-fetch reviews when dependencies change
 
   const handlePostReview = async () => {
     if (rating === 0 || !reviewText || !userName) {
@@ -73,11 +75,19 @@ const ReviewsSection = ({ productId, isInsertComment }) => {
       setError('Erreur lors de l\'envoi de votre avis.');
     } else {
       setError('');
-      // Re-fetch reviews after posting a new one
-      fetchReviews();
+      // Trigger re-fetch by updating the reviewsUpdated state
+      setReviewsUpdated(prev => !prev);  // Toggle the state to trigger re-fetch
       setRating(0);
       setReviewText('');
       setUserName('');
+      
+      // Show success tooltip after successful submission
+      setShowSuccessTooltip(true);
+      
+      // Hide the tooltip after a short duration
+      setTimeout(() => {
+        setShowSuccessTooltip(false);
+      }, 3000); // Tooltip will disappear after 3 seconds
     }
   };
 
@@ -167,6 +177,21 @@ const ReviewsSection = ({ productId, isInsertComment }) => {
                 fullWidth
                 sx={{ marginBottom: '20px' }}
               />
+              <Tooltip
+                title="Avis envoyé avec succès !"
+                open={showSuccessTooltip}
+                arrow
+                placement="top"
+                sx={{
+                  position: 'absolute',
+                  top: '90%',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  zIndex: 1300,
+                }}
+              >
+                <span></span> {/* Empty span for the tooltip */}
+              </Tooltip>
               <Button
                 variant="contained"
                 color="primary"

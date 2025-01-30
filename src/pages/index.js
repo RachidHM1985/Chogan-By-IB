@@ -6,6 +6,7 @@ import 'slick-carousel/slick/slick-theme.css';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import ReviewsSection from '../components/ReviewsSection';
+import { Analytics } from "@vercel/analytics/react"
 
 export default function Home() {
   const [isClient, setIsClient] = useState(false);
