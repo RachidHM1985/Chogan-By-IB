@@ -26,15 +26,14 @@ const About = () => {
   }, []);
 
   return (
-    <>
-      <Header />
+          <>
+      <Header />  {/* Ajout de l'entête avec le logo et la navigation */}
       <Container maxWidth="lg" className={styles.container}>
-
+        {/* Section Hero avec un titre et une description */}
         <Box mb={4} className={styles.heroSection}>
           <Typography
             variant="h3"
             align="center"
-            className={`${styles.sectionTitle} ${isVisible ? styles.fadeIn : ''}`}
           >
             À propos de Chogan
           </Typography>
@@ -69,6 +68,7 @@ const About = () => {
           </Grid>
         </Grid>
 
+        {/* Section des raisons de rejoindre Chogan */}
         <Box my={5}>
           <Typography variant="h5" className={`${styles.sectionTitle} ${isVisible ? styles.fadeIn : ''}`}>
             Pourquoi Chogan ?
@@ -95,6 +95,7 @@ const About = () => {
           </Grid>
         </Box>
 
+        {/* Section Vision */}
         <Box my={5} className={`${styles.visionBox} ${isVisible ? styles.fadeIn : ''}`}>
           <Typography variant="h5" className={styles.sectionTitle}>
             Notre Vision
@@ -104,6 +105,7 @@ const About = () => {
           </Typography>
         </Box>
 
+        {/* Section Rejoindre Chogan */}
         <Box my={5}>
           <Typography variant="h5" className={`${styles.sectionTitle} ${isVisible ? styles.fadeIn : ''}`}>
             Rejoignez-nous et Changez de Vie
