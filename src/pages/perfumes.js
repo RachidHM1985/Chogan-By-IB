@@ -112,7 +112,7 @@ const PerfumesPage = () => {
                 Error: {error}
               </Typography>
             ) : (
-              <div className="perfume-grid" style={{ display: 'grid', gap: '20px' }}>
+              <div className="perfume-grid" style={{ display: 'grid', gap: '10px' }}>
                 {perfumes.map((perfume) => (
                   <Card
                     sx={{
