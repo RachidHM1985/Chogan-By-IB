@@ -75,7 +75,7 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          height: '150px', // Garder la hauteur fixe pour la structure
+          height: '200px', // Garder la hauteur fixe pour la structure
           textAlign: 'left', // Alignement à gauche pour les informations
         }}
       >

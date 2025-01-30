@@ -76,7 +76,6 @@ const PerfumesPage = () => {
       <Container
         fluid
         sx={{         
-          height: '80vh', // Fixe la hauteur de la page
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center', // Centrer tout le contenu verticalement
@@ -122,7 +121,6 @@ const PerfumesPage = () => {
               width: '100%',
               flexGrow: 1,
               overflowY: 'scroll',
-              height: 'calc(15vh - 300px)', // Ajuster la hauteur de la liste des parfums
             }}
           >
             <div className="perfume-grid">
