@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import styles from './about.module.css';
 import Header from '../components/Header';
+import MyBreadcrumbs from '../../components/Breadcrumbs'
 
 const About = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -26,7 +27,8 @@ const About = () => {
   return (
     <>
       <Header />
-      <Container maxWidth="lg" className={styles.container}>
+      <Container maxWidth="lg" className={styles.container}><MyBreadcrumbs>
+      
         <Box mb={4} className={styles.heroSection}>
           <Typography
             variant="h3"

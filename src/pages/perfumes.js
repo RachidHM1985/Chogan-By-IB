@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Box, CircularProgress, Typography, Select, Card, MenuItem } from '@mui/material';
 import { supabase } from '../supabaseClient';
 import { useRouter } from 'next/router';
 import CustomCardContent from '../components/CustomCardContent';
 import { useCart } from '../context/CartContext';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import Layout from '../components/Layout';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Footer from '../components/Footer';
 
 const PerfumesPage = () => {
   const [category, setCategory] = useState('All');
@@ -23,8 +23,6 @@ const PerfumesPage = () => {
     setCategory(categoryFromUrl);
     fetchPerfumes(categoryFromUrl, selectedBrand);
   }, [router.query.category, selectedBrand]);
-
-  const nameCategory = category;
 
   const fetchPerfumes = async (category, brand) => {
     setLoading(true);
@@ -61,6 +59,7 @@ const PerfumesPage = () => {
   };
 
   const handleCardClick = (perfumeId) => {
+    const currentUrl = router.asPath.split('?')[0]; // Remove any query parameters
     router.push(`/perfume/${perfumeId}`); // Navigue vers la page de détails du parfum
   };
 
@@ -72,82 +71,72 @@ const PerfumesPage = () => {
 
   return (
     <>
-      <Header />
-      <Container
-        fluid
-        sx={{         
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center', // Centrer tout le contenu verticalement
-          alignItems: 'center', // Centrer horizontalement
-          overflowY: 'hidden',
-          
-        }}
-      >
-        <Typography variant="h5" gutterBottom sx={{ marginTop:'10vh' }}>
-          Nos Parfums {nameCategory}
-        </Typography>
-
-        <div className="d-flex justify-content-center align-items-center mb-3">
-          <Select
-            value={selectedBrand}
-            onChange={handleBrandChange}
-            displayEmpty
-            sx={{
-              textAlign: 'center', // Centrer le texte dans le Select
-              width: '200px', // Largeur fixe pour le Select
-            }}
-          >
-            <MenuItem value="All">Toutes les marques</MenuItem>
-            {brands.map((brand) => (
-              <MenuItem key={brand.id} value={brand.nom_marque}>
-                {brand.nom_marque}
-              </MenuItem>
-            ))}
-          </Select>
-        </div>
-
-        {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-            <CircularProgress />
-          </Box>
-        ) : error ? (
-          <Typography color="error" variant="body1" sx={{ marginTop: '20px' }}>
-            Error: {error}
-          </Typography>
-        ) : (
-          <Box
-            sx={{              
-                maxHeight: 'calc(100vh - 150px)',  // Adjust to make space for search bar and close button
-                overflowY: 'auto',  // Enable vertical scrolling
-                paddingBottom: '20px', 
-              width: '100%',
-              flexGrow: 1,
-            }}
-          >
-            <div className="perfume-grid">
-              {perfumes.map((perfume) => (
-                <Card
-                sx={{
-                  borderRadius: '15px',
-                  border: '1px solid #ddd',
-                  boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-                  cursor: 'pointer',
-                  backgroundImage: `url(${perfume.image_url})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  height: '330px',
-                }}
-                 onClick={() => handleCardClick(perfume.id)}
-               >
-                  <CustomCardContent perfume={perfume} getLowestPrice={getLowestPrice} />
-
-                  </Card>
+      <Layout>
+        <Container
+          fluid
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            overflow: 'hidden', // Cache la barre de défilement de la page
+            padding: 0, // Enlève les marges et paddings autour
+          }}
+        >
+          <div className="d-flex justify-content-center align-items-center mb-3" style={{ marginTop: '20px' }}>
+            <Select
+              value={selectedBrand}
+              onChange={handleBrandChange}
+              displayEmpty
+              sx={{
+                textAlign: 'center', // Centrer le texte dans le Select
+                width: '200px', // Largeur fixe pour le Select
+              }}
+            >
+              <MenuItem value="All">Toutes les marques</MenuItem>
+              {brands.map((brand) => (
+                <MenuItem key={brand.id} value={brand.nom_marque}>
+                  {brand.nom_marque}
+                </MenuItem>
               ))}
-            </div>
-          </Box>
-        )}
-      </Container>
+            </Select>
+          </div>
+
+          
+            {loading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                <CircularProgress />
+              </Box>
+            ) : error ? (
+              <Typography color="error" variant="body1" sx={{ marginTop: '20px' }}>
+                Error: {error}
+              </Typography>
+            ) : (
+              <div className="perfume-grid" style={{ display: 'grid', gap: '20px' }}>
+                {perfumes.map((perfume) => (
+                  <Card
+                    sx={{
+                      borderRadius: '15px',
+                      border: '1px solid #ddd',
+                      boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
+                      cursor: 'pointer',
+                      backgroundImage: `url(${perfume.image_url})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    }}
+                    onClick={() => handleCardClick(perfume.id)}
+                    key={perfume.id}
+                  >
+                    <CustomCardContent perfume={perfume} getLowestPrice={getLowestPrice} />
+                  </Card>
+                ))}
+              </div>
+            )}
+        
+
+          
+        </Container>
+      </Layout>
       <Footer />
     </>
   );

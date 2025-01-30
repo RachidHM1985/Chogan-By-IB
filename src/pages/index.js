@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import Header from '../components/Header';
 import ReviewsSection from '../components/ReviewsSection';
 import { Analytics } from "@vercel/analytics/react"
+import Layout from '../components/Layout';
 
 export default function Home() {
   const [isClient, setIsClient] = useState(false);
@@ -86,6 +87,7 @@ export default function Home() {
   };
 
   return (
+    <Layout>
     <Box
       sx={{
         display: 'flex',
@@ -93,16 +95,13 @@ export default function Home() {
         minHeight: '100vh', 
       }}
     >
-      {/* Affichage du Header */}
-      <Header />
-
       {/* Carrousel automatique pour les images promotionnelles */}
       <Box sx={{
         marginLeft: '5%', 
         marginRight: '5%',  
-        top: '13vh',
+        top: '2vh',
         position: 'relative', // Assurez-vous que la position relative n'entrave pas la mise en page
-        marginBottom: '30px', // Ajoutez un espacement en bas pour le carrousel auto
+        marginBottom: '5px', // Ajoutez un espacement en bas pour le carrousel auto
       }}>
         <Grid container justifyContent="center">
           <Grid item xs={12} sm={8} md={6}>
@@ -127,7 +126,7 @@ export default function Home() {
       </Box>
 
       {/* Carrousel manuel avec titre et phrase */}
-      <Box sx={{ position:'relative', top: '10vh' }}>
+      <Box sx={{ position:'relative', top: '5vh' }}>
         <Grid container justifyContent="center">
           <Grid item xs={12} sm={10} md={8}>
             <Box sx={{ textAlign: 'center', marginBottom: '5px' }}>
@@ -178,7 +177,8 @@ export default function Home() {
         <ReviewsSection productId={'*'} isInsertComment={false} />
       </Box>
       {/* Footer */}
-      <Footer />
-    </Box>
+      <Footer />      
+    </Box> 
+    </Layout>  
   );
 }

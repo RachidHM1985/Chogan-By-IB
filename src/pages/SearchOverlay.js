@@ -39,8 +39,9 @@ const SearchOverlay = ({ open, onClose }) => {
 
   const handleSearchChange = (e) => setSearchQuery(e.target.value);
   
-  const handleCardClick = (perfumeId) => {
+  const handleCardClick = (perfumeId) => {   
     router.push(`/perfume/${perfumeId}`); 
+    onClose();
   };
 
   const fetchRandomPerfumes = async () => {
@@ -76,16 +77,6 @@ const SearchOverlay = ({ open, onClose }) => {
     }
   };
 
-  const handleCloseSearch = () => {
-    setSearchQuery('');
-    setResults([]);
-    setOpenSearch(false);
-  };
-
-  const toggleOverlay = () => {
-    setOpenSearch(!openSearch);
-    if (!openSearch) setSearchQuery(''); // Clear search query when modal is openSearched
-  };
 
   const getLowestPrice = (perfume) => {
     const prices = [perfume.prix_30ml, perfume.prix_50ml, perfume.prix_70ml].filter(price => price !== null);

@@ -8,6 +8,7 @@ import { useCart } from '../../context/CartContext';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import ReviewsSection from '../../components/ReviewsSection';
+import Layout from '../../components/Layout';
 
 const PerfumeDetailPage = () => {
   const router = useRouter();
@@ -26,14 +27,17 @@ const PerfumeDetailPage = () => {
     return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
   };
 
-
-  // Récupérer les détails du parfum à partir de Supabase
+  // Réinitialisation des tailles et quantités lors du changement de parfum
   useEffect(() => {
+    // Réinitialisation de l'état
+    setSelectedSizes({});
+    setQuantities({});
+    setLoading(true);
+    setError(null);
+
     if (!id) return;
 
     const fetchPerfumeDetail = async () => {
-      setLoading(true);
-      setError(null);
       try {
         const { data, error } = await supabase
           .from('parfums')
@@ -48,11 +52,18 @@ const PerfumeDetailPage = () => {
         setPerfume(data);
       } catch (err) {
         setError('Erreur de chargement du parfum.');
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchPerfumeDetail();
+  }, [id]); // Dépendance sur l'id pour recharger les données et réinitialiser
+
+  // Réinitialiser le tooltip lorsque le parfum change
+  useEffect(() => {
+    setShowTooltip(false); // Masquer le tooltip lors du changement de parfum
+    setTooltipMessage('');
   }, [id]);
 
   const handleSizeChange = (perfumeId, size) => {
@@ -79,6 +90,7 @@ const PerfumeDetailPage = () => {
     const sizes = selectedSizes[perfume.id] || {};
     let isValid = false;
 
+    // Vérifier si au moins une taille a été sélectionnée
     Object.keys(sizes).forEach((size) => {
       if (sizes[size]) {
         const quantity = quantities[perfume.id]?.[size] || 1;
@@ -100,131 +112,125 @@ const PerfumeDetailPage = () => {
 
   return (
     <>
-      <Header />
-      <Container
-        fluid
-        style={{
-          maxWidth: '1550px',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          minHeight: '100%', // Full height of the screen
-          overflow: 'hidden', // Prevent scrolling
-        }}
-      >
-        {/* Section for product details */}
-        <Box
-          sx={{
-            flexGrow: 1,
-            paddingTop: '100px',
+      <Layout>
+        <Container
+          fluid
+          style={{
+            maxWidth: '1550px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            minHeight: '100%',
+            overflow: 'hidden',
           }}
         >
-          {loading ? (
-            <Typography variant="h6" align="center">Chargement...</Typography>
-          ) : error ? (
-            <Typography variant="h6" color="error" align="center">{error}</Typography>
-          ) : (
-            perfume && (
-              <>
-              <Row className="d-flex justify-content-center align-items-center" style={{ width: '100%' }}>
-                <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">
-                    <Typography variant="body1" align="center">Inspiré de :</Typography>
-                    <Typography variant="h6" align="center">{capitalizeFirstLetter(perfume.nom_produit)}</Typography>
-                    <Typography variant="h6" align="center">{perfume.nom_marque}</Typography>
-                    <img
-                      src={`../../photos/products/${perfume.genre.toLowerCase()}.png`}
-                      alt={perfume.nom_produit}
-                      className="img-fluid" // Responsive class for image
-                      style={{
-                        maxWidth: '50%', // Limite la largeur à 50%
-                        height: 'auto',   // Laisse la hauteur s'ajuster automatiquement pour garder le rapport d'aspect
-                        borderRadius: '10px',
-                        objectFit: 'contain', // Utilise 'contain' pour préserver le rapport d'aspect tout en remplissant le conteneur
-                      }}
-                    />
-                </Col>
-                <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">                  
-                  <Typography variant="body1" align="center">Réf: {perfume.code}</Typography>
-                  <Typography variant="body1" align="center">
-                    Choisissez une contenance :
-                  </Typography>
-                  <div className="size-selection" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px' }}>
-                    {['30ml', '50ml', '70ml'].map((size) => perfume[`prix_${size}`] && (
-                      <div key={size} className="d-flex flex-column align-items-center mb-2">
-                        <div className="form-check" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                          <Tooltip title={`Prix : ${perfume[`prix_${size}`].toFixed(2)}€`} placement="top">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id={`size-${size}-${perfume.id}`}
-                              value={size}
-                              onChange={() => handleSizeChange(perfume.id, size)}
-                              checked={selectedSizes[perfume.id]?.[size] || false}
-                            />
-                          </Tooltip>
-                          <label className="form-check-label" htmlFor={`size-${size}-${perfume.id}`} style={{ marginLeft: '10px' }}>
-                            {size} - {perfume[`prix_${size}`].toFixed(2)}€
-                          </label>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <IconButton
-                            onClick={() => updateQuantity(perfume.id, size, Math.max(quantities[perfume.id]?.[size] - 1, 1))}
-                            sx={{ padding: '0 8px' }}
-                          >
-                            <Remove />
-                          </IconButton>
+          <Box sx={{ flexGrow: 1 }}>
+            {loading ? (
+              <Typography variant="h6" align="center">Chargement...</Typography>
+            ) : error ? (
+              <Typography variant="h6" color="error" align="center">{error}</Typography>
+            ) : (
+              perfume && (
+                <>
+                  <Row className="d-flex justify-content-center align-items-center" style={{ width: '100%' }}>
+                    <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">
+                      <Typography variant="body1" align="center">Inspiré de :</Typography>
+                      <Typography variant="h6" align="center">{capitalizeFirstLetter(perfume.nom_produit)}</Typography>
+                      <Typography variant="h6" align="center">{perfume.nom_marque}</Typography>
+                      <img
+                        src={`../../photos/products/${perfume.genre.toLowerCase()}.png`}
+                        alt={perfume.nom_produit}
+                        className="img-fluid"
+                        style={{
+                          maxWidth: '50%',
+                          height: 'auto',
+                          borderRadius: '10px',
+                          objectFit: 'contain',
+                        }}
+                      />
+                    </Col>
+                    <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">
+                      <Typography variant="body1" align="center">Réf: {perfume.code}</Typography>
+                      <Typography variant="body1" align="center">
+                        Choisissez une contenance :
+                      </Typography>
+                      <div className="size-selection" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px' }}>
+                        {['30ml', '50ml', '70ml'].map((size) => perfume[`prix_${size}`] && (
+                          <div key={size} className="d-flex flex-column align-items-center mb-2">
+                            <div className="form-check" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                              <Tooltip title={`Prix : ${perfume[`prix_${size}`].toFixed(2)}€`} placement="top">
+                                <input
+                                  className="form-check-input"
+                                  type="checkbox"
+                                  id={`size-${size}-${perfume.id}`}
+                                  value={size}
+                                  onChange={() => handleSizeChange(perfume.id, size)}
+                                  checked={selectedSizes[perfume.id]?.[size] || false}
+                                />
+                              </Tooltip>
+                              <label className="form-check-label" htmlFor={`size-${size}-${perfume.id}`} style={{ marginLeft: '10px' }}>
+                                {size} - {perfume[`prix_${size}`].toFixed(2)}€
+                              </label>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <IconButton
+                                onClick={() => updateQuantity(perfume.id, size, Math.max(quantities[perfume.id]?.[size] - 1, 1))}
+                                sx={{ padding: '0 8px' }}
+                              >
+                                <Remove />
+                              </IconButton>
 
-                          <TextField
-                            type="number"
-                            value={quantities[perfume.id]?.[size] || 1}
-                            onChange={(e) => updateQuantity(perfume.id, size, Math.max(Number(e.target.value), 1))}
-                            inputProps={{ min: 1 }}
-                            sx={{
-                              marginRight: 0,
-                              marginLeft: 0,
-                              width: '60px',
-                              textAlign: 'center',
-                            }}
-                          />
+                              <TextField
+                                type="number"
+                                value={quantities[perfume.id]?.[size] || 1}
+                                onChange={(e) => updateQuantity(perfume.id, size, Math.max(Number(e.target.value), 1))}
+                                inputProps={{ min: 1 }}
+                                sx={{
+                                  marginRight: 0,
+                                  marginLeft: 0,
+                                  width: '60px',
+                                  textAlign: 'center',
+                                }}
+                              />
 
-                          <IconButton
-                            onClick={() => updateQuantity(perfume.id, size, (quantities[perfume.id]?.[size] || 0) + 1)}
-                            sx={{ padding: '0 8px' }}
-                          >
-                            <Add />
-                          </IconButton>
-                        </div>
+                              <IconButton
+                                onClick={() => updateQuantity(perfume.id, size, (quantities[perfume.id]?.[size] || 0) + 1)}
+                                sx={{ padding: '0 8px' }}
+                              >
+                                <Add />
+                              </IconButton>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
 
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleAddToCart}
-                    sx={{ marginTop: '20px' }}                   
-                  >
-                    Ajouter au panier
-                  </Button>
-                </Col>
-              </Row>
-              <ReviewsSection productId={perfume.code} isInsertComment={true} />
-              </>              
-            )
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleAddToCart}
+                        sx={{ marginTop: '20px' }}
+                      >
+                        Ajouter au panier
+                      </Button>
+                    </Col>
+                  </Row>
+                  <ReviewsSection productId={perfume.code} isInsertComment={true} />
+                </>
+              )
+            )}
+          </Box>
+          {showTooltip && (
+            <div
+              className={`tooltip ${!selectedSizes[perfume.id]? 'tooltip-error' : 'tooltip-succes'} ${showTooltip ? 'show' : ''}`}
+              style={{ top: `${window.scrollY + 10}px` }}
+            >
+              {tooltipMessage}
+            </div>
           )}
-        </Box>
-        {/* Tooltip */}
-        {showTooltip && (
-          <div
-            className={`tooltip ${!selectedSizes[perfume.id]? 'tooltip-error' : 'tooltip-succes'} ${showTooltip ? 'show' : ''}`}
-            style={{ top: `${window.scrollY + 10}px` }}
-          >
-            {tooltipMessage}
-          </div>
-        )}
-      </Container>
-      <Box sx={{ flexGrow: 1 }} /> {/* Ensures footer is pushed to the bottom */}
-      <Footer />
+        </Container>
+        <Box sx={{ flexGrow: 1 }} />
+        <Footer />
+      </Layout>
     </>
   );
 };

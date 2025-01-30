@@ -6,9 +6,9 @@
   width: 100%;
   height: auto;
   position: relative; /* Pas de position fixe pour éviter le chevauchement */
-  padding-top: 10vh; /* Ajustez selon l'écran */
+  padding-top: 5vh; /* Ajustez selon l'écran */
   padding-bottom: 1vh; /* Ajustez selon l'écran */
-  margin-bottom: 30px; /* Ajoutez de l'espace en bas pour éviter le chevauchement */
+  margin-bottom: 5px; /* Ajoutez de l'espace en bas pour éviter le chevauchement */
 }
 
 /* Carrousel manuel ajusté pour ne pas chevaucher le carrousel automatique */
