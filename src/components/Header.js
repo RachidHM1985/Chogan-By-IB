@@ -62,10 +62,12 @@ const Header = () => {
   };
 
   const handleCloseCart = () => {
+    setIsEditing(false)
     setOpenCart(false);
   };
 
   const handleConfirmOrder = () => {
+    setIsEditing(false)
     setOpenCart(false);
     setOpenConfirmation(true);
   };
@@ -128,26 +130,29 @@ const Header = () => {
   };
 
   const handleQuantityChange = (index, newQuantity) => {
-    if (newQuantity <= 0) {
-      // Si la quantité devient 0 ou négative, supprimer l'élément du panier
+    // Convertir newQuantity en nombre et vérifier si c'est un nombre valide
+    const quantity = Number(newQuantity);
+  
+    // Si la quantité est inférieure à 1 ou une valeur invalide (NaN), supprimer l'élément du panier
+    if (quantity <= 0 || isNaN(quantity)) {
       removeFromCart(cartItems[index].product.id, cartItems[index].size);
     } else {
       // Met à jour la quantité dans l'élément du panier
       const updatedCartItems = [...cartItems];
-      updatedCartItems[index].quantity = newQuantity;
+      updatedCartItems[index].quantity = quantity;
   
       // Met à jour les quantités dans l'état
-      setQuantities(prev => ({
+      setQuantities((prev) => ({
         ...prev,
         [cartItems[index].product.id]: {
           ...prev[cartItems[index].product.id],
-          [cartItems[index].size]: newQuantity,
+          [cartItems[index].size]: quantity,
         },
       }));
     }
   };
   
-  
+   
 
   const calculerFraisLivraison = (cartItems, totalPrice) => {
     const poidsParfum = {
@@ -170,8 +175,8 @@ const Header = () => {
     });
 
     let fraisLivraison = 0;
-    if (totalPrice > 150) {
-      return fraisLivraison; // No delivery fee if the total price exceeds 150
+    if (totalPrice > 80) {
+      return fraisLivraison; // No delivery fee if the total price exceeds 80
     } else {
       for (let tarif of tarifs) {
         if (poidsTotal <= tarif.maxPoids) {
@@ -185,7 +190,7 @@ const Header = () => {
 
   const calculateTotalPrice = () => {
     let total = cartItems.reduce((acc, item) => acc + item.product[`prix_${item.size}`] * item.quantity, 0);
-    if (delivery && total < 150) {
+    if (delivery && total < 80) {
       const fraisLivraison = calculerFraisLivraison(cartItems, total);
       console.log(fraisLivraison)
       setDeliveryFee(fraisLivraison);
@@ -209,10 +214,6 @@ const Header = () => {
       router.events.off('routeChangeComplete', handleRouteChange);
     };
   }, [router.events]);
-
-  const handleSearchIconClick = () => {
-    setOpenSearchOverlay(true);
-  };
 
   return (
     <AppBar
@@ -386,7 +387,7 @@ const Header = () => {
         ))}
 
         {/* Livraison */}
-        {totalPriceWithDelivery < 150 && (
+        {totalPriceWithDelivery < 80 && (
           <FormControlLabel
             control={
               <Checkbox
@@ -399,17 +400,17 @@ const Header = () => {
             sx={{ mt: 2 }}
           />
         )}
-        {delivery && totalPriceWithDelivery < 150 && (
+        {delivery && totalPriceWithDelivery < 80 && (
           <Typography sx={{ mt: 2 }} align="right">
             Frais de livraison : {deliveryFee}€
           </Typography>
         )}
-        {!delivery && totalPriceWithDelivery < 150 && (
+        {!delivery && totalPriceWithDelivery < 80 && (
           <Typography sx={{ mt: 2, color: 'red' }}>
             Si vous n'optez pas pour la livraison, vous devez récupérer votre commande physiquement.
           </Typography>
         )}
-        {totalPriceWithDelivery >= 150 && (
+        {totalPriceWithDelivery >= 80 && (
           <Typography sx={{ mt: 2, color: 'red' }}>
             La livraison vous est offerte.
           </Typography>
@@ -486,7 +487,7 @@ const Header = () => {
           <Button onClick={() => setOpenConfirmation(false)} color="secondary">
             Fermer
           </Button>
-          <Button onClick={handleStripePayment} color="primary">
+          <Button disabled='totalPriceWithDelivery > 0' onClick={handleStripePayment} color="primary">
             Payer
           </Button>
         </DialogActions>
