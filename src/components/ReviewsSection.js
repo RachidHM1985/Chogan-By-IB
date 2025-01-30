@@ -91,7 +91,7 @@ const ReviewsSection = ({ productId, isInsertComment }) => {
 
   return (
     <Box sx={{ marginTop: '10px', backgroundColor: '#f8f8f8', padding: '40px 20px' }}>
-      <Typography variant="h5" sx={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '20px' }}>
+      <Typography variant="h6" sx={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '20px' }}>
         Avis Clients
       </Typography>
 

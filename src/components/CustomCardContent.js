@@ -45,26 +45,25 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
           justifySelf:'center',
           position: 'relative',
           overflow: 'hidden',
-          height: '100px',
-          marginBottom: '15px',
+          marginBottom: '10px',
           transition: 'all 0.3s ease', // Transition pour l'effet de zoom
         }}
       >
         <CardMedia
-  component="img"
-  image={perfume.photo_url}
-  alt={perfume.nom_produit}
-  sx={{
-    width: '100%', // Utiliser toute la largeur du CardMedia
-    height: '100%', // Utiliser toute la hauteur du CardMedia
-    objectFit: 'cover', // L'image couvre toute la zone sans être déformée
-    borderRadius: '10px', // Coins arrondis pour l'élégance
-    transition: 'transform 0.3s ease', // Animation pour le zoom au survol
-    '&:hover': {
-      transform: 'scale(1.05)', // Zoom léger pour effet interactif
-    },
-  }}
-/>
+        component="img"
+        image={perfume.photo_url}
+        alt={perfume.nom_produit}
+        sx={{
+          width: '100%', // Utiliser toute la largeur du CardMedia
+          height: '100%', // Utiliser toute la hauteur du CardMedia
+          objectFit: 'cover', // L'image couvre toute la zone sans être déformée
+          borderRadius: '10px', // Coins arrondis pour l'élégance
+          transition: 'transform 0.3s ease', // Animation pour le zoom au survol
+          '&:hover': {
+            transform: 'scale(1.05)', // Zoom léger pour effet interactif
+          },
+        }}
+      />
 
       </Box>
 
@@ -75,10 +74,27 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          height: '200px', // Garder la hauteur fixe pour la structure
+          height: '150px', // Garder la hauteur fixe pour la structure
           textAlign: 'left', // Alignement à gauche pour les informations
         }}
-      >
+      >        
+
+        {/* Product code */}
+        <Typography
+          variant="h6"
+          sx={{
+            fontFamily: 'Noto Sans', // Police moderne et classe
+            fontWeight: '600',
+            fontSize: '1.2rem',
+            textTransform: 'capitalize',
+            marginBottom: '4px', // Un peu plus d'espace en bas
+            whiteSpace: 'normal',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}
+        >
+           PARFUM N°{perfume.code}
+        </Typography>
         <Typography
          variant="body2"
          sx={{
@@ -87,60 +103,14 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
            marginBottom: '2px', // Espacement réduit
          }}
         >
-         Inspiré de : 
+         Inspiré de : {capitalizeFirstLetter(perfume.nom_produit)} -  {perfume.nom_marque}
         </Typography>
-
-        {/* Product Name */}
-        <Typography
-          variant="h6"
-          sx={{
-            fontFamily: '"Netto Pro Bold', // Police moderne et classe
-            fontWeight: '600',
-            fontSize: '0.8rem',
-            textTransform: 'capitalize',
-            marginBottom: '4px', // Un peu plus d'espace en bas
-            whiteSpace: 'normal',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-          }}
-        >
-          {capitalizeFirstLetter(perfume.nom_produit)}
-        </Typography>
-
-        {/* Brand Name */}
-        <Typography
-          variant="body2"
-          sx={{
-            fontSize: '0.8rem',
-            fontWeight: '400',
-            opacity: 0.8,
-            marginBottom: '4px', // Espacement réduit
-            whiteSpace: 'normal',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-          }}
-        >
-          {perfume.nom_marque}
-        </Typography>
-
-        {/* Perfume Code */}
-        <Typography
-          variant="body2"
-          sx={{
-            fontSize: '0.8rem',
-            opacity: 0.7,
-          }}
-        >
-          Code: {perfume.code}
-        </Typography>
-
         {/* Price */}
         <Typography
           variant="body1"
           sx={{
             fontSize: '0.8rem',
             fontWeight: '400', // Poids normal
-            padding: '10px', // Espacement interne plus large
             width: '100%', // Occupe toute la largeur disponible
           }}
         >

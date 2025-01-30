@@ -38,9 +38,9 @@ const SearchOverlay = ({ open, onClose }) => {
   };
 
   const handleSearchChange = (e) => setSearchQuery(e.target.value);
-
+  
   const handleCardClick = (perfumeId) => {
-    router.push(`/perfume/${perfumeId}`);
+    router.push(`/perfume/${perfumeId}`); 
   };
 
   const fetchRandomPerfumes = async () => {

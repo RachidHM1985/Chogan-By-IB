@@ -136,7 +136,7 @@ const PerfumesPage = () => {
                   backgroundImage: `url(${perfume.image_url})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
-                  height: '350px',
+                  height: '330px',
                 }}
                  onClick={() => handleCardClick(perfume.id)}
                >
