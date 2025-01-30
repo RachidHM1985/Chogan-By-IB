@@ -1,23 +1,18 @@
-import express from 'express';
 import sendGridMail from '@sendgrid/mail';
 
-const app = express();
-
-// Définir la clé API de SendGrid
 sendGridMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export default async function handler(req, res) {
-  // Si la méthode est POST, nous traitons l'envoi de l'email
-  if (req.method === 'POST') {
-    const { name, email, phone, message } = req.body;
+	if (req.method === 'POST') {
+		const { name, email, phone, message } = req.body;
 
-    // Vérifier que toutes les données nécessaires sont présentes
-    if (!name || !email || !phone || !message) {
+    // Validation des données reçues
+if (!name || !email || !phone || !message) {
       return res.status(400).json({ error: 'Tous les champs sont requis.' });
     }
 
-    // Construire le contenu de l'email
-    const emailContent = {
+    // Préparer le message pour SendGrid
+   const emailContent = {
       to: 'ikram.bakmou@outlook.fr',  // L'email auquel vous voulez envoyer le formulaire
       from: email,                   // L'email de l'utilisateur
       subject: `Nouvelle candidature pour devenir consultant - ${name}`,
@@ -37,6 +32,13 @@ export default async function handler(req, res) {
       return res.status(200).json({ message: 'Votre message a été envoyé avec succès.' });
     } catch (error) {
       console.error('Erreur lors de l\'envoi de l\'email :', error);
+      
+      // Afficher les détails de l'erreur de SendGrid pour mieux comprendre
+      if (error.response) {
+        console.error('Détails de l\'erreur SendGrid:', error.response.body);
+      }
+
+      // Retourner un message d'erreur générique à l'utilisateur
       return res.status(500).json({ error: 'Erreur lors de l\'envoi de l\'email. Veuillez réessayer plus tard.' });
     }
   } else {
