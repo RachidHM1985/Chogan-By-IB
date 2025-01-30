@@ -1,210 +1,203 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Typography, Rating, TextField, Button, Select, MenuItem, Pagination, Tooltip } from '@mui/material';
-import { supabase } from '../supabaseClient';
+import React, { useState, useEffect, useRef } from 'react';
+import { Modal, TextField, Grid, Typography, CircularProgress, InputAdornment, Box, Card, IconButton } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import CloseIcon from '@mui/icons-material/Close';
+import CustomCardContent from '../components/CustomCardContent';
+import { debounce } from 'lodash';
+import { useCart } from '../context/CartContext';
+import { useRouter } from 'next/router';
+import { Add, Remove } from '@mui/icons-material';
 
-const ReviewsSection = ({ productId, isInsertComment }) => {
-  const [reviews, setReviews] = useState([]);
-  const [rating, setRating] = useState(0);
-  const [reviewText, setReviewText] = useState('');
-  const [userName, setUserName] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [filterRating, setFilterRating] = useState(0); // For filter rating
-  const [page, setPage] = useState(1); // Pagination state
-  const [reviewsPerPage, setReviewsPerPage] = useState(3); // Number of reviews to display per page
-  const [showSuccessTooltip, setShowSuccessTooltip] = useState(false); // State to control success tooltip visibility
-  const [reviewsUpdated, setReviewsUpdated] = useState(false); // State to trigger re-fetch after posting a review
+const SearchOverlay = ({ open, onClose }) => {
 
-  // Fetch reviews from Supabase when the component mounts or when filterRating, productId, or reviewsUpdated changes
-  useEffect(() => {
-    const fetchReviews = async () => {
-      setLoading(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [results, setResults] = useState([]);
+  const [openSearch, setOpenSearch] = useState(false);  // Modal openSearch state
+  const { addToCart } = useCart();
+  const router = useRouter();
 
-      // Create the base query
-      let query = supabase
-        .from('avis')
-        .select('*')
-        .gt('rating', filterRating)  // Filter by rating
-        .order('created_at', { ascending: false });  // Sort by date (latest first)
-
-      // If isInsertComment is false, get reviews for all products
-      if (!isInsertComment) {
-        query = query;  // No change in query
+  // Search products function
+  const searchProducts = async (searchQuery) => {
+    setLoading(true);
+    try {
+      if (!searchQuery.trim()) return;
+      const encodedQuery = encodeURIComponent(searchQuery);
+      const response = await fetch(`/api/search?query=${encodedQuery}`);
+      if (response.ok) {
+        const data = await response.json();
+        setResults(data);
       } else {
-        // If isInsertComment is true, filter by product_id
-        query = query.eq('product_id', productId);  // Filter by product_id
+        console.error("Erreur de chargement des produits");
       }
-
-      // Execute the query
-      const { data, error } = await query;
-
-      if (error) {
-        console.error('Error fetching reviews:', error);
-        setError('Erreur lors de la récupération des avis');
-      } else {
-        setReviews(data);
-      }
-
+    } catch (error) {
+      console.error("Erreur de réseau lors de la recherche", error);
+    } finally {
       setLoading(false);
-    };
-
-    fetchReviews();
-  }, [productId, filterRating, reviewsUpdated, isInsertComment]); // Re-fetch reviews when dependencies change
-
-  const handlePostReview = async () => {
-    if (rating === 0 || !reviewText || !userName) {
-      alert('Veuillez remplir tous les champs.');
-      return;
     }
+  };
 
-    // Post the review to the database
-    const { data, error } = await supabase
-      .from('avis')
-      .insert([
-        {
-          product_id: productId,
-          rating: rating,
-          review: reviewText,
-          user_name: userName,
-          created_at: new Date(),
-        },
-      ]);
+  const handleSearchChange = (e) => setSearchQuery(e.target.value);
+  
+  const handleCardClick = (perfumeId) => {
+    router.push(`/perfume/${perfumeId}`); 
+  };
 
-    if (error) {
-      console.error('Error posting review:', error);
-      setError('Erreur lors de l\'envoi de votre avis.');
+  const fetchRandomPerfumes = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/search?query=*`);
+      if (response.ok) {
+        const data = await response.json();
+        const randomPerfumes = data.sort(() => 0.5 - Math.random()).slice(0, 12);
+        setResults(randomPerfumes);
+      } else {
+        console.error('Erreur lors de la récupération des parfums');
+      }
+    } catch (error) {
+      console.error("Erreur de réseau lors de la récupération des parfums", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const debouncedSearch = debounce(searchProducts, 500);
+    debouncedSearch(searchQuery);
+    return () => debouncedSearch.cancel();
+  }, [searchQuery]);
+
+  const handleSearchSubmit = (event) => {
+    event.preventDefault();
+    if (searchQuery.trim()) {
+      searchProducts(searchQuery);
     } else {
-      setError('');
-      // Trigger re-fetch by updating the reviewsUpdated state
-      setReviewsUpdated(prev => !prev);  // Toggle the state to trigger re-fetch
-      setRating(0);
-      setReviewText('');
-      setUserName('');
-      
-      // Show success tooltip after successful submission
-      setShowSuccessTooltip(true);
-      
-      // Hide the tooltip after a short duration
-      setTimeout(() => {
-        setShowSuccessTooltip(false);
-      }, 3000); // Tooltip will disappear after 3 seconds
+      fetchRandomPerfumes();
     }
   };
 
-  // Handle page change for pagination
-  const handleChangePage = (event, value) => {
-    setPage(value);
+  const handleCloseSearch = () => {
+    setSearchQuery('');
+    setResults([]);
+    setOpenSearch(false);
   };
 
-  // Get the current reviews to display based on pagination
-  const currentReviews = reviews.slice((page - 1) * reviewsPerPage, page * reviewsPerPage);
+  const toggleOverlay = () => {
+    setOpenSearch(!openSearch);
+    if (!openSearch) setSearchQuery(''); // Clear search query when modal is openSearched
+  };
+
+  const getLowestPrice = (perfume) => {
+    const prices = [perfume.prix_30ml, perfume.prix_50ml, perfume.prix_70ml].filter(price => price !== null);
+    const lowestPrice = Math.min(...prices);
+    return lowestPrice.toFixed(2);
+  };
+
+  useEffect(() => {
+    if (open) {
+      fetchRandomPerfumes();
+    }
+  }, [open]);
 
   return (
-    <Box sx={{ marginTop: '10px', backgroundColor: '#f8f8f8', padding: '40px 20px' }}>
-      <Typography variant="h6" sx={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '20px' }}>
-        Avis Clients
-      </Typography>
+         <Modal open={open} onClose={onClose}>
+          <Box sx={{
+          backgroundColor: 'white',
+          padding: 2,
+          width: '100%',
+          height: '95%',
+          margin: 'auto',
+          marginTop: '2.5%',
+          overflowY: 'auto',  // Allow scrolling if content exceeds height
+        }}>
+          
 
-      {loading ? (
-        <Typography variant="body1" align="center">Chargement des avis...</Typography>
-      ) : error ? (
-        <Typography variant="body1" color="error" align="center">{error}</Typography>
-      ) : (
-        <Box>
-          {/* Filter section */}
-          <Box sx={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-            <Typography variant="body1" sx={{ marginRight: '10px' }}>Filtrer par note :</Typography>
-            <Select
-              value={filterRating}
-              onChange={(e) => setFilterRating(e.target.value)}
-              sx={{ width: '120px' }}
-            >
-              <MenuItem value={0}>Toutes</MenuItem>
-              <MenuItem value={1}>1 étoile</MenuItem>
-              <MenuItem value={2}>2 étoiles</MenuItem>
-              <MenuItem value={3}>3 étoiles</MenuItem>
-              <MenuItem value={4}>4 étoiles</MenuItem>
-              <MenuItem value={5}>5 étoiles</MenuItem>
-            </Select>
+          <Box sx={{
+            position: 'absolute',        // Make the Box fixed within the modal
+            top: 0,                      // Position it at the top of the modal
+            left: 0,                     // Align it to the left side
+            width: '100%',               // Ensure the Box takes the full width of the modal
+            paddingTop: '15px',          // Add padding to the top for some spacing
+            zIndex: 1300,                // Ensure it stays above other content
+            display: 'flex',
+            justifyContent: 'center',    // Center the search form
+            alignItems: 'center',
+            flexDirection: 'column',     // Stack items vertically (search form and close button)
+          }}>
+            <form onSubmit={handleSearchSubmit} style={{ width: '100%' }}>
+              <TextField
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                variant="outlined"
+                placeholder="Que cherchez-vous"
+                size="small"
+                sx={{
+                  width: '60%',
+                  marginLeft: '20%',
+                  marginRight: '20%',
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      {loading ? <CircularProgress size={24} /> : <SearchIcon />}
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </form>
+
+            {/* Close button positioned at the top right of the modal */}
+            <IconButton onClick={onClose} sx={{
+              position: 'absolute',  // Absolute position to the modal
+              top: 10,               // 10px from the top
+              right: 10,             // 10px from the right
+              zIndex: 1300,          // Ensure it's above other elements
+            }}>
+              <CloseIcon />
+            </IconButton>
           </Box>
 
-          {/* Display reviews */}
-          {currentReviews.length === 0 ? (
-            <Typography variant="body1" align="center">Aucun avis pour ce produit.</Typography>
-          ) : (
-            currentReviews.map((review) => (
-              <Box key={review.id} sx={{ marginBottom: '20px', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
-                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{review.user_name}</Typography>
-                <Rating name="read-only" value={review.rating} readOnly sx={{ marginBottom: '10px' }} />
-                <Typography variant="body2" sx={{ color: '#555' }}>"{review.review}"</Typography>
-              </Box>
-            ))
-          )}
+          <div>
+  {/* Loading spinner */}
+  {loading && <CircularProgress sx={{ display: 'block', margin: 'auto' }} />}
 
-          {/* Pagination */}
-          {reviews.length > reviewsPerPage && (
-            <Pagination
-              count={Math.ceil(reviews.length / reviewsPerPage)}
-              page={page}
-              onChange={handleChangePage}
-              sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}
-            />
-          )}
+  {/* No results found message */}
+  {!loading && results.length === 0 && <Typography variant="h6" sx={{ textAlign: 'center', marginTop: '30px' }}>Aucun résultat trouvé</Typography>}
 
-          {/* Form for submitting a new review */}
-          {isInsertComment && (
-            <Box sx={{ marginTop: '30px' }}>
-              <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Laissez un avis</Typography>
-              <Rating
-                name="rating"
-                value={rating}
-                onChange={(event, newValue) => setRating(newValue)}
-                sx={{ marginBottom: '20px' }}
-              />
-              <TextField
-                label="Nom"
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-                fullWidth
-                sx={{ marginBottom: '10px' }}
-              />
-              <TextField
-                label="Votre avis"
-                multiline
-                rows={4}
-                value={reviewText}
-                onChange={(e) => setReviewText(e.target.value)}
-                fullWidth
-                sx={{ marginBottom: '20px' }}
-              />
-              <Tooltip
-                title="Avis envoyé avec succès !"
-                open={showSuccessTooltip}
-                arrow
-                placement="top"
-                sx={{
-                  position: 'absolute',
-                  top: '90%',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  zIndex: 1300,
-                }}
-              >
-                <span></span> {/* Empty span for the tooltip */}
-              </Tooltip>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handlePostReview}
-              >
-                Poster l'avis
-              </Button>
-            </Box>
-          )}
+  {/* List of results */}
+  {results.length > 0 && !loading && (
+    <div style={{
+      maxHeight: 'calc(100vh - 150px)',  // Adjust to make space for search bar and close button
+      overflowY: 'auto',  // Enable vertical scrolling
+      marginTop: '40px',
+      paddingBottom: '20px',  // Padding at the bottom for space
+    }}>
+      <Grid container spacing={2}>
+        {results.map((perfume) => (
+          <Grid item xs={6} sm={4} md={3} key={perfume.id}>
+            <Card
+              sx={{
+                borderRadius: '15px',
+                border: '1px solid #ddd',
+                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
+                cursor: 'pointer',
+                backgroundImage: `url(${perfume.image_url})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }}
+              onClick={() => handleCardClick(perfume.id)}
+            >
+              <CustomCardContent perfume={perfume} getLowestPrice={getLowestPrice} />
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    </div>
+     )}
+</div>
         </Box>
-      )}
-    </Box>
+      </Modal>
   );
 };
 
-export default ReviewsSection;
+export default SearchOverlay;
