@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Container, Box, CircularProgress, Typography, Select, MenuItem } from '@mui/material';
+import { Container, Box, CircularProgress, Typography, Select, Card, MenuItem } from '@mui/material';
 import { supabase } from '../supabaseClient';
 import { useRouter } from 'next/router';
 import CustomCardContent from '../components/CustomCardContent';
@@ -117,29 +117,32 @@ const PerfumesPage = () => {
           </Typography>
         ) : (
           <Box
-            sx={{
+            sx={{              
+                maxHeight: 'calc(100vh - 150px)',  // Adjust to make space for search bar and close button
+                overflowY: 'auto',  // Enable vertical scrolling
+                paddingBottom: '20px', 
               width: '100%',
               flexGrow: 1,
-              overflowY: 'scroll',
             }}
           >
             <div className="perfume-grid">
               {perfumes.map((perfume) => (
-                <div className="perfume-card" key={perfume.id}>
-                  <div
-                    className="perfume-card-inner"
-                    onClick={() => handleCardClick(perfume.id)}
-                  >
-                    <div
-                      className="perfume-card-content"
-                      style={{
-                        backgroundImage: `url(${perfume.image_url})`,
-                      }}
-                    >
-                      <CustomCardContent perfume={perfume} getLowestPrice={getLowestPrice} />
-                    </div>
-                  </div>
-                </div>
+                <Card
+                sx={{
+                  borderRadius: '15px',
+                  border: '1px solid #ddd',
+                  boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
+                  cursor: 'pointer',
+                  backgroundImage: `url(${perfume.image_url})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  height: '350px',
+                }}
+                 onClick={() => handleCardClick(perfume.id)}
+               >
+                  <CustomCardContent perfume={perfume} getLowestPrice={getLowestPrice} />
+
+                  </Card>
               ))}
             </div>
           </Box>
