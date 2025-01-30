@@ -11,6 +11,7 @@ import 'slick-carousel/slick/slick-theme.css';
 import React, { useEffect, useState } from 'react';
 import { CssBaseline } from '@mui/material'; // Optionnel : réinitialiser les styles de Material-UI
 import { CartProvider } from '../context/CartContext';
+import { Analytics } from '@vercel/analytics/react';
 
 function MyApp({ Component, pageProps }) {
   // Etat pour s'assurer que nous sommes en mode client

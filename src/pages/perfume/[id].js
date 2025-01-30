@@ -42,7 +42,7 @@ const PerfumeDetailPage = () => {
         const { data, error } = await supabase
           .from('parfums')
           .select('*')
-          .eq('id', id)
+          .eq('code', id)
           .single();
 
         if (error) {
@@ -168,10 +168,11 @@ const PerfumeDetailPage = () => {
                              sx={{
                                fontSize: '0.7rem',
                                opacity: 0.7,
-                               marginBottom: '2px', // Espacement réduit
+                               marginTop: '10px', // Espacement réduit
+                               marginBottom: '10px',
                              }}
                             >
-                             Inspiré de : {capitalizeFirstLetter(perfume.nom_produit)} -  {perfume.nom_marque}
+                             Inspiré de : {capitalizeFirstLetter(perfume.nom_produit)} - {perfume.nom_marque}
                             </Typography>
                       <Typography variant="body1" align="center">
                         Choisissez une contenance :

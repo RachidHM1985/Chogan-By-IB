@@ -6,8 +6,6 @@ import 'slick-carousel/slick/slick-theme.css';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import ReviewsSection from '../components/ReviewsSection';
-import { Analytics } from "@vercel/analytics/react"
-import Layout from '../components/Layout';
 
 export default function Home() {
   const [isClient, setIsClient] = useState(false);
@@ -87,12 +85,15 @@ export default function Home() {
   };
 
   return (
-    <Layout>
+    <>
+    <Header />
     <Box
       sx={{
         display: 'flex',
         flexDirection: 'column',
         minHeight: '100vh', 
+        top:'10vh', 
+        position: 'relative'
       }}
     >
       {/* Carrousel automatique pour les images promotionnelles */}
@@ -178,7 +179,7 @@ export default function Home() {
       </Box>
       {/* Footer */}
       <Footer />      
-    </Box> 
-    </Layout>  
+    </Box>  
+  </>
   );
 }

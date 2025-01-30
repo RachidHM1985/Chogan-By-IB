@@ -39,8 +39,8 @@ const SearchOverlay = ({ open, onClose }) => {
 
   const handleSearchChange = (e) => setSearchQuery(e.target.value);
   
-  const handleCardClick = (perfumeId) => {   
-    router.push(`/perfume/${perfumeId}`); 
+  const handleCardClick = (perfumeCode) => {   
+    router.push(`/perfume/${perfumeCode}`); 
     onClose();
   };
 
@@ -176,7 +176,7 @@ const SearchOverlay = ({ open, onClose }) => {
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
               }}
-              onClick={() => handleCardClick(perfume.id)}
+              onClick={() => handleCardClick(perfume.code)}
             >
               <CustomCardContent perfume={perfume} getLowestPrice={getLowestPrice} />
             </Card>

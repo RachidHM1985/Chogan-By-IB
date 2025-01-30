@@ -58,9 +58,8 @@ const PerfumesPage = () => {
     fetchPerfumes(category, newBrand);
   };
 
-  const handleCardClick = (perfumeId) => {
-    const currentUrl = router.asPath.split('?')[0]; // Remove any query parameters
-    router.push(`/perfume/${perfumeId}`); // Navigue vers la page de détails du parfum
+  const handleCardClick = (perfumeCode) => {
+    router.push(`/perfume/${perfumeCode}`); // Navigue vers la page de détails du parfum
   };
 
   const getLowestPrice = (perfume) => {
@@ -124,7 +123,7 @@ const PerfumesPage = () => {
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
                     }}
-                    onClick={() => handleCardClick(perfume.id)}
+                    onClick={() => handleCardClick(perfume.code)}
                     key={perfume.id}
                   >
                     <CustomCardContent perfume={perfume} getLowestPrice={getLowestPrice} />
