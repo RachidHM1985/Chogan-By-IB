@@ -346,7 +346,7 @@ const SearchOverlay = () => {
                     marginTop: '10px',
                   }}
                 >
-              <Grid container spacing={2}>
+              <Grid container spacing={1}>
                 {results.map((perfume) => (
                   <Grid item xs={6} sm={6} md={3} lg={3} key={perfume.id}>
                     <Card

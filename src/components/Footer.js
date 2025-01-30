@@ -5,22 +5,19 @@ import InstagramIcon from '@mui/icons-material/Instagram';
 import { FaTiktok } from 'react-icons/fa'; // TikTok avec react-icons
 import { FaSnapchatSquare } from 'react-icons/fa'; // Snapchat avec react-icons
 
-
 const Footer = () => {
   return (
     <Box
       sx={{
         backgroundColor: '#F8F8F8', // Rose poudré
         padding: '5px 0', // Réduction de l'espacement pour un footer encore plus petit
-        position: 'fixed', // Fixer le footer en bas
-        bottom: 0, // Le placer en bas de la page
-        left: 0, // S'assurer qu'il couvre toute la largeur
         width: '100%', // Couvre toute la largeur de la page
         zIndex: 1000,
+        boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.1)', // Ombre pour le footer
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.1)', // Ombre pour le footer
+        justifyContent: 'center', // Centrer le contenu si nécessaire
       }}
     >
       <Container
@@ -91,7 +88,7 @@ const Footer = () => {
         }}
       >
         <Typography variant="body2" color="textSecondary" sx={{ fontSize: '0.6rem' }}>
-          © 2025 Chogan - Tous droits réservés
+          © 2025 Chogan by Ikram - Site indépendant d’un consultant Chogan Group
         </Typography>
       </Box>
     </Box>

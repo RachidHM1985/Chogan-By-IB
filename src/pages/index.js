@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Grid } from '@mui/material';
-import Slider from 'react-slick'; 
+import { Box, Typography, Grid, Rating, Card, CardContent, Button } from '@mui/material';
+import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
+import ReviewsSection from '../components/ReviewsSection';
 
 export default function Home() {
   const [isClient, setIsClient] = useState(false);
@@ -77,56 +78,77 @@ export default function Home() {
     ],
   };
 
+  // Randomise l'affichage des avis clients
+  const getRandomReviews = () => {
+    const shuffledReviews = [...randomReviews].sort(() => 0.5 - Math.random());
+    return shuffledReviews.slice(0, 3); // Afficher 3 avis aléatoires
+  };
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%',  top: '17vh',  position:'relative'}}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '100vh', 
+      }}
+    >
       {/* Affichage du Header */}
       <Header />
 
       {/* Carrousel automatique pour les images promotionnelles */}
-      <Box sx={{marginLeft:'5%', marginRight:'5%', }}>
+      <Box sx={{
+        marginLeft: '5%', 
+        marginRight: '5%',  
+        top: '13vh',
+        position: 'relative', // Assurez-vous que la position relative n'entrave pas la mise en page
+        marginBottom: '30px', // Ajoutez un espacement en bas pour le carrousel auto
+      }}>
         <Grid container justifyContent="center">
           <Grid item xs={12} sm={8} md={6}>
-            <Box sx={{ justifyContent: 'center', alignItems: 'center', height: 'auto' }}>
-              <Slider {...autoCarouselSettings}>              
-                  {promoImages.map((image, index) => (
-                    <div key={index}>
-                      <img
-                        src={image}
-                        alt={`Promo ${index}`}
-                        style={{ width: '100%', height: 'auto', objectFit: 'cover', borderRadius: '10px' }}
-                      />
-                    </div>                 
-                ))}
-              </Slider>
-            </Box>
+            <Slider {...autoCarouselSettings}>
+              {promoImages.map((image, index) => (
+                <div key={index}>
+                  <img
+                    src={image}
+                    alt={`Promo ${index}`}
+                    style={{
+                      width: '100%',
+                      height: 'auto',
+                      objectFit: 'cover',
+                      borderRadius: '10px',
+                    }}
+                  />
+                </div>
+              ))}
+            </Slider>
           </Grid>
         </Grid>
       </Box>
 
       {/* Carrousel manuel avec titre et phrase */}
-      <Box sx={{ marginTop: '20px' }}>
+      <Box sx={{ position:'relative', top: '10vh' }}>
         <Grid container justifyContent="center">
           <Grid item xs={12} sm={10} md={8}>
-            {/* Titre "Nos Marques" */}
             <Box sx={{ textAlign: 'center', marginBottom: '5px' }}>
               <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#000' }}>
                 Nos Marques
               </Typography>
-              {/* Phrase sous le titre */}
               <Typography variant="body2" sx={{ fontWeight: 'normal', color: '#555' }}>
                 Offrez-vous le meilleur pour votre bien-être et votre maison.
               </Typography>
             </Box>
 
             {/* Carrousel manuel */}
-            <Box sx={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: '250px', // Hauteur de la Box ajustée
-              overflow: 'hidden', // Masque les excédents
-              marginBottom: '5px', // Espacement sous le carrousel manuel
-              textAlign: 'center', // Centrer le contenu à l'intérieur de la box
-            }}>
+            <Box
+              sx={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '25vh',
+                overflow: 'hidden',
+                marginBottom: '30px', // Ajoutez un espacement pour que le carrousel manuel ne chevauche pas le footer
+                textAlign: 'center',
+              }}
+            >
               <Slider {...manualCarouselSettings}>
                 {manualImages.map((image, index) => (
                   <div key={index}>
@@ -134,11 +156,11 @@ export default function Home() {
                       src={image}
                       alt={`Image ${index}`}
                       style={{
-                        borderRadius:'30px',
-                        width: '100%', // L'image prend toute la largeur du conteneur
-                        height: '100%', // Hauteur ajustée
-                        objectFit: 'cover', // Maintient l'aspect des images
-                        paddingLeft: '11px', // Espacement entre les images
+                        borderRadius: '30px',
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        paddingLeft: '11px',
                         paddingRight: '12px',
                       }}
                     />
@@ -150,8 +172,12 @@ export default function Home() {
         </Grid>
       </Box>
 
-      {/* Affichage du Footer */}
+      {/* Section des Avis Clients */}
+      <Box sx={{ marginTop: '40px', backgroundColor: '#f8f8f8', padding: '40px 20px' }}>
+        <ReviewsSection productId={'*'} isInsertComment={false} />
+      </Box>
+      {/* Footer */}
       <Footer />
-    </div>
+    </Box>
   );
 }

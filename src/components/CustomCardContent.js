@@ -139,11 +139,18 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
           variant="body1"
           sx={{
             fontSize: '0.8rem',
-            fontWeight: '400', // Mettre en gras
+            fontWeight: '400', // Poids normal
+            border: '2px solid black', // Bordure plus large (2px)
+            padding: '10px', // Espacement interne plus large
+            borderRadius: '4px', // Coins arrondis (ajustez si nécessaire)
+            display: 'block', // Permet de forcer le `Typography` à occuper toute la largeur
+            width: '100%', // Occupe toute la largeur disponible
           }}
         >
           À partir de {getLowestPrice(perfume)} €
         </Typography>
+
+
       </Box>
     </CardContent>
   );

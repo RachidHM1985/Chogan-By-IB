@@ -1,9 +1,3 @@
-/* carousel.css */
-
-@import 'bootstrap/dist/css/bootstrap.min.css';
-@import 'slick-carousel/slick/slick.css';
-@import 'slick-carousel/slick/slick-theme.css';
-
 /* Assurez-vous que les carrousels ne se chevauchent pas */
 .auto-carousel-container {
   display: flex;
@@ -14,118 +8,52 @@
   position: relative; /* Pas de position fixe pour éviter le chevauchement */
   padding-top: 10vh; /* Ajustez selon l'écran */
   padding-bottom: 1vh; /* Ajustez selon l'écran */
-}
-
-/* Réduire l'espace pour les petits écrans */
-@media (max-width: 768px) {
-  .auto-carousel-container {
-    padding-top: 12vh;
-  }
-}
-
-/* Pour les écrans plus larges, ajustez le padding top */
-@media (min-width: 769px) {
-  .auto-carousel-container {
-    margin-top: 5vh;
-    padding-bottom: 10vh;
-  }
+  margin-bottom: 30px; /* Ajoutez de l'espace en bas pour éviter le chevauchement */
 }
 
 /* Carrousel manuel ajusté pour ne pas chevaucher le carrousel automatique */
 .manual-carousel-container {
   border-radius: 0 10px;
-  position: relative; /* Remplacer le positionnement fixe */
+  position: relative;
   z-index: 999;
   margin-top: 20px;
-  margin-bottom: 5vh; /* Ajoutez de l'espace en bas pour éviter les chevauchements */
+  margin-bottom: 30px; /* Ajoutez de l'espace pour éviter les chevauchements */
 }
 
-/* Pour les écrans mobiles (moins de 768px) */
-@media (max-width: 768px) {
-  .manual-carousel-container {
-    margin-top: 10px; /* Réduit la marge pour les écrans mobiles */
-    margin-bottom: 10vh; /* 10% de la hauteur de la fenêtre pour les mobiles */
-  }
-}
-
-/* Pour les écrans plus larges (PC et tablettes) */
-@media (min-width: 769px) {
-  .manual-carousel-container {
-    margin-bottom: 0; /* Pas d'espace pour les PC */
-  }
-}
-
-/* Réduit la hauteur des images dans le carrousel automatique sur les petits écrans */
-@media (max-width: 768px) {
-  .promo-image {
-    height: 25vh; /* Ajustez pour les tablettes */
-  }
-}
-
-@media (max-width: 576px) {
-  .promo-image {
-    height: 20vh; /* Ajustez encore pour les petits écrans */
-  }
-}
-
-/* Gardez une taille d'image raisonnable */
+/* Ajoutez des styles pour les images dans le carrousel */
 .promo-image {
   width: 100%;
-  height: auto; /* Hauteur automatique pour les images */
+  height: auto;
   object-fit: cover;
   object-position: center;
 }
 
-  
-  @media (max-width: 768px) {
-    .promo-image {
-      height: 25vh; /* Réduit la hauteur pour les tablettes */
-    }
-  }
-  
-  @media (max-width: 576px) {
-    .promo-image {
-      height: 20vh; /* Réduit encore la hauteur pour les petits écrans */
-    }
-  }
-   
-  @media (max-width: 768px) {
-    .manual-carousel-container {
-      margin-top: 10px; /* Réduit la marge pour les écrans mobiles */
-    }
-  }
-  
-  /* Autres améliorations générales */
-  slick-slide {
-    display: flex;
-    justify-content: center; /* Centrer les images à l'intérieur du carrousel */
-  }
-  
-  .slick-track {
-    display: flex; /* Assurez-vous que les éléments sont bien en ligne */
-    justify-content: center;
-  }
+.slick-slide {
+  display: flex;
+  justify-content: center;
+}
 
-  /* Style de base pour les points de navigation */
+.slick-track {
+  display: flex;
+  justify-content: center;
+}
+
+/* Style de base pour les points de navigation */
 .custom-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background-color: #d3d3d3; /* Couleur de base des points */
-    margin: 0 5px;
-    display: inline-block;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  /* Lorsque le point est actif (c'est-à-dire sélectionné) */
-  .slick-active .custom-dot {
-    background-color: #007bff; /* Vous pouvez changer cette couleur pour votre design */
-  }
-  
-  /* Pour avoir un effet visuel au survol des points de navigation */
-  .custom-dot:hover {
-    background-color: #0056b3;
-  }
-  
-  
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #d3d3d3; /* Couleur de base des points */
+  margin: 0 5px;
+  display: inline-block;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.slick-active .custom-dot {
+  background-color: #007bff;
+}
+
+.custom-dot:hover {
+  background-color: #0056b3;
+}

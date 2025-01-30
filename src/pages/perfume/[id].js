@@ -7,6 +7,7 @@ import { supabase } from '../../supabaseClient';
 import { useCart } from '../../context/CartContext';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
+import ReviewsSection from '../../components/ReviewsSection';
 
 const PerfumeDetailPage = () => {
   const router = useRouter();
@@ -107,7 +108,7 @@ const PerfumeDetailPage = () => {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          minHeight: '60vh', // Minimum height for the page
+          minHeight: '100%', // Full height of the screen
           overflow: 'hidden', // Prevent scrolling
         }}
       >
@@ -115,8 +116,6 @@ const PerfumeDetailPage = () => {
         <Box
           sx={{
             flexGrow: 1,
-            width: '100%',
-            maxWidth: '100%', // Ensure the content doesn't overflow horizontally
             paddingTop: '100px',
           }}
         >
@@ -126,6 +125,7 @@ const PerfumeDetailPage = () => {
             <Typography variant="h6" color="error" align="center">{error}</Typography>
           ) : (
             perfume && (
+              <>
               <Row className="d-flex justify-content-center align-items-center" style={{ width: '100%' }}>
                 <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">
                 <Typography variant="body1" align="center">Inspiré de :</Typography>
@@ -136,8 +136,8 @@ const PerfumeDetailPage = () => {
                     alt={perfume.nom_produit}
                     className="img-fluid" // Responsive class for image
                     style={{
-                      maxWidth: '30%', // Max width to avoid overflow
-                      height: '30%',   // Maintain aspect ratio
+                      maxWidth: '50%', // Max width to avoid overflow
+                      height: '50%',   // Maintain aspect ratio
                       borderRadius: '10px',
                     }}
                   />
@@ -207,6 +207,8 @@ const PerfumeDetailPage = () => {
                   </Button>
                 </Col>
               </Row>
+              <ReviewsSection productId={perfume.code} isInsertComment={true} />
+              </>              
             )
           )}
         </Box>
@@ -220,6 +222,7 @@ const PerfumeDetailPage = () => {
           </div>
         )}
       </Container>
+      <Box sx={{ flexGrow: 1 }} /> {/* Ensures footer is pushed to the bottom */}
       <Footer />
     </>
   );
