@@ -142,7 +142,6 @@ const PerfumeDetailPage = () => {
                         objectFit: 'contain', // Utilise 'contain' pour préserver le rapport d'aspect tout en remplissant le conteneur
                       }}
                     />
-                  </Col>
                 </Col>
                 <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">                  
                   <Typography variant="body1" align="center">Réf: {perfume.code}</Typography>
