@@ -184,7 +184,7 @@ const SearchOverlay = ({ open, onClose }) => {
                 backgroundImage: `url(${perfume.image_url})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
-                height: '300px',
+                height: '350px',
               }}
               onClick={() => handleCardClick(perfume.id)}
             >
