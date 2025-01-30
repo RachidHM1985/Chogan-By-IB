@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import styles from './about.module.css';
 import Header from '../components/Header';
-import MyBreadcrumbs from '../../components/Breadcrumbs'
 
 const About = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -14,6 +13,8 @@ const About = () => {
     const position = window.pageYOffset;
     if (position > 50) {
       setIsVisible(true); // Activer l'animation si l'utilisateur fait défiler la page
+    } else {
+      setIsVisible(false); // Désactiver l'animation quand on revient en haut
     }
   };
 
@@ -27,20 +28,20 @@ const About = () => {
   return (
     <>
       <Header />
-      <Container maxWidth="lg" className={styles.container}><MyBreadcrumbs>
-      
+      <Container maxWidth="lg" className={styles.container}>
+
         <Box mb={4} className={styles.heroSection}>
           <Typography
             variant="h3"
             align="center"
-            className={`${styles.sectionTitle}}`}
+            className={`${styles.sectionTitle} ${isVisible ? styles.fadeIn : ''}`}
           >
             À propos de Chogan
           </Typography>
           <Typography
             variant="body1"
             align="center"
-            className={`${styles.introText}`}
+            className={`${styles.introText} ${isVisible ? styles.fadeIn : ''}`}
           >
             Rejoignez une entreprise dynamique, innovante, et en pleine expansion. Découvrez nos produits de qualité et les opportunités exceptionnelles que nous offrons à nos distributeurs !
           </Typography>
@@ -73,42 +74,24 @@ const About = () => {
             Pourquoi Chogan ?
           </Typography>
           <Grid container spacing={4}>
-            <Grid item xs={12} md={4}>
-              <Box
-                className={`${styles.featureBox} ${hoverEffect ? styles.featureHover : ''}`}
-                onMouseEnter={() => setHoverEffect(true)}
-                onMouseLeave={() => setHoverEffect(false)}
-              >
-                <Typography variant="h6">Qualité Excellente</Typography>
-                <Typography variant="body2">
-                  Nos produits sont fabriqués avec des ingrédients de première qualité, garantissant des résultats visibles. Nous offrons des solutions de soins qui respectent votre peau et votre bien-être.
-                </Typography>
-              </Box>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Box
-                className={`${styles.featureBox} ${hoverEffect ? styles.featureHover : ''}`}
-                onMouseEnter={() => setHoverEffect(true)}
-                onMouseLeave={() => setHoverEffect(false)}
-              >
-                <Typography variant="h6">Innovation Continue</Typography>
-                <Typography variant="body2">
-                  Chogan investit constamment dans la recherche et le développement pour proposer des produits innovants et des formules exclusives. Nos produits sont à la pointe de la technologie cosmétique.
-                </Typography>
-              </Box>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Box
-                className={`${styles.featureBox} ${hoverEffect ? styles.featureHover : ''}`}
-                onMouseEnter={() => setHoverEffect(true)}
-                onMouseLeave={() => setHoverEffect(false)}
-              >
-                <Typography variant="h6">Opportunités d'Affaires</Typography>
-                <Typography variant="body2">
-                  En rejoignant Chogan, vous avez l'opportunité de développer votre propre réseau de distributeurs, de gagner des revenus et d'atteindre le succès professionnel tout en aidant les autres à réussir.
-                </Typography>
-              </Box>
-            </Grid>
+            {['Qualité Excellente', 'Innovation Continue', 'Opportunités d\'Affaires'].map((title, index) => (
+              <Grid item xs={12} md={4} key={index}>
+                <Box
+                  className={`${styles.featureBox} ${hoverEffect ? styles.featureHover : ''}`}
+                  onMouseEnter={() => setHoverEffect(true)}
+                  onMouseLeave={() => setHoverEffect(false)}
+                >
+                  <Typography variant="h6">{title}</Typography>
+                  <Typography variant="body2">
+                    {title === 'Qualité Excellente'
+                      ? 'Nos produits sont fabriqués avec des ingrédients de première qualité, garantissant des résultats visibles.'
+                      : title === 'Innovation Continue'
+                      ? 'Chogan investit constamment dans la recherche et le développement pour proposer des produits innovants.'
+                      : 'En rejoignant Chogan, vous avez l\'opportunité de développer votre propre réseau de distributeurs.'}
+                  </Typography>
+                </Box>
+              </Grid>
+            ))}
           </Grid>
         </Box>
 
