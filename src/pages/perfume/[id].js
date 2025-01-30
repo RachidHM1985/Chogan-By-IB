@@ -128,19 +128,21 @@ const PerfumeDetailPage = () => {
               <>
               <Row className="d-flex justify-content-center align-items-center" style={{ width: '100%' }}>
                 <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">
-                <Typography variant="body1" align="center">Inspiré de :</Typography>
-                <Typography variant="h6" align="center" >{capitalizeFirstLetter(perfume.nom_produit)}</Typography>
-                 <Typography variant="h6" align="center">{perfume.nom_marque}</Typography>
-                  <img
-                    src={`../../photos/products/${perfume.genre.toLowerCase()}.png`}
-                    alt={perfume.nom_produit}
-                    className="img-fluid" // Responsive class for image
-                    style={{
-                      maxWidth: '50%', // Max width to avoid overflow
-                      height: '50%',   // Maintain aspect ratio
-                      borderRadius: '10px',
-                    }}
-                  />
+                    <Typography variant="body1" align="center">Inspiré de :</Typography>
+                    <Typography variant="h6" align="center">{capitalizeFirstLetter(perfume.nom_produit)}</Typography>
+                    <Typography variant="h6" align="center">{perfume.nom_marque}</Typography>
+                    <img
+                      src={`../../photos/products/${perfume.genre.toLowerCase()}.png`}
+                      alt={perfume.nom_produit}
+                      className="img-fluid" // Responsive class for image
+                      style={{
+                        maxWidth: '50%', // Limite la largeur à 50%
+                        height: 'auto',   // Laisse la hauteur s'ajuster automatiquement pour garder le rapport d'aspect
+                        borderRadius: '10px',
+                        objectFit: 'contain', // Utilise 'contain' pour préserver le rapport d'aspect tout en remplissant le conteneur
+                      }}
+                    />
+                  </Col>
                 </Col>
                 <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">                  
                   <Typography variant="body1" align="center">Réf: {perfume.code}</Typography>
