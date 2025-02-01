@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
-import { Typography, Box, Button, TextField, IconButton, Tooltip } from '@mui/material';
+import { Typography, Box, Button, TextField, IconButton, Tooltip, Accordion, AccordionSummary, AccordionDetails, Grid } from '@mui/material';
 import { Add, Remove } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import { supabase } from '../../supabaseClient';
@@ -9,6 +9,7 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import ReviewsSection from '../../components/ReviewsSection';
 import Layout from '../../components/Layout';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const PerfumeDetailPage = () => {
   const router = useRouter();
@@ -27,9 +28,7 @@ const PerfumeDetailPage = () => {
     return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
   };
 
-  // Réinitialisation des tailles et quantités lors du changement de parfum
   useEffect(() => {
-    // Réinitialisation de l'état
     setSelectedSizes({});
     setQuantities({});
     setLoading(true);
@@ -58,11 +57,10 @@ const PerfumeDetailPage = () => {
     };
 
     fetchPerfumeDetail();
-  }, [id]); // Dépendance sur l'id pour recharger les données et réinitialiser
+  }, [id]);
 
-  // Réinitialiser le tooltip lorsque le parfum change
   useEffect(() => {
-    setShowTooltip(false); // Masquer le tooltip lors du changement de parfum
+    setShowTooltip(false);
     setTooltipMessage('');
   }, [id]);
 
@@ -90,7 +88,6 @@ const PerfumeDetailPage = () => {
     const sizes = selectedSizes[perfume.id] || {};
     let isValid = false;
 
-    // Vérifier si au moins une taille a été sélectionnée
     Object.keys(sizes).forEach((size) => {
       if (sizes[size]) {
         const quantity = quantities[perfume.id]?.[size] || 1;
@@ -172,8 +169,9 @@ const PerfumeDetailPage = () => {
                                marginBottom: '10px',
                              }}
                             >
-                             Inspiré de : {capitalizeFirstLetter(perfume.nom_produit)} - {perfume.nom_marque}
-                            </Typography>
+                      Influencée par l'univers olfactif de {capitalizeFirstLetter(perfume.nom_produit)} - {perfume.nom_marque},
+                       notre fragrance propose une composition différente et unique,
+                        sans imiter ni enfreindre les droits de propriété intellectuelle, conformément à la législation.</Typography>
                       <Typography variant="body1" align="center">
                         Choisissez une contenance :
                       </Typography>
@@ -237,6 +235,54 @@ const PerfumeDetailPage = () => {
                       </Button>
                     </Col>
                   </Row>
+
+                  {/* Accordion for Description and Notes Olfactives */}
+<Accordion sx={{width: '50%',minWidth:'350px', boxShadow: 'none',  borderBottom: '1px solid black', '&:before': { display: 'none' } }}>
+  <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="description-content" id="description-header">
+    <Typography variant="body1">Description</Typography>
+  </AccordionSummary>
+  <AccordionDetails>
+    <Typography variant="body2">
+      {perfume.description || 'Aucune description disponible pour ce parfum.'}
+    </Typography>
+  </AccordionDetails>
+</Accordion>
+
+<Accordion sx={{ width: '50%', minWidth:'350px', boxShadow: 'none', borderBottom: '1px solid black', '&:before': { display: 'none' }, '&:before': { display: 'none' } }}>
+  <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="notes-content" id="notes-header">
+    <Typography variant="body1">Notes Olfactives</Typography>
+  </AccordionSummary>
+  <AccordionDetails>
+    <Grid container spacing={2} justifyContent="center">
+      <Grid item xs={4}>
+        <Typography variant="body1" color="primary" align="center">
+          Notes de tête
+        </Typography>
+        <Typography variant="body2" align="center">
+          {perfume.note_tete}
+        </Typography>
+      </Grid>
+      <Grid item xs={4}>
+        <Typography variant="body1" color="primary" align="center">
+          Notes de cœur
+        </Typography>
+        <Typography variant="body2" align="center">
+          {perfume.notes_coeur}
+        </Typography>
+      </Grid>
+      <Grid item xs={4}>
+        <Typography variant="body1" color="primary" align="center">
+          Notes de fond
+        </Typography>
+        <Typography variant="body2" align="center">
+          {perfume.fond}
+        </Typography>
+      </Grid>
+    </Grid>
+  </AccordionDetails>
+</Accordion>
+
+
                   <ReviewsSection productId={perfume.code} isInsertComment={true} />
                 </>
               )

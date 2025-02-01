@@ -103,8 +103,7 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
            marginBottom: '2px', // Espacement réduit
          }}
         >
-         Inspiré de : {capitalizeFirstLetter(perfume.nom_produit)} -  {perfume.nom_marque}
-        </Typography>
+      Influencée par l'univers olfactif de {capitalizeFirstLetter(perfume.nom_produit)} - {perfume.nom_marque}, notre fragrance propose une composition différente et unique, ...</Typography>
         {/* Price */}
         <Typography
           variant="body1"
