@@ -128,7 +128,7 @@ const PerfumesPage = () => {
           }}
         >
           {/* Barre de recherche */}
-          <div style={{width: '95%', maxWidth: '600px', marginBottom:'10px',  borderRadius: '20px', }}>
+          <div style={{width: '98%', maxWidth: '600px', marginBottom:'10px',  borderRadius: '20px', }}>
             <TextField
               label="Recherchez des parfums inspirés des grandes marques"
               variant="outlined"
@@ -136,7 +136,7 @@ const PerfumesPage = () => {
               value={searchQuery}
               onChange={handleSearchChange}
               sx={{
-                fontSize:'0.8em',
+                fontSize:'0.7em',
                 borderColor: 'white',
                 borderRadius: '20px',
                 boxShadow: '0 0px 5px rgba(0, 0, 0, 0.1)',
