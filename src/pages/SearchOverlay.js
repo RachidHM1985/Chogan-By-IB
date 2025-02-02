@@ -15,6 +15,31 @@ const SearchOverlay = ({ open, onClose }) => {
   const { addToCart } = useCart();
   const router = useRouter();
 
+  // Fonction pour obtenir des résultats de parfum aléatoires
+  const getRandomProducts = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/search`); // Récupérer tous les produits
+      if (response.ok) {
+        const data = await response.json();
+
+        // Mélanger les produits pour obtenir un ordre aléatoire
+        const shuffled = data.sort(() => 0.5 - Math.random());
+
+        // Limiter le nombre de produits à afficher (par exemple, 10)
+        const randomResults = shuffled.slice(0, 10);
+
+        setResults(randomResults);
+      } else {
+        console.error("Erreur de chargement des produits");
+      }
+    } catch (error) {
+      console.error("Erreur de réseau lors de la recherche", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Fonction de recherche stricte
   const searchProducts = async (searchQuery) => {
     setLoading(true);
@@ -47,7 +72,6 @@ const SearchOverlay = ({ open, onClose }) => {
       setLoading(false);
     }
   };
-  
 
   const handleCardClick = (perfumeCode) => {
     router.push(`/perfume/${perfumeCode}`);
@@ -75,7 +99,7 @@ const SearchOverlay = ({ open, onClose }) => {
 
   useEffect(() => {
     if (open) {
-      searchProducts(''); // Charger les résultats au début
+      getRandomProducts();
     }
   }, [open]);
 
