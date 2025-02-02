@@ -1,3 +1,4 @@
+// /pages/api/perfumes.js (API Handler)
 import { supabase } from '../../supabaseClient';
 
 export default async function handler(req, res) {
@@ -15,32 +16,30 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Erreur interne de la base de données' });
       }
 
-      // Renvoyer tous les résultats de la table 'parfums'
-      return res.status(200).json(data);
+      return res.status(200).json(data); // Renvoyer tous les résultats de la table 'parfums'
     }
 
-    // Recherche dans la table 'parfums' avec des conditions 'OR' pour les colonnes recherchées
+    // Recherche sur toutes les colonnes de la table 'parfums'
     const { data, error } = await supabase
       .from('parfums')
       .select('*')
-      .or(`nom_produit.ilike.%${query}%,code.ilike.%${query}%,genre.ilike.%${query}%,nom_marque.ilike.%${query}%`);
+      .or(
+        `nom_produit.ilike.%${query}%,code.ilike.%${query}%,nom_marque.ilike.%${query}%,genre.ilike.%${query}%,description.ilike.%${query}%`
+      )
+      .eq('code', query); // Vous pouvez ajouter d'autres colonnes ici si nécessaire.
 
-    // Gestion des erreurs Supabase
     if (error) {
       console.error('Erreur Supabase:', error);
       return res.status(500).json({ error: 'Erreur interne de la base de données' });
     }
 
-    // Si pas de résultats, renvoyer un tableau vide
+    // Si pas de résultats, renvoyer un message
     if (!data || data.length === 0) {
       return res.status(404).json({ message: 'Aucun parfum trouvé' });
     }
 
-    // Renvoyer les résultats de la recherche
-    return res.status(200).json(data);
-
+    return res.status(200).json(data); // Renvoyer les résultats de la recherche
   } catch (error) {
-    // Gestion des erreurs générales
     console.error('Erreur de recherche:', error);
     return res.status(500).json({ error: 'Erreur serveur lors de la recherche' });
   }

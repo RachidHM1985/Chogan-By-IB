@@ -158,6 +158,7 @@ const AdminOrders = () => {
                       <TableCell>Téléphone utilisateur</TableCell>
                       <TableCell>Adresse utilisateur</TableCell>
                       <TableCell>Total</TableCell>
+                      <TableCell>Details Commande</TableCell>
                       <TableCell>Frais de livraison</TableCell>
                       <TableCell>Status</TableCell>
                       <TableCell>Créé le</TableCell>
@@ -174,6 +175,7 @@ const AdminOrders = () => {
                         <TableCell>{order.user_phone}</TableCell>
                         <TableCell>{order.user_address}</TableCell>
                         <TableCell>{order.total_amount} €</TableCell>
+                        <TableCell>{order.detail_order} €</TableCell>
                         <TableCell>{order.delivery_fee} €</TableCell>
                         <TableCell>{order.order_status}</TableCell>
                         <TableCell>{new Date(order.created_at).toLocaleDateString('fr-FR')}</TableCell>

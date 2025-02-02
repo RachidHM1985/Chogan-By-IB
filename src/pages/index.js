@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Grid, Rating, Card, CardContent, Button } from '@mui/material';
+import { Box, Typography, Grid } from '@mui/material';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import ReviewsSection from '../components/ReviewsSection';
+import Link from 'next/link';
 
 export default function Home() {
   const [isClient, setIsClient] = useState(false);
@@ -27,11 +28,11 @@ export default function Home() {
 
   // Liste des images pour le carrousel manuel
   const manualImages = [
-    '/images/olfazeta.png',
-    '/images/hover-cooperativa.png',
-    '/images/peptilux.png',
-    '/images/aurodhea.png',
-    '/images/brilhome.png',
+    { src: '/images/olfazeta.png', link: '/perfumes' },
+    {src:'/images/hover-cooperativa.png',link: ''},
+    {src:'/images/peptilux.png', link: ''},
+    {src:'/images/aurodhea.png', link: ''},
+    {src:'/images/brilhome.png', link: ''},
   ];
 
   // Paramètres du carrousel automatique
@@ -78,108 +79,107 @@ export default function Home() {
     ],
   };
 
-  // Randomise l'affichage des avis clients
-  const getRandomReviews = () => {
-    const shuffledReviews = [...randomReviews].sort(() => 0.5 - Math.random());
-    return shuffledReviews.slice(0, 3); // Afficher 3 avis aléatoires
-  };
-
   return (
     <>
-    <Header />
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: '100vh', 
-        top:'10vh', 
-        position: 'relative'
-      }}
-    >
-      {/* Carrousel automatique pour les images promotionnelles */}
-      <Box sx={{
-        marginLeft: '5%', 
-        marginRight: '5%',  
-        top: '2vh',
-        position: 'relative', // Assurez-vous que la position relative n'entrave pas la mise en page
-        marginBottom: '5px', // Ajoutez un espacement en bas pour le carrousel auto
-      }}>
-        <Grid container justifyContent="center">
-          <Grid item xs={12} sm={8} md={6}>
-            <Slider {...autoCarouselSettings}>
-              {promoImages.map((image, index) => (
-                <div key={index}>
-                  <img
-                    src={image}
-                    alt={`Promo ${index}`}
-                    style={{
-                      width: '100%',
-                      height: 'auto',
-                      objectFit: 'cover',
-                      borderRadius: '10px',
-                    }}
-                  />
-                </div>
-              ))}
-            </Slider>
-          </Grid>
-        </Grid>
-      </Box>
-
-      {/* Carrousel manuel avec titre et phrase */}
-      <Box sx={{ position:'relative', top: '5vh' }}>
-        <Grid container justifyContent="center">
-          <Grid item xs={12} sm={10} md={8}>
-            <Box sx={{ textAlign: 'center', marginBottom: '5px' }}>
-              <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#000' }}>
-                Nos Marques
-              </Typography>
-              <Typography variant="body2" sx={{ fontWeight: 'normal', color: '#555' }}>
-                Offrez-vous le meilleur pour votre bien-être et votre maison.
-              </Typography>
-            </Box>
-
-            {/* Carrousel manuel */}
-            <Box
-              sx={{
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '25vh',
-                overflow: 'hidden',
-                marginBottom: '30px', // Ajoutez un espacement pour que le carrousel manuel ne chevauche pas le footer
-                textAlign: 'center',
-              }}
-            >
-              <Slider {...manualCarouselSettings}>
-                {manualImages.map((image, index) => (
+      <Header />
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '100vh', 
+          top:'10vh', 
+          position: 'relative'
+        }}
+      >
+        {/* Carrousel automatique pour les images promotionnelles */}
+        <Box sx={{
+          marginLeft: '5%', 
+          marginRight: '5%',  
+          top: '2vh',
+          position: 'relative', 
+          marginBottom: '5px',
+        }}>
+          <Grid container justifyContent="center">
+            <Grid item xs={12} sm={8} md={6}>
+              <Slider {...autoCarouselSettings}>
+                {promoImages.map((image, index) => (
                   <div key={index}>
                     <img
                       src={image}
-                      alt={`Image ${index}`}
+                      alt={`Promo ${index}`}
                       style={{
-                        borderRadius: '30px',
                         width: '100%',
-                        height: '100%',
+                        height: 'auto',
                         objectFit: 'cover',
-                        paddingLeft: '11px',
-                        paddingRight: '12px',
+                        borderRadius: '10px',
                       }}
                     />
                   </div>
                 ))}
               </Slider>
-            </Box>
+            </Grid>
           </Grid>
-        </Grid>
-      </Box>
+        </Box>
 
-      {/* Section des Avis Clients */}
-      <Box sx={{ marginTop: '40px', backgroundColor: '#f8f8f8', padding: '5px 5px' }}>
-        <ReviewsSection productId={'*'} isInsertComment={false} />
-      </Box>
-      {/* Footer */}
-      <Footer />      
-    </Box>  
-  </>
+        {/* Carrousel manuel avec titre et phrase */}
+        <Box sx={{ position: 'relative', top: '5vh' }}>
+          <Grid container justifyContent="center">
+            <Grid item xs={12} sm={10} md={8}>
+              <Box sx={{ textAlign: 'center', marginBottom: '5px' }}>
+                <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#000' }}>
+                  Nos Marques
+                </Typography>
+                <Typography variant="body2" sx={{ fontWeight: 'normal', color: '#555' }}>
+                  Offrez-vous le meilleur pour votre bien-être et votre maison.
+                </Typography>
+              </Box>
+
+              {/* Carrousel manuel */}
+              <Box
+                sx={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: '25vh',
+                  overflow: 'hidden',
+                  marginBottom: '30px',
+                  textAlign: 'center',
+                }}
+              >
+                <Slider {...manualCarouselSettings}>
+                  {manualImages.map((image, index) => (
+                    <div key={index}>
+                      {/* Envelopper l'image avec un <Link> pour la redirection */}
+                      <Link href={image.link} passHref>
+                        
+                          <img
+                            src={image.src}
+                            alt={`Image ${index}`}
+                            style={{
+                              borderRadius: '30px',
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
+                              paddingLeft: '11px',
+                              paddingRight: '12px',
+                            }}
+                          />
+                        
+                      </Link>
+                    </div>
+                  ))}
+                </Slider>
+              </Box>
+            </Grid>
+          </Grid>
+        </Box>
+
+        {/* Section des Avis Clients */}
+        <Box sx={{ marginTop: '40px', backgroundColor: '#f8f8f8', padding: '5px 5px' }}>
+          <ReviewsSection productId={'*'} isInsertComment={false} />
+        </Box>
+        {/* Footer */}
+        <Footer />      
+      </Box>  
+    </>
   );
 }
