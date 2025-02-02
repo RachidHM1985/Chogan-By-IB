@@ -53,270 +53,383 @@ const Header = () => {
   const handleOpenSearch = () => setOpenSearch(true); // Open Search Overlay
   const handleCloseSearch = () => setOpenSearch(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [codePromoValid, setCodePromoValid] = useState(true);
+  const [codePromoValid, setCodePromoValid] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const[amountPromo, setAmountPromo] = useState('');
 
   const toggleSidebar = () => {
     setOpenSidebar(!openSidebar);
-  };
+};
 
-  const handleOpenCart = () => {
+const handleOpenCart = () => {
+    calculateTotalPrice();
     setOpenCart(true);
-  };
+};
 
-  const handleCloseCart = () => {
-    setIsEditing(false);  // Arrêter l'édition des quantités
-    setQuantities({});    // Réinitialiser les quantités
-    setDeliveryFee(0);    // Réinitialiser les frais de livraison si nécessaire
-    setPromoCode('');
-    setTotalPriceWithDelivery(0); // Réinitialiser le total du panier avec livraison
-    setOpenCart(false);   // Fermer le panier
-    calculateTotalPrice();  // Recalculer le prix total après fermeture
-  };
+const handleCloseCart = () => {
+  // Réinitialiser tous les messages
+  setSuccessMessage('');
+  setErrorMessage('');
+  
+  // Arrêter l'édition des quantités et réinitialiser les quantités
+  setIsEditing(false);  
+  setQuantities({});
 
-  const handleConfirmOrder = () => {
-    setIsEditing(false)
+  // Réinitialiser le code promo et les valeurs associées
+  setAmountPromo('');
+  setPromoCode('');
+  setCodePromoValid(false);  // Réinitialiser la validation du code promo
+  setDeliveryFee(0);  // Réinitialiser les frais de livraison
+  
+  // Réinitialiser les valeurs liées à l'affichage du panier
+  setTotalPriceWithDelivery(0);  // Réinitialiser le total avec livraison
+  
+  
+  // Si vous avez un formulaire à réinitialiser, vous pouvez le faire ici
+  setFormData({
+      name: '',
+      email: '',
+      address: '',
+      phone: ''
+  });
+
+  // Calculer le total après réinitialisation, s'il y a des calculs à refaire
+  calculateTotalPrice();
+  
+  // Fermer le panier
+  setOpenCart(false);
+};
+
+
+const handleConfirmOrder = () => {
+    setIsEditing(false);
     setOpenCart(false);
     setOpenConfirmation(true);
-  };
+};
 
-  const handleFormChange = (event) => {
+const handleFormChange = (event) => {
     const { name, value } = event.target;
     setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
+        ...prevState,
+        [name]: value,
     }));
-  };
+};
 
-  const validateForm = (data) => {
+const validateForm = (data) => {
     const errors = {};
     if (!data.name) errors.name = 'Name is required';
     if (!data.email) errors.email = 'Email is required';
     if (!data.address) errors.address = 'Address is required';
     if (!data.phone) errors.phone = 'Phone number is required';
     return errors;
-  };
+};
 
-  const handleStripePayment = async () => {
+const handleStripePayment = async () => {
     const errors = validateForm(formData);
     setFormErrors(errors);
-  
+
     if (Object.keys(errors).length === 0) {
-      try {
-        const response = await fetch('/api/create-checkout-session', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ formData, cartItems, totalPrice: totalPriceWithDelivery }),
-        });
-  
-        const { sessionId } = await response.json();
-  
-        if (sessionId) {
-          const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
-          const { error } = await stripe.redirectToCheckout({ sessionId });
-  
-          if (error) {
-            console.error('Stripe redirect error:', error);
-          }
-        } else {
-          console.error('No Stripe session returned.');
+        try {
+            const response = await fetch('/api/create-checkout-session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ formData, cartItems, totalPrice: totalPriceWithDelivery }),
+            });
+
+            const { sessionId } = await response.json();
+
+            if (sessionId) {
+                const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
+                const { error } = await stripe.redirectToCheckout({ sessionId });
+
+                if (error) {
+                    console.error('Stripe redirect error:', error);
+                }
+            } else {
+                console.error('No Stripe session returned.');
+            }
+        } catch (error) {
+            console.error('Error creating Stripe session:', error);
         }
-      } catch (error) {
-        console.error('Error creating Stripe session:', error);
-      }
     }
-  };
-  
+};
 
-  const handleDeliveryChange = (event) => {
+const handleDeliveryChange = (event) => {
     setDelivery(event.target.checked);
-  };
+};
 
-  const handleEdit = () => {
+const handleEdit = () => {
     setIsEditing((prevState) => !prevState);
-    calculateTotalPrice()    
-  };
+};
 
-  const handleQuantityChange = (index, newQuantity) => {
-    // Convertir newQuantity en nombre et vérifier si c'est un nombre valide
-    const quantity = Number(newQuantity);
-  
-    // Si la quantité est inférieure à 1 ou une valeur invalide (NaN), supprimer l'élément du panier
-    if (quantity <= 0 || isNaN(quantity)) {
-      removeFromCart(cartItems[index].product.id, cartItems[index].size);
-    } else {
-      // Met à jour la quantité dans l'élément du panier
-      const updatedCartItems = [...cartItems];
-      updatedCartItems[index].quantity = quantity;
-  
-      // Met à jour les quantités dans l'état
-      setQuantities((prev) => ({
-        ...prev,
-        [cartItems[index].product.id]: {
-          ...prev[cartItems[index].product.id],
-          [cartItems[index].size]: quantity,
-        },
-      }));
+const handleQuantityChange = (index, newQuantity) => {
+  const quantity = Number(newQuantity);
+
+  // Vérifier si la quantité est valide (nombre > 0)
+  if (quantity <= 0 || isNaN(quantity)) {
+    console.log(quantity);
+    removeFromCart(cartItems[index].product.id, cartItems[index].size);
+  } else {
+    // Mettre à jour la quantité de l'article dans le panier
+    const updatedCartItems = cartItems.map((item, i) =>
+      i === index ? { ...item, quantity } : item
+    );
+
+    // Mettre à jour l'état du panier avec la nouvelle copie
+    setCartItems(updatedCartItems);
+
+    // Mettre à jour les quantités dans l'état
+    setQuantities((prev) => ({
+      ...prev,
+      [cartItems[index].product.id]: {
+        ...prev[cartItems[index].product.id],
+        [cartItems[index].size]: quantity,
+      },
+    }));
+
+    // Calculer et mettre à jour le montant du code promo
+    if (codePromoValid) {
+      calculateDiscount(updatedCartItems);
     }
-  };   
+  }
+};
 
-  const calculerFraisLivraison = (cartItems, totalPrice) => {
-    const poidsParfum = {
-      "30ml": 200,
-      "50ml": 250,
-      "70ml": 300
-    };
+const calculateDiscount = (cartItems) => {
+  let totalDiscount = 0;
 
-    const tarifs = [
-      { maxPoids: 500, prix: 4.99 },
-      { maxPoids: 1000, prix: 6.99 },
-      { maxPoids: 2000, prix: 9.99 },
-      { maxPoids: 5000, prix: 14.99 },
-      { maxPoids: Infinity, prix: 20.99 }
-    ];
+  // Vérifier si le code promo est appliqué
+  if (promoCode === 'CHOGAN50') {
+    // Réinitialiser les prix réduits
+    const resetCartItems = cartItems.map(item => ({ ...item, discountedPrice: null }));
 
-    let poidsTotal = 0;
-    cartItems.forEach(item => {
-      poidsTotal += poidsParfum[item.size] * item.quantity;
+    // Étendre les articles en fonction de leur quantité
+    const expandedCartItems = [];
+    resetCartItems.forEach(item => {
+        for (let i = 0; i < item.quantity; i++) {
+            expandedCartItems.push({ ...item, quantity: 1 });
+        }
     });
 
-    let fraisLivraison = 0;
-    if (totalPrice > 80) {
-      return fraisLivraison; // No delivery fee if the total price exceeds 80
-    } else {
-      for (let tarif of tarifs) {
-        if (poidsTotal <= tarif.maxPoids) {
-          fraisLivraison = tarif.prix;
-          break;
+    // Trier les articles par prix croissant
+    const sortedCartItems = expandedCartItems.sort((a, b) => {
+        const priceA = a.product[`prix_${a.size}`];
+        const priceB = b.product[`prix_${b.size}`];
+        return priceA - priceB;
+    });
+
+    const itemsToDiscount = Math.floor(sortedCartItems.length / 2);
+
+    // Appliquer la réduction de 50% sur les articles les moins chers
+    sortedCartItems.forEach((item, index) => {
+        if (index < itemsToDiscount) {
+            const originalPrice = item.product[`prix_${item.size}`];
+            const discountedPrice = originalPrice * 0.5;
+
+            // Calculer le montant de la réduction
+            const discountAmount = originalPrice - discountedPrice;
+            totalDiscount += discountAmount;
+
+            // Mettre à jour l'article avec le prix réduit
+            item.discountedPrice = discountedPrice;
         }
-      }
-    }
-    return fraisLivraison;
+    });
+
+    // Mettre à jour l'état du panier avec les prix réduits
+    const finalUpdatedCartItems = resetCartItems.map((originalItem) => {
+        const updatedItems = sortedCartItems.filter(
+            (updatedItem) =>
+                updatedItem.product.id === originalItem.product.id &&
+                updatedItem.size === originalItem.size
+        );
+        if (updatedItems.length > 0) {
+            const totalDiscountedPrice = updatedItems.reduce((acc, item) => acc + (item.discountedPrice || item.product[`prix_${item.size}`]), 0);
+            return { ...originalItem, discountedPrice: totalDiscountedPrice / updatedItems.length };
+        }
+        return originalItem;
+    });
+
+    setCartItems(finalUpdatedCartItems);
+    setAmountPromo(totalDiscount.toFixed(2)); // Mettre à jour le montant du code promo
+  }
+};
+
+const calculerFraisLivraison = (cartItems, totalPrice) => {
+  const poidsParfum = {
+    "30ml": 200,
+    "50ml": 250,
+    "70ml": 300,
   };
 
+  const tarifs = [
+    { maxPoids: 500, prix: 4.99 },
+    { maxPoids: 1000, prix: 6.99 },
+    { maxPoids: 2000, prix: 9.99 },
+    { maxPoids: 5000, prix: 14.99 },
+    { maxPoids: Infinity, prix: 20.99 },
+  ];
 
-  useEffect(() => {
-    calculateTotalPrice();
-  }, [cartItems, delivery, totalPrice]);
+  let poidsTotal = 0;
+  cartItems.forEach((item) => {
+    poidsTotal += poidsParfum[item.size] * item.quantity;
+  });
 
-  useEffect(() => {
+  let fraisLivraison = 0;
+  if (totalPrice > 80) {
+    return fraisLivraison; // Pas de frais de livraison si le total est supérieur à 80
+  } else {
+    for (let tarif of tarifs) {
+      if (poidsTotal <= tarif.maxPoids) {
+        fraisLivraison = tarif.prix;
+        break;
+      }
+    }
+  }
+  return fraisLivraison;
+};
+
+useEffect(() => {
     const handleRouteChange = () => {
-      setOpenSidebar(false);
+        setOpenSidebar(false);
     };
 
     router.events.on('routeChangeComplete', handleRouteChange);
 
     return () => {
-      router.events.off('routeChangeComplete', handleRouteChange);
+        router.events.off('routeChangeComplete', handleRouteChange);
     };
-  }, [router.events]);
+}, [router.events]);
 
-  const calculateTotalPrice = () => {
-    let total = cartItems.reduce((acc, item) => acc + (item.discountedPrice || item.product[`prix_${item.size}`]) * item.quantity, 0);
-  
-    // Si la livraison est activée et que le total est inférieur à 80, appliquer des frais de livraison
-    if (delivery && total < 80) {
-      const fraisLivraison = calculerFraisLivraison(cartItems, total);
-      setDeliveryFee(fraisLivraison);
-      total += fraisLivraison;
-    }
-  
-    setTotalPriceWithDelivery(total);
-  };  
+const handlePromoCodeSubmit = async (e) => {
+  if (e) e.preventDefault();
 
-  const handlePromoCodeSubmit = async (e) => {
-    e.preventDefault();
-  
-    // Si le code promo est vide, afficher une erreur
-    if (!promoCode.trim()) {
+  // Vérifier si le code promo est vide
+  if (!promoCode.trim() && promoCode === '') {
+      setCodePromoValid(false);
       setErrorMessage('Veuillez entrer un code promo');
       setSuccessMessage('');
       return;
-    }
-  
-    setLoading(true);
-    try {
+  }
+
+  setLoading(true);
+  try {
       // Appeler l'API pour vérifier la validité du code promo
       const response = await fetch('/api/validate-promo-code', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ promoCode }),
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ promoCode }),
       });
-  
+
       const data = await response.json();
-  
+
       if (data.success) {
-        // Code promo valide, réinitialiser l'erreur
-        setErrorMessage('');
-        setSuccessMessage('Code promo appliqué avec succès!');
-        setCodePromoValid(true);
-  
-        // Si le code promo est "CHOGAN50" et qu'il y a plus d'un article dans le panier
-        if (promoCode === 'CHOGAN50' && cartItems.length > 1) {
-          console.log('Code promo CHOGAN50 détecté. Application de la réduction de 50% sur les paires.');
-  
-          // Trier les articles par prix croissant (pour appliquer la réduction sur les produits les moins chers)
-          const sortedCartItems = [...cartItems].sort((a, b) => {
-            const priceA = a.product[`prix_${a.size}`];
-            const priceB = b.product[`prix_${b.size}`];
-            return priceA - priceB;
-          });
-  
-          let itemWithDiscountApplied = false;
-          let totalDiscount = 0; // Variable pour stocker le montant total de la réduction
-  
-          // Appliquer la réduction sur les paires
-          const updatedCartItems = sortedCartItems.map((item, index) => {
-            if (index % 2 === 0 && !itemWithDiscountApplied) { // Appliquer la réduction sur le produit le moins cher (index pair après tri)
-              const originalPrice = item.product[`prix_${item.size}`];
-              const discountedPrice = originalPrice * 0.5; // Applique une réduction de 50%
-  
-              // Calculer le montant de la réduction pour cet article
-              const discountAmount = originalPrice - discountedPrice;
-              totalDiscount += discountAmount; // Ajouter la réduction au total
-  
-              itemWithDiscountApplied = true;
-              return { ...item, discountedPrice };
-            }
-            return item;
-          });
-  
-          // Rétablir l'ordre des articles en fonction du panier original
-          const finalUpdatedCartItems = cartItems.map((originalItem) => {
-            return updatedCartItems.find(
-              (updatedItem) =>
-                updatedItem.product.id === originalItem.product.id &&
-                updatedItem.size === originalItem.size
-            ) || originalItem;
-          });
-  
-          // Mettre à jour l'état du panier avec les prix modifiés
-          setCartItems(finalUpdatedCartItems);
-          calculateTotalPrice();  // Recalculer le prix total après réduction
-  
-          // Afficher le montant total de la réduction
-          setSuccessMessage(`Code promo appliqué ! Vous avez économisé ${totalDiscount.toFixed(2)}€`);
-        }
+          setErrorMessage('');
+          setCodePromoValid(true);
+
+          // Calculer le nombre total d'articles
+          const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+
+          // Si le code promo est "CHOGAN50" et qu'il y a plus d'un article au total
+          if (promoCode === 'CHOGAN50' && totalItems > 1) {
+              console.log('Code promo CHOGAN50 détecté. Application de la réduction de 50% sur les paires.');
+
+              // Réinitialiser les prix réduits
+              const resetCartItems = cartItems.map(item => ({ ...item, discountedPrice: null }));
+
+              // Étendre les articles en fonction de leur quantité
+              const expandedCartItems = [];
+              resetCartItems.forEach(item => {
+                  for (let i = 0; i < item.quantity; i++) {
+                      expandedCartItems.push({ ...item, quantity: 1 });
+                  }
+              });
+
+              // Trier les articles par prix croissant
+              const sortedCartItems = expandedCartItems.sort((a, b) => {
+                  const priceA = a.product[`prix_${a.size}`];
+                  const priceB = b.product[`prix_${b.size}`];
+                  return priceA - priceB;
+              });
+
+              let totalDiscount = 0;
+              const itemsToDiscount = Math.floor(sortedCartItems.length / 2);
+
+              // Appliquer la réduction de 50% sur les articles les moins chers
+              sortedCartItems.forEach((item, index) => {
+                  if (index < itemsToDiscount) {
+                      const originalPrice = item.product[`prix_${item.size}`];
+                      const discountedPrice = originalPrice * 0.5;
+
+                      // Calculer le montant de la réduction
+                      const discountAmount = originalPrice - discountedPrice;
+                      totalDiscount += discountAmount;
+
+                      // Mettre à jour l'article avec le prix réduit
+                      item.discountedPrice = discountedPrice;
+                  }
+              });
+
+              // Réordonner les articles en fonction du panier original
+              const finalUpdatedCartItems = resetCartItems.map((originalItem) => {
+                  const updatedItems = sortedCartItems.filter(
+                      (updatedItem) =>
+                          updatedItem.product.id === originalItem.product.id &&
+                          updatedItem.size === originalItem.size
+                  );
+                  if (updatedItems.length > 0) {
+                      const totalDiscountedPrice = updatedItems.reduce((acc, item) => acc + (item.discountedPrice || item.product[`prix_${item.size}`]), 0);
+                      return { ...originalItem, discountedPrice: totalDiscountedPrice / updatedItems.length };
+                  }
+                  return originalItem;
+              });
+
+              // Mettre à jour l'état du panier
+              setCartItems(finalUpdatedCartItems);
+              // Afficher le montant total de la réduction
+              setAmountPromo(totalDiscount.toFixed(2))
+          } else {
+              setErrorMessage("Code promo valable uniquement pour plus de 1 article");
+              setSuccessMessage('');
+              setCodePromoValid(false);
+          }
       } else {
-        // Code promo invalide
-        setErrorMessage(data.message || 'Code promo invalide');
-        setSuccessMessage('');
-        setCodePromoValid(false);
+          setErrorMessage(data.message || 'Code promo invalide');
+          setSuccessMessage('');
+          setCodePromoValid(false);
       }
-    } catch (error) {
+  } catch (error) {
       console.error('Erreur de validation du code promo:', error);
       setErrorMessage('Erreur lors de la validation du code promo');
       setSuccessMessage('');
-    } finally {
+  } finally {
       setLoading(false);
-    }
-  };
+  }
+};
+
+const calculateTotalPrice = () => {
+  let total = cartItems.reduce((acc, item) => {
+      return acc + (item.discountedPrice || item.product[`prix_${item.size}`]) * item.quantity;
+  }, 0);
+
+  // Si la livraison est activée et que le total est inférieur à 80, appliquer des frais de livraison
+  if (delivery && total < 80) {
+      const fraisLivraison = calculerFraisLivraison(cartItems, total);
+      setDeliveryFee(fraisLivraison);
+      total += fraisLivraison;
+  } else {
+      setDeliveryFee(0); // Réinitialiser les frais de livraison si le total est supérieur à 80
+  }
   
-  
-  
+
+  setTotalPriceWithDelivery(total);
+};
+
+// Utiliser useEffect pour recalculer le prix total à chaque modification de cartItems ou delivery
+useEffect(() => {
+  calculateTotalPrice();
+}, [cartItems, delivery]);
   return (
     <AppBar
       position="fixed"
@@ -418,7 +531,7 @@ const Header = () => {
               {isEditing ? (
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <IconButton
-                    onClick={() => handleQuantityChange(index, Math.max(quantities[item.product.id]?.[item.size] - 1, 0))}
+                    onClick={() => handleQuantityChange(index, (quantities[item.product.id]?.[item.size] || item.quantity) - 1)}
                     sx={{ padding: '0 8px' }}
                   >
                     <Remove />
@@ -426,7 +539,7 @@ const Header = () => {
 
                   <TextField
                     value={quantities[item.product.id]?.[item.size] || item.quantity}
-                    onChange={(e) => handleQuantityChange(index, Math.max(Number(e.target.value), 0))}
+                    onChange={(e) => handleQuantityChange(index, Math.max(Number(e.target.value), 1))}
                     onBlur={() => {
                       if (quantities[item.product.id]?.[item.size] <= 0 || item.quantity <= 0) {
                         removeFromCart(item.product.id, item.size);
@@ -547,7 +660,11 @@ const Header = () => {
             La livraison vous est offerte.
           </Typography>
         )}
-
+        {amountPromo > 0 && (
+          <Typography variant="body1" sx={{ marginTop: 2 }} align="right">
+            reduction: -{amountPromo}€
+          </Typography>
+        )}
         {/* Total */}
         <Typography variant="h5" sx={{ marginTop: 2 }} align="right">
           Total: {totalPriceWithDelivery.toFixed(2)}€
@@ -622,7 +739,7 @@ const Header = () => {
           <Button onClick={() => setOpenConfirmation(false)} color="secondary">
             Fermer
           </Button>
-          <Button  disabled='{totalPriceWithDelivery <= 0}' onClick={handleStripePayment} color="primary">
+          <Button onClick={handleStripePayment} color="primary">
             Payer
           </Button>
         </DialogActions>
