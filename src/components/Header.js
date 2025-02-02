@@ -46,7 +46,7 @@ const Header = () => {
   const [totalPriceWithDelivery, setTotalPriceWithDelivery] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
-  const { getTotalQuantity, cartItems, removeFromCart, totalPrice } = useCart();
+  const { getTotalQuantity, cartItems,setCartItems, removeFromCart, totalPrice } = useCart();
   const [quantities, setQuantities] = useState({});
   const [openSearch, setOpenSearch] = useState(false); // Updated state for search modal
   const [promoCode, setPromoCode] = useState('');
@@ -153,9 +153,7 @@ const Header = () => {
         },
       }));
     }
-  };
-  
-   
+  };   
 
   const calculerFraisLivraison = (cartItems, totalPrice) => {
     const poidsParfum = {
@@ -208,26 +206,10 @@ const Header = () => {
     };
   }, [router.events]);
 
-  const calculateTotalPrice = (promoCode = '') => {
-    let total = cartItems.reduce((acc, item) => acc + item.product[`prix_${item.size}`] * item.quantity, 0);
+  const calculateTotalPrice = () => {
+    let total = cartItems.reduce((acc, item) => acc + (item.discountedPrice || item.product[`prix_${item.size}`]) * item.quantity, 0);
   
-    // Vérifier si un code promo est appliqué
-    if (promoCode === 'Chogan50' && cartItems.length > 1) {
-      let discountedPrice = 0;
-      let itemWithDiscountApplied = false;
-  
-      const newCartItems = cartItems.map((item, index) => {
-        if (!itemWithDiscountApplied && index > 0) {
-          discountedPrice = item.product[`prix_${item.size}`] * 0.5; // Appliquer 50% de réduction sur le deuxième article
-          itemWithDiscountApplied = true;
-          return { ...item, discountedPrice };
-        }
-        return item;
-      });
-  
-      total = newCartItems.reduce((acc, item) => acc + (item.discountedPrice || item.product[`prix_${item.size}`]) * item.quantity, 0);
-    }
-  
+    // Si la livraison est activée et que le total est inférieur à 80, appliquer des frais de livraison
     if (delivery && total < 80) {
       const fraisLivraison = calculerFraisLivraison(cartItems, total);
       setDeliveryFee(fraisLivraison);
@@ -237,45 +219,62 @@ const Header = () => {
     setTotalPriceWithDelivery(total);
   };
   
-  const handlePromoCodeSubmit = async (e) => {
-    e.preventDefault();
-  
-    if (!promoCode.trim()) {
-      setErrorMessage('Veuillez entrer un code promo');
-      return;
-    }
-  
-    setLoading(true);
-    try {
-      const response = await fetch('/api/validate-promo-code', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ promoCode }),
-      });
-  
-      const data = await response.json();
-  
-      if (data.valid) {
-        // Si le code promo est valide, appliquez la réduction
-        calculateTotalPrice(data.discount); // Passez la réduction au calcul du total
+
+const handlePromoCodeSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!promoCode.trim()) {
+    setErrorMessage('Veuillez entrer un code promo');
+    return;
+  }
+
+  setLoading(true);
+  try {
+    // Appeler l'API pour vérifier la validité du code promo
+    const response = await fetch('/api/validate-promo-code', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ promoCode }),
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      console.log(promoCode);
+      // Si le code promo est valide, appliquez la réduction
+      if (promoCode === 'CHOGAN50' && cartItems.length > 1) {
+        // Applique la réduction 1 acheté, 2ème à -50% (sur le 2ème article)
+        let itemWithDiscountApplied = false;
+        const updatedCartItems = cartItems.map((item, index) => {
+          if (!itemWithDiscountApplied && index === 1) {
+            itemWithDiscountApplied = true;
+            const discountedPrice = item.product[`prix_${item.size}`] * 0.5; // Applique une réduction de 50% sur le 2ème article
+            return { ...item, discountedPrice };
+          }
+          return item;
+        });
+
+        setCartItems(updatedCartItems);
+        calculateTotalPrice();  // Recalculer le prix total après réduction
         setSuccessMessage('Code promo appliqué avec succès !');
         setErrorMessage('');
       } else {
-        setErrorMessage(data.message || 'Code promo invalide');
+        setErrorMessage('Le code promo ne correspond pas à la promotion.');
         setSuccessMessage('');
       }
-    } catch (error) {
-      console.error('Erreur de validation du code promo:', error);
-      setErrorMessage('Erreur lors de la validation du code promo');
+    } else {
+      setErrorMessage(data.message || 'Code promo invalide');
       setSuccessMessage('');
-    } finally {
-      setLoading(false);
     }
-  };
-  
-
+  } catch (error) {
+    console.error('Erreur de validation du code promo:', error);
+    setErrorMessage('Erreur lors de la validation du code promo');
+    setSuccessMessage('');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <AppBar

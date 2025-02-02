@@ -68,7 +68,7 @@ export const CartProvider = ({ children }) => {
   }, [cartItems]); // Déclenche le calcul à chaque mise à jour du panier
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, totalPrice, getTotalQuantity, clearCart }}>
+    <CartContext.Provider value={{ cartItems,setCartItems, addToCart, removeFromCart, totalPrice, getTotalQuantity, clearCart }}>
       {children}
     </CartContext.Provider>
   );
