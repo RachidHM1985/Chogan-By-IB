@@ -1,6 +1,7 @@
 import React from 'react';
 import { CardContent, Typography, Box, CardMedia } from '@mui/material';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { Category } from '@mui/icons-material';
 
 const CustomCardContent = ({ perfume, getLowestPrice }) => {
 
@@ -73,12 +74,12 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
           padding: '5px',
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'space-between',
-          height: '300px', // Garder la hauteur fixe pour la structure
-          textAlign: 'left', // Alignement à gauche pour les informations
+          justifyContent: 'center', // Centrage vertical
+          alignItems: 'center', // Centrage horizontal
+          height: '150px', // Hauteur fixe pour la structure
+          textAlign: 'center', // Alignement du texte à gauche
         }}
-      >        
-
+      >
         {/* Product code */}
         <Typography
           variant="h6"
@@ -93,17 +94,19 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
             textOverflow: 'ellipsis',
           }}
         >
-           PARFUM N°{perfume.code}
-        </Typography>
+          PARFUM N°{perfume.code}
+        </Typography>      
         <Typography
-         variant="body2"
-         sx={{
-           fontSize: '0.7rem',
-           opacity: 0.7,
-           marginBottom: '2px', // Espacement réduit
-         }}
+          variant="body1"
+          sx={{
+            fontSize: '0.8rem',
+            opacity: 0.7,
+            marginBottom: '2px', // Espacement réduit
+          }}
         >
-      Influencée par l'univers olfactif de {capitalizeFirstLetter(perfume.nom_produit)} - {perfume.nom_marque}, notre fragrance propose une composition différente et unique, ...</Typography>
+          Parfum {perfume.genre} Essence 30%
+        </Typography>
+        
         {/* Price */}
         <Typography
           variant="body1"
@@ -111,12 +114,11 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
             fontSize: '0.8rem',
             fontWeight: '400', // Poids normal
             width: '100%', // Occupe toute la largeur disponible
+            textAlign: 'center', // Centrer le prix horizontalement
           }}
         >
           À partir de {getLowestPrice(perfume)} €
         </Typography>
-
-
       </Box>
     </CardContent>
   );

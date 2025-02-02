@@ -49,9 +49,12 @@ const Header = () => {
   const { getTotalQuantity, cartItems, removeFromCart, totalPrice } = useCart();
   const [quantities, setQuantities] = useState({});
   const [openSearch, setOpenSearch] = useState(false); // Updated state for search modal
-
+  const [promoCode, setPromoCode] = useState('');
   const handleOpenSearch = () => setOpenSearch(true); // Open Search Overlay
   const handleCloseSearch = () => setOpenSearch(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const toggleSidebar = () => {
     setOpenSidebar(!openSidebar);
@@ -188,16 +191,6 @@ const Header = () => {
     return fraisLivraison;
   };
 
-  const calculateTotalPrice = () => {
-    let total = cartItems.reduce((acc, item) => acc + item.product[`prix_${item.size}`] * item.quantity, 0);
-    if (delivery && total < 80) {
-      const fraisLivraison = calculerFraisLivraison(cartItems, total);
-      console.log(fraisLivraison)
-      setDeliveryFee(fraisLivraison);
-      total += fraisLivraison; // Add delivery fee to the total price if applicable
-    }
-    setTotalPriceWithDelivery(total);
-  };
 
   useEffect(() => {
     calculateTotalPrice();
@@ -214,6 +207,75 @@ const Header = () => {
       router.events.off('routeChangeComplete', handleRouteChange);
     };
   }, [router.events]);
+
+  const calculateTotalPrice = (promoCode = '') => {
+    let total = cartItems.reduce((acc, item) => acc + item.product[`prix_${item.size}`] * item.quantity, 0);
+  
+    // Vérifier si un code promo est appliqué
+    if (promoCode === 'Chogan50' && cartItems.length > 1) {
+      let discountedPrice = 0;
+      let itemWithDiscountApplied = false;
+  
+      const newCartItems = cartItems.map((item, index) => {
+        if (!itemWithDiscountApplied && index > 0) {
+          discountedPrice = item.product[`prix_${item.size}`] * 0.5; // Appliquer 50% de réduction sur le deuxième article
+          itemWithDiscountApplied = true;
+          return { ...item, discountedPrice };
+        }
+        return item;
+      });
+  
+      total = newCartItems.reduce((acc, item) => acc + (item.discountedPrice || item.product[`prix_${item.size}`]) * item.quantity, 0);
+    }
+  
+    if (delivery && total < 80) {
+      const fraisLivraison = calculerFraisLivraison(cartItems, total);
+      setDeliveryFee(fraisLivraison);
+      total += fraisLivraison;
+    }
+  
+    setTotalPriceWithDelivery(total);
+  };
+  
+  const handlePromoCodeSubmit = async (e) => {
+    e.preventDefault();
+  
+    if (!promoCode.trim()) {
+      setErrorMessage('Veuillez entrer un code promo');
+      return;
+    }
+  
+    setLoading(true);
+    try {
+      const response = await fetch('/api/validate-promo-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ promoCode }),
+      });
+  
+      const data = await response.json();
+  
+      if (data.valid) {
+        // Si le code promo est valide, appliquez la réduction
+        calculateTotalPrice(data.discount); // Passez la réduction au calcul du total
+        setSuccessMessage('Code promo appliqué avec succès !');
+        setErrorMessage('');
+      } else {
+        setErrorMessage(data.message || 'Code promo invalide');
+        setSuccessMessage('');
+      }
+    } catch (error) {
+      console.error('Erreur de validation du code promo:', error);
+      setErrorMessage('Erreur lors de la validation du code promo');
+      setSuccessMessage('');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
 
   return (
     <AppBar
@@ -385,7 +447,24 @@ const Header = () => {
             </Grid>
           </Grid>
         ))}
-
+       
+<Grid container justifyContent="flex-end" sx={{ flexDirection: 'column', marginTop: 2 }}>
+  <Grid item xs={12} sm={6} md={4}>
+    <TextField
+      label="Code promo"
+      value={promoCode}
+      onChange={(e) => setPromoCode(e.target.value)}
+      variant="outlined"
+      size="small"
+      sx={{ width: '40%', left : '90vh' }}  // Utilisation de 100% pour que le champ prenne toute la largeur de son conteneur
+    />
+  </Grid>
+  <Grid item sx={{ paddingTop: 1, display: 'flex', justifyContent: 'flex-end' }}>
+    <Button onClick={handlePromoCodeSubmit}>
+      Appliquer
+    </Button>
+  </Grid>
+</Grid>
         {/* Livraison */}
         {totalPriceWithDelivery < 80 && (
           <FormControlLabel
@@ -422,6 +501,9 @@ const Header = () => {
         </Typography>
       </>
     )}
+    {errorMessage && <Typography color="error" variant="body2">{errorMessage}</Typography>}
+    {successMessage && <Typography color="success" variant="body2">{successMessage}</Typography>}
+
   </DialogContent>
   <DialogActions sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
     <Button variant="outlined" color="secondary" onClick={handleCloseCart}>
@@ -487,7 +569,7 @@ const Header = () => {
           <Button onClick={() => setOpenConfirmation(false)} color="secondary">
             Fermer
           </Button>
-          <Button disabled='totalPriceWithDelivery > 0' onClick={handleStripePayment} color="primary">
+          <Button  disabled='{totalPriceWithDelivery <= 0}' onClick={handleStripePayment} color="primary">
             Payer
           </Button>
         </DialogActions>

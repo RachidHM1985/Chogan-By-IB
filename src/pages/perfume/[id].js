@@ -160,19 +160,7 @@ const PerfumeDetailPage = () => {
                       />
                     </Col>
                     <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">
-                     <Typography
-                             variant="body2"
-                             sx={{
-                               fontSize: '0.7rem',
-                               opacity: 0.7,
-                               marginTop: '10px', // Espacement réduit
-                               marginBottom: '10px',
-                             }}
-                            >
-                      Influencée par l'univers olfactif de {capitalizeFirstLetter(perfume.nom_produit)} - {perfume.nom_marque},
-                       notre fragrance propose une composition différente et unique,
-                        sans imiter ni enfreindre les droits de propriété intellectuelle, conformément à la législation.</Typography>
-                      <Typography variant="body1" align="center">
+                    <Typography variant="body1" align="center">
                         Choisissez une contenance :
                       </Typography>
                       <div className="size-selection" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px' }}>
@@ -235,54 +223,51 @@ const PerfumeDetailPage = () => {
                       </Button>
                     </Col>
                   </Row>
-
                   {/* Accordion for Description and Notes Olfactives */}
-<Accordion sx={{width: '50%',minWidth:'350px', boxShadow: 'none',  borderBottom: '1px solid black', '&:before': { display: 'none' } }}>
-  <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="description-content" id="description-header">
-    <Typography variant="body1">Description</Typography>
-  </AccordionSummary>
-  <AccordionDetails>
-    <Typography variant="body2">
-      {perfume.description || 'Aucune description disponible pour ce parfum.'}
-    </Typography>
-  </AccordionDetails>
-</Accordion>
+                <Accordion sx={{width: '50%',minWidth:'350px', boxShadow: 'none',  borderBottom: '1px solid black', '&:before': { display: 'none' } }}>
+                  <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="description-content" id="description-header">
+                    <Typography variant="body1">Description</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Typography variant="body2">
+                      {perfume.description || 'Aucune description disponible pour ce parfum.'}
+                    </Typography>
+                  </AccordionDetails>
+                </Accordion>
 
-<Accordion sx={{ width: '50%', minWidth:'350px', boxShadow: 'none', borderBottom: '1px solid black', '&:before': { display: 'none' }, '&:before': { display: 'none' } }}>
-  <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="notes-content" id="notes-header">
-    <Typography variant="body1">Notes Olfactives</Typography>
-  </AccordionSummary>
-  <AccordionDetails>
-    <Grid container spacing={2} justifyContent="center">
-      <Grid item xs={4}>
-        <Typography variant="body1" color="primary" align="center">
-          Notes de tête
-        </Typography>
-        <Typography variant="body2" align="center">
-          {perfume.note_tete}
-        </Typography>
-      </Grid>
-      <Grid item xs={4}>
-        <Typography variant="body1" color="primary" align="center">
-          Notes de cœur
-        </Typography>
-        <Typography variant="body2" align="center">
-          {perfume.notes_coeur}
-        </Typography>
-      </Grid>
-      <Grid item xs={4}>
-        <Typography variant="body1" color="primary" align="center">
-          Notes de fond
-        </Typography>
-        <Typography variant="body2" align="center">
-          {perfume.fond}
-        </Typography>
-      </Grid>
-    </Grid>
-  </AccordionDetails>
-</Accordion>
-
-
+                <Accordion sx={{ width: '70%', minWidth:'350px', boxShadow: 'none', borderBottom: '1px solid black', '&:before': { display: 'none' }, '&:before': { display: 'none' } }}>
+                  <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="notes-content" id="notes-header">
+                    <Typography variant="body1">Notes Olfactives</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <Grid container spacing={2} justifyContent="center">
+                      <Grid item xs={4}>
+                        <Typography variant="body2" color="primary" align="center">
+                          Notes de tête:
+                        </Typography>
+                        <Typography variant="body2" align="center">
+                          {perfume.notes_tete}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <Typography variant="body2" color="primary" align="center">
+                          Notes de cœur:
+                        </Typography>
+                        <Typography variant="body2" align="center">
+                          {perfume.notes_coeur}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <Typography variant="body2" color="primary" align="center">
+                          Notes de fond:
+                        </Typography>
+                        <Typography variant="body2" align="center">
+                          {perfume.notes_fond}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                  </AccordionDetails>
+                </Accordion>
                   <ReviewsSection productId={perfume.code} isInsertComment={true} />
                 </>
               )
