@@ -53,6 +53,7 @@ const Header = () => {
   const handleOpenSearch = () => setOpenSearch(true); // Open Search Overlay
   const handleCloseSearch = () => setOpenSearch(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [codePromoValid, setCodePromoValid] = useState(true);
   const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -65,8 +66,13 @@ const Header = () => {
   };
 
   const handleCloseCart = () => {
-    setIsEditing(false)
-    setOpenCart(false);
+    setIsEditing(false);  // Arrêter l'édition des quantités
+    setQuantities({});    // Réinitialiser les quantités
+    setDeliveryFee(0);    // Réinitialiser les frais de livraison si nécessaire
+    setPromoCode('');
+    setTotalPriceWithDelivery(0); // Réinitialiser le total du panier avec livraison
+    setOpenCart(false);   // Fermer le panier
+    calculateTotalPrice();  // Recalculer le prix total après fermeture
   };
 
   const handleConfirmOrder = () => {
@@ -217,65 +223,100 @@ const Header = () => {
     }
   
     setTotalPriceWithDelivery(total);
+  };  
+
+  const handlePromoCodeSubmit = async (e) => {
+    e.preventDefault();
+  
+    // Si le code promo est vide, afficher une erreur
+    if (!promoCode.trim()) {
+      setErrorMessage('Veuillez entrer un code promo');
+      setSuccessMessage('');
+      return;
+    }
+  
+    setLoading(true);
+    try {
+      // Appeler l'API pour vérifier la validité du code promo
+      const response = await fetch('/api/validate-promo-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ promoCode }),
+      });
+  
+      const data = await response.json();
+  
+      if (data.success) {
+        // Code promo valide, réinitialiser l'erreur
+        setErrorMessage('');
+        setSuccessMessage('Code promo appliqué avec succès!');
+        setCodePromoValid(true);
+  
+        // Si le code promo est "CHOGAN50" et qu'il y a plus d'un article dans le panier
+        if (promoCode === 'CHOGAN50' && cartItems.length > 1) {
+          console.log('Code promo CHOGAN50 détecté. Application de la réduction de 50% sur les paires.');
+  
+          // Trier les articles par prix croissant (pour appliquer la réduction sur les produits les moins chers)
+          const sortedCartItems = [...cartItems].sort((a, b) => {
+            const priceA = a.product[`prix_${a.size}`];
+            const priceB = b.product[`prix_${b.size}`];
+            return priceA - priceB;
+          });
+  
+          let itemWithDiscountApplied = false;
+          let totalDiscount = 0; // Variable pour stocker le montant total de la réduction
+  
+          // Appliquer la réduction sur les paires
+          const updatedCartItems = sortedCartItems.map((item, index) => {
+            if (index % 2 === 0 && !itemWithDiscountApplied) { // Appliquer la réduction sur le produit le moins cher (index pair après tri)
+              const originalPrice = item.product[`prix_${item.size}`];
+              const discountedPrice = originalPrice * 0.5; // Applique une réduction de 50%
+  
+              // Calculer le montant de la réduction pour cet article
+              const discountAmount = originalPrice - discountedPrice;
+              totalDiscount += discountAmount; // Ajouter la réduction au total
+  
+              itemWithDiscountApplied = true;
+              return { ...item, discountedPrice };
+            }
+            return item;
+          });
+  
+          // Rétablir l'ordre des articles en fonction du panier original
+          const finalUpdatedCartItems = cartItems.map((originalItem) => {
+            return updatedCartItems.find(
+              (updatedItem) =>
+                updatedItem.product.id === originalItem.product.id &&
+                updatedItem.size === originalItem.size
+            ) || originalItem;
+          });
+  
+          // Mettre à jour l'état du panier avec les prix modifiés
+          setCartItems(finalUpdatedCartItems);
+          calculateTotalPrice();  // Recalculer le prix total après réduction
+  
+          // Afficher le montant total de la réduction
+          setSuccessMessage(`Code promo appliqué ! Vous avez économisé ${totalDiscount.toFixed(2)}€`);
+        }
+      } else {
+        // Code promo invalide
+        setErrorMessage(data.message || 'Code promo invalide');
+        setSuccessMessage('');
+        setCodePromoValid(false);
+      }
+    } catch (error) {
+      console.error('Erreur de validation du code promo:', error);
+      setErrorMessage('Erreur lors de la validation du code promo');
+      setSuccessMessage('');
+    } finally {
+      setLoading(false);
+    }
   };
   
-
-const handlePromoCodeSubmit = async (e) => {
-  e.preventDefault();
-
-  if (!promoCode.trim()) {
-    setErrorMessage('Veuillez entrer un code promo');
-    return;
-  }
-
-  setLoading(true);
-  try {
-    // Appeler l'API pour vérifier la validité du code promo
-    const response = await fetch('/api/validate-promo-code', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ promoCode }),
-    });
-
-    const data = await response.json();
-    if (data.success) {
-      console.log(promoCode);
-      // Si le code promo est valide, appliquez la réduction
-      if (promoCode === 'CHOGAN50' && cartItems.length > 1) {
-        // Applique la réduction 1 acheté, 2ème à -50% (sur le 2ème article)
-        let itemWithDiscountApplied = false;
-        const updatedCartItems = cartItems.map((item, index) => {
-          if (!itemWithDiscountApplied && index === 1) {
-            itemWithDiscountApplied = true;
-            const discountedPrice = item.product[`prix_${item.size}`] * 0.5; // Applique une réduction de 50% sur le 2ème article
-            return { ...item, discountedPrice };
-          }
-          return item;
-        });
-
-        setCartItems(updatedCartItems);
-        calculateTotalPrice();  // Recalculer le prix total après réduction
-        setSuccessMessage('Code promo appliqué avec succès !');
-        setErrorMessage('');
-      } else {
-        setErrorMessage('Le code promo ne correspond pas à la promotion.');
-        setSuccessMessage('');
-      }
-    } else {
-      setErrorMessage(data.message || 'Code promo invalide');
-      setSuccessMessage('');
-    }
-  } catch (error) {
-    console.error('Erreur de validation du code promo:', error);
-    setErrorMessage('Erreur lors de la validation du code promo');
-    setSuccessMessage('');
-  } finally {
-    setLoading(false);
-  }
-};
-
+  
+  
   return (
     <AppBar
       position="fixed"
@@ -284,7 +325,7 @@ const handlePromoCodeSubmit = async (e) => {
         left: 0,
         right: 0,
         zIndex: 1100,
-        backgroundColor: '#F8C8D8',
+        backgroundColor: '#EFE7DB',
         boxShadow: 'none',
         height: '65px',
       }}
@@ -447,23 +488,36 @@ const handlePromoCodeSubmit = async (e) => {
           </Grid>
         ))}
        
-<Grid container justifyContent="flex-end" sx={{ flexDirection: 'column', marginTop: 2 }}>
-  <Grid item xs={12} sm={6} md={4}>
-    <TextField
-      label="Code promo"
-      value={promoCode}
-      onChange={(e) => setPromoCode(e.target.value)}
-      variant="outlined"
-      size="small"
-      sx={{ width: '40%', left : '90vh' }}  // Utilisation de 100% pour que le champ prenne toute la largeur de son conteneur
-    />
-  </Grid>
-  <Grid item sx={{ paddingTop: 1, display: 'flex', justifyContent: 'flex-end' }}>
-    <Button onClick={handlePromoCodeSubmit}>
-      Appliquer
-    </Button>
-  </Grid>
-</Grid>
+          <Grid
+            container
+            justifyContent="flex-end"
+            sx={{
+              flexDirection: 'column',
+              marginTop: 2,
+              alignItems: 'flex-end', // Aligne les éléments à droite
+            }}
+          >
+        <Grid item xs={12} sm={6} md={4} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <TextField
+            label="Code promo"
+            value={promoCode}
+            onChange={(e) => setPromoCode(e.target.value)}
+            variant="outlined"
+            size="small"
+            sx={{
+              width: '60%', // Utilise 100% de la largeur du conteneur
+              maxWidth: '300px', // Limite la largeur maximale sur les grands écrans
+            }}
+          />
+        </Grid>
+        
+        <Grid item sx={{ paddingTop: 1, display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+          <Button onClick={handlePromoCodeSubmit} sx={{ marginTop: '10px' }}>
+            Appliquer
+          </Button>
+        </Grid>
+      </Grid>
+
         {/* Livraison */}
         {totalPriceWithDelivery < 80 && (
           <FormControlLabel
@@ -500,7 +554,7 @@ const handlePromoCodeSubmit = async (e) => {
         </Typography>
       </>
     )}
-    {errorMessage && <Typography color="error" variant="body2">{errorMessage}</Typography>}
+    {errorMessage && !codePromoValid && <Typography color="error" variant="body2">{errorMessage}</Typography>}
     {successMessage && <Typography color="success" variant="body2">{successMessage}</Typography>}
 
   </DialogContent>

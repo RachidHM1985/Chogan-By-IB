@@ -128,7 +128,7 @@ const PerfumesPage = () => {
           }}
         >
           {/* Barre de recherche */}
-          <div style={{width: '100%', maxWidth: '600px', marginBottom:'10px',  borderRadius: '20px', }}>
+          <div style={{width: '95%', maxWidth: '600px', marginBottom:'10px',  borderRadius: '20px', }}>
             <TextField
               label="Recherchez des parfums inspirés des grandes marques"
               variant="outlined"
@@ -136,10 +136,32 @@ const PerfumesPage = () => {
               value={searchQuery}
               onChange={handleSearchChange}
               sx={{
+                fontSize:'0.8em',
+                borderColor: 'white',
                 borderRadius: '20px',
                 boxShadow: '0 0px 5px rgba(0, 0, 0, 0.1)',
                 backgroundColor: 'white',
-                marginTop:'10px',                
+                marginTop: '10px',
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: 'white', // Empêche la bordure par défaut
+                  },
+                  '&:hover fieldset': {
+                    borderColor: 'white', // Empêche la bordure lors du survol
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: 'transparent', // Empêche la bordure bleue de focus
+                    boxShadow: 'none', // Annule le shadow du focus
+                  },
+                },
+                '& .MuiInputLabel-root': {
+                  fontSize:'1em',
+                  opacity:'0.5',
+                  color: 'black', // Couleur du label en noir
+                },
+                '& .MuiInputLabel-root.Mui-focused': {
+                  color: 'black', // Assure que la couleur du label reste noire même lorsqu'il est focus
+                },
               }}
               placeholder="Trouvez des alternatives aux parfums de luxe"
             />
