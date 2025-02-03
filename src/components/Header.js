@@ -126,34 +126,45 @@ const validateForm = (data) => {
 };
 
 const handleStripePayment = async () => {
-    const errors = validateForm(formData);
-    setFormErrors(errors);
+  const errors = validateForm(formData);
+  setFormErrors(errors);
 
-    if (Object.keys(errors).length === 0) {
-        try {
-            const response = await fetch('/api/create-checkout-session', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ formData, cartItems, totalPrice: totalPriceWithDelivery}),
-            });
+  if (Object.keys(errors).length === 0) {
+      try {
+          // Calculer le total en prenant en compte les frais de livraison et la réduction du code promo
+          let total = totalPriceWithDelivery - amountPromo; // Appliquer la réduction du code promo
+          // Si le total est inférieur ou égal à 0, le prix total devient 0
+          total = total <= 0 ? 0 : total;
 
-            const { sessionId } = await response.json();
+          const response = await fetch('/api/create-checkout-session', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  formData,
+                  cartItems,
+                  amountPromo,
+                  totalPrice: total,  // Envoyer le montant après réduction
+              }),
+          });
 
-            if (sessionId) {
-                const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
-                const { error } = await stripe.redirectToCheckout({ sessionId });
+          const { sessionId } = await response.json();
 
-                if (error) {
-                    console.error('Stripe redirect error:', error);
-                }
-            } else {
-                console.error('No Stripe session returned.');
-            }
-        } catch (error) {
-            console.error('Error creating Stripe session:', error);
-        }
-    }
+          if (sessionId) {
+              const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
+              const { error } = await stripe.redirectToCheckout({ sessionId });
+
+              if (error) {
+                  console.error('Stripe redirect error:', error);
+              }
+          } else {
+              console.error('No Stripe session returned.');
+          }
+      } catch (error) {
+          console.error('Error creating Stripe session:', error);
+      }
+  }
 };
+
 
 const handleDeliveryChange = (event) => {
     setDelivery(event.target.checked);

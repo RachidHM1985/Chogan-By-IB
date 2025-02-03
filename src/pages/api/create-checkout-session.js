@@ -1,5 +1,3 @@
-// pages/api/create-checkout-session.js
-
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -10,7 +8,7 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
       // Vérification des données reçues
-      const { formData, cartItems, totalPrice } = req.body;
+      const { formData, cartItems, amountPromo, totalPrice } = req.body;
 
       if (!formData || !cartItems || cartItems.length === 0 || !totalPrice) {
         return res.status(400).json({ error: 'Données de commande manquantes ou invalides.' });
@@ -44,6 +42,7 @@ export default async function handler(req, res) {
           email: formData.email,
           address: formData.address,
           phone: formData.phone,
+          discountAmount: amountPromo || '0', // Ajoutez le montant du code promo ici, si applicable
         },
       });
 

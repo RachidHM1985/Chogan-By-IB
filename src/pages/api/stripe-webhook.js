@@ -44,11 +44,7 @@ export default async function handler(req, res) {
     const user_phone = metadata.phone || 'Téléphone non fourni';
     const user_address = metadata.address || 'Adresse non fournie';
     
-    const amountPromo = metadata.amountPromo || 0;  // Récupère la réduction (si elle existe)
     let total_amount = amount_total / 100;  // Convertir en euros
-
-    // Appliquer la réduction (si elle existe) sur le montant total
-    total_amount -= amountPromo / 100; // Assurer que la réduction est en euros également
 
     const delivery_fee = shipping && shipping.address ? shipping.address.city : 0; // Ajustez selon votre logique
 
