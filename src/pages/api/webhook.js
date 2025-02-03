@@ -1,18 +1,12 @@
 // pages/api/webhook.js
 import { buffer } from 'micro';
 import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../../supabaseClient';
 
 // Initialise Stripe avec votre clé secrète
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2020-08-27',
 });
-
-// Initialise Supabase
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
 
 // Définir le type de contenu comme raw pour pouvoir récupérer le body de l'événement Stripe
 export const config = {
