@@ -8,14 +8,14 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
       // Verifying the received data
-      const { formData, cartItems, amountPromo, totalPrice } = req.body;
+      const { formData, cartItems, deliveryFee, amountPromo, totalPrice } = req.body;
 
       if (!formData || !cartItems || cartItems.length === 0 || !totalPrice) {
         return res.status(400).json({ error: 'Missing or invalid order data.' });
       }
 
       // Apply the discount to the total price
-      let discountedTotal = totalPrice - amountPromo;
+      let discountedTotal = totalPrice + deliveryFee - amountPromo;
       if (discountedTotal < 0) discountedTotal = 0; // Ensure the total doesn't go below 0
 
       // Create the payment session with Stripe

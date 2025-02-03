@@ -142,8 +142,9 @@ const handleStripePayment = async () => {
               body: JSON.stringify({
                   formData,
                   cartItems,
+                  deliveryFee,
                   amountPromo,
-                  totalPrice: total,  // Envoyer le montant après réduction
+                  totalPrice: total,
               }),
           });
 
@@ -432,9 +433,7 @@ const calculateTotalPrice = () => {
   } else {
       setDeliveryFee(0); // Réinitialiser les frais de livraison si le total est supérieur à 80
   }
-  
-  total = total - amountPromo;
-  setTotalPriceWithDelivery(total);
+    setTotalPriceWithDelivery(total);
 };
 
 // Utiliser useEffect pour recalculer le prix total à chaque modification de cartItems ou delivery
