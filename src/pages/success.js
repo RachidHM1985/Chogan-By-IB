@@ -10,24 +10,25 @@ const Success = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const { session_id, payment_intent, status } = router.query;
-
-    // Attente que les données soient disponibles avant de continuer
-    if (!payment_intent || !status) {
-      return; // Ne rien faire si les données sont incomplètes
+    const { session_id, status } = router.query; // Note que payment_intent peut ne pas être dans l'URL
+    
+    // Vérifie si les données nécessaires sont présentes
+    if (!session_id || !status) {
+      return; // Si les données sont incomplètes, ne fais rien
     }
-
+  
     console.log("status : ", status);
-    console.log("payment_intent : ", payment_intent);
     console.log("session_id : ", session_id);
-
+  
+    // Vérifie l'état du paiement
     if (status === 'succeeded') {
       setLoading(false); // Si le paiement est réussi, arrête le chargement
     } else {
-      setError('Le paiement a échoué.'); // Met un message d'erreur si le paiement échoue
+      setError('Le paiement a échoué.');
       router.push('/echec?status=failed'); // Redirige vers la page d'échec
     }
   }, [router.query]);
+  
 
   return (
     <>
