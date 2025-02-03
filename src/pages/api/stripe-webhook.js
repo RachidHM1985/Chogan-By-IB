@@ -39,34 +39,47 @@ export default async function handler(req, res) {
     const { metadata, amount_total, shipping, line_items } = session;
 
     // Récupérer les informations sur la commande et l'utilisateur
-    const user_name = metadata.name;
-    const user_email = metadata.email;
-    const user_phone = metadata.phone;
-    const user_address = metadata.address;
-    const total_amount = amount_total / 100; // Convertir en euros
-    const delivery_fee = shipping ? shipping.address.city : 0; // Ajustez selon votre logique
+    const user_name = metadata.name || 'Nom non fourni';
+    const user_email = metadata.email || 'Email non fourni';
+    const user_phone = metadata.phone || 'Téléphone non fourni';
+    const user_address = metadata.address || 'Adresse non fournie';
+    
+    const amountPromo = metadata.amountPromo || 0;  // Récupère la réduction (si elle existe)
+    let total_amount = amount_total / 100;  // Convertir en euros
+
+    // Appliquer la réduction (si elle existe) sur le montant total
+    total_amount -= amountPromo / 100; // Assurer que la réduction est en euros également
+
+    const delivery_fee = shipping && shipping.address ? shipping.address.city : 0; // Ajustez selon votre logique
+
+    // S'assurer que `line_items` existe et est bien formaté
+    if (!line_items || !line_items.data || line_items.data.length === 0) {
+      return res.status(400).send('Aucun article dans la commande');
+    }
 
     // Construire les détails de la commande
     const order_details = line_items.data.map(item => {
       return {
-        product_name: item.description,
+        product_name: item.description || 'Produit inconnu',
         quantity: item.quantity,
         price: item.amount_total / 100, // Convertir en euros
       };
     });
 
     // Connexion à la base de données MySQL (modifiez les paramètres selon votre configuration)
-    const connection = await mysql.createConnection({
-      host: process.env.DB_HOST,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-    });
-
+    let connection;
     try {
+      // Connexion à la base de données MySQL
+      connection = await mysql.createConnection({
+        host: process.env.DB_HOST,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME,
+      });
+
       // Insérer la commande dans la base de données
       const [result] = await connection.execute(
-        'INSERT INTO orders (user_name, user_email, user_phone, user_address, total_amount, delivery_fee, order_status, detail_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO orders (user_name, user_email, user_phone, user_address, total_amount, delivery_fee, order_status, detail_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
         [
           user_name,
           user_email,
@@ -80,13 +93,14 @@ export default async function handler(req, res) {
       );
       console.log('Commande insérée avec succès:', result);
 
-      // Vous pouvez aussi mettre à jour d'autres tables si nécessaire
-
-      // Fermer la connexion à la base de données
-      await connection.end();
     } catch (error) {
       console.error('Erreur lors de l\'insertion de la commande dans la base de données:', error);
       return res.status(500).send('Erreur interne du serveur');
+    } finally {
+      if (connection) {
+        // Assurez-vous de fermer la connexion à la base de données
+        await connection.end();
+      }
     }
   }
 

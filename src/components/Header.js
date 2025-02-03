@@ -134,7 +134,7 @@ const handleStripePayment = async () => {
             const response = await fetch('/api/create-checkout-session', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ formData, cartItems, totalPrice: totalPriceWithDelivery }),
+                body: JSON.stringify({ formData, cartItems, totalPrice: totalPriceWithDelivery}),
             });
 
             const { sessionId } = await response.json();
@@ -422,7 +422,7 @@ const calculateTotalPrice = () => {
       setDeliveryFee(0); // Réinitialiser les frais de livraison si le total est supérieur à 80
   }
   
-
+  total = total - amountPromo;
   setTotalPriceWithDelivery(total);
 };
 
