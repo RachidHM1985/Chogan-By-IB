@@ -1,3 +1,4 @@
+// pages/api/webhook.js
 import { buffer } from 'micro';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
@@ -16,11 +17,15 @@ const supabase = createClient(
 // Définir le type de contenu comme raw pour pouvoir récupérer le body de l'événement Stripe
 export const config = {
   api: {
-    bodyParser: false,
+    bodyParser: false, // Ne pas parser le corps
   },
 };
 
 const handleWebhook = async (req, res) => {
+  if (req.method !== 'POST') {
+    return res.status(405).send('Method Not Allowed');
+  }
+
   try {
     // Récupérer le corps brut de la requête
     const reqBuffer = await buffer(req);
