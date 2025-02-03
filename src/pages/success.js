@@ -10,8 +10,11 @@ const Success = () => {
 
   useEffect(() => {
     const { session_id, payment_intent, status } = router.query;
+console.log("status : ",status)
+console.log("payment_intent : ",payment_intent)
+console.log("session_id : ",session_id)
 
-    if (status === 'succeeded') {
+    if (payment_intent.status === 'succeeded') {
       setLoading(false); // Si le paiement est réussi, arrête le chargement.
     } else {
       router.push('/echec'); // Si l'état n'est pas 'succeeded', redirige vers la page d'échec.
