@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     // Préparer le message pour SendGrid
     const message = {
       to: order.user_email,  // Email du client
-      from: 'ikram.bakmou@outlook.fr', // Votre email validé dans SendGrid
+      from: 'choganbyikram.contact@gmail.com', // Votre email validé dans SendGrid
       subject: `Mise à jour du statut de votre commande ${order.id}`,
       text: `Bonjour ${order.user_name},\n\nVotre commande Chogan n°00${order.id} en date du ${new Date(order.created_at).toLocaleDateString('fr-FR')} est maintenant ${order.order_status}.\n\nCommentaire : ${comment}\n\nMerci pour votre confiance.\n\nCordialement,\nVotre équipe`,
     };

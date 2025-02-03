@@ -13,7 +13,7 @@ if (!name || !email || !phone || !message) {
 
     // Préparer le message pour SendGrid
    const emailContent = {
-      to: 'ikram.bakmou@outlook.fr',  // L'email auquel vous voulez envoyer le formulaire
+      to: 'choganbyikram.contact@gmail.com',  // L'email auquel vous voulez envoyer le formulaire
       from: email,                   // L'email de l'utilisateur
       subject: `Nouvelle candidature pour devenir consultant - ${name}`,
       text: `

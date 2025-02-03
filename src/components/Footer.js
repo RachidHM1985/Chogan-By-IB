@@ -39,7 +39,7 @@ const Footer = () => {
             Adresse : Chogan Group s.p.a., Montpellier
           </Typography>
           <Typography variant="body2" color="textSecondary" sx={{ fontSize: '0.65rem' }}>
-            Email : ikram.bakmou@outlook.fr
+            Email : choganbyikram.contact@gmail.com
           </Typography>
         </Box>
 
