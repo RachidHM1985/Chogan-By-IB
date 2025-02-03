@@ -21,27 +21,42 @@ export default async function handler(req, res) {
       // Create the payment session with Stripe
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
-        line_items: cartItems.map(item => {
-          if (!item.product.nom_produit || !item.size || !item.product[`prix_${item.size}`]) {
-            throw new Error('Missing or invalid product information');
-          }
+        line_items: [
+          // Add items to the session
+          ...cartItems.map(item => {
+            if (!item.product.nom_produit || !item.size || !item.product[`prix_${item.size}`]) {
+              throw new Error('Missing or invalid product information');
+            }
 
-          // Calculate the discounted price for each item
-          const originalPrice = item.product[`prix_${item.size}`];
-          const discountedPrice = item.discountedPrice || originalPrice - (amountPromo / cartItems.length); // Distribute the discount evenly among items
+            // Calculate the discounted price for each item
+            const originalPrice = item.product[`prix_${item.size}`];
+            const discountedPrice = item.discountedPrice || originalPrice - (amountPromo / cartItems.length); // Distribute the discount evenly among items
 
-          return {
-            price_data: {
-              currency: 'eur', // Currency (e.g., EUR)
-              product_data: {
-                name: item.product.nom_produit,
-                description: item.size,
+            return {
+              price_data: {
+                currency: 'eur', // Currency (e.g., EUR)
+                product_data: {
+                  name: item.product.nom_produit,
+                  description: item.size,
+                },
+                unit_amount: Math.round(discountedPrice * 100), // Amount in cents (1 € = 100 cents)
               },
-              unit_amount: Math.round(discountedPrice * 100), // Amount in cents (1 € = 100 cents)
+              quantity: item.quantity,
+            };
+          }),
+          // Add delivery fee as a separate line item
+          {
+            price_data: {
+              currency: 'eur',
+              product_data: {
+                name: 'Delivery Fee',
+                description: 'Shipping Costs',
+              },
+              unit_amount: Math.round(deliveryFee * 100), // Delivery fee in cents
             },
-            quantity: item.quantity,
-          };
-        }),
+            quantity: 1, // Only one line item for delivery fee
+          },
+        ],
         mode: 'payment',
         success_url: `https://chogan-by-ikram.vercel.app/success?session_id={CHECKOUT_SESSION_ID}&status=succeeded`, // Redirect to success page
         cancel_url: `https://chogan-by-ikram.vercel.app/echec?status=failed`,
@@ -51,7 +66,7 @@ export default async function handler(req, res) {
           address: formData.address,
           phone: formData.phone,
           discountAmount: amountPromo || '0', // Add promo discount amount here if applicable
-          totalPriceWithDiscount: discountedTotal, // The total after the discount
+          totalPriceWithDiscount: discountedTotal + deliveryFee, // Total after discount + delivery fee
         },
       });
 
