@@ -62,14 +62,14 @@ export default async function handler(req, res) {
     console
             if (data) {
               // Appliquer les prix en fonction de la taille du produit dans cartItem
-              switch (data.prix_30ml) {
-                case cartItem.prix:
+              switch (cartItem.prix) {
+                case data.prix_30ml:
                   cartItem.size= "30ml" || 0;  // Utiliser prix_30ml, s'il est disponible
                   break;
-                case cartItem.prix:
+                case data.prix_50ml:
                   cartItem.size = "50ml" || 0;  // Utiliser prix_50ml, s'il est disponible
                   break;
-                case cartItem.prix:
+                case data.prix_70ml:
                   cartItem.size = "70ml" || 0;  // Utiliser prix_70ml, s'il est disponible
                   break;
                 default:
@@ -88,10 +88,7 @@ export default async function handler(req, res) {
     } else {
       // Si les produits ou le panier ne sont pas sous forme de tableau
       console.error('Les produits ou le panier ne sont pas sous forme de tableau.');
-    }
-    
-
-    
+    }    
     const filteredCartItems = cartItems.filter(item => item.nom_produit !== 'Frais de livraison');
     
     // Format session data
