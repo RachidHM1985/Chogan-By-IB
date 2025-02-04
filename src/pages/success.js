@@ -10,25 +10,66 @@ const Success = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const { session_id, status } = router.query; // Note que payment_intent peut ne pas être dans l'URL
-    
-    // Vérifie si les données nécessaires sont présentes
+    const { session_id, status } = router.query;
+  
     if (!session_id || !status) {
       return; // Si les données sont incomplètes, ne fais rien
     }
   
-    console.log("status : ", status);
-    console.log("session_id : ", session_id);
+    const handlePaymentSuccess = async () => {
+      try {
+        const response = await fetch(`/api/getSessionDetails?session_id=${session_id}`);
+        const data = await response.json();
   
-    // Vérifie l'état du paiement
+        if (response.status !== 200) {
+          setError('Erreur lors de la récupération des détails de la session.');
+          setLoading(false);
+          return;
+        }
+  
+        const { customer_email, customer_name, amount_total, shipping, metadata, cart } = data;
+  
+        const orderData = {
+          user_name: customer_name,
+          user_email: customer_email,
+          user_phone: shipping.phone,
+          user_address: shipping.address.line1,
+          total_amount: amount_total / 100, // Montant en cents
+          delivery_fee: metadata?.deliveryFee || 0,
+          order_status: 'completed',
+          cart,  // Inclure le panier pour l'email
+        };
+  
+        const apiResponse = await fetch('/api/saveOrderAndSendMail', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(orderData),
+        });
+  
+        if (apiResponse.status === 200) {
+          console.log('Commande enregistrée et mail envoyé');
+          setLoading(false);
+        } else {
+          setError('Une erreur est survenue lors de l\'enregistrement de la commande et de l\'envoi du mail.');
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Erreur lors du traitement du paiement:', error);
+        setError('Erreur lors du traitement du paiement.');
+        setLoading(false);
+      }
+    };
+  
     if (status === 'succeeded') {
-      setLoading(false); // Si le paiement est réussi, arrête le chargement
+      handlePaymentSuccess();
     } else {
       setError('Le paiement a échoué.');
-      router.push('/echec?status=failed'); // Redirige vers la page d'échec
+      router.push('/echec?status=failed');
     }
   }, [router.query]);
-
+  
   return (
     <>
       <Header />
