@@ -51,8 +51,6 @@ export default async function handler(req, res) {
             },
             unit_amount: Math.round(discountedPrice * 100), // Montant en centimes
           },
-          code: productData.code,
-          size: productData.size,          
           quantity: item.quantity,
         };
       });

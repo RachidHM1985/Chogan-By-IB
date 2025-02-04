@@ -50,6 +50,18 @@ export default async function handler(req, res) {
       phone: session.metadata.phone || '', // Customer phone number
     };
 
+    // Check if products metadata exists and update the cart with product code and size
+    if (session.metadata.products && Array.isArray(session.metadata.products)) {
+      session.metadata.products.forEach(product => {
+        sessionData.cart.forEach(item => {
+          if (item.nom_produit === product.name) {
+            item.code = product.code || '';  // Assign product code
+            item.size = product.size || '';  // Assign product size
+          }
+        });
+      });
+    }
+
     console.log('sessionData:', sessionData);
     
     // Return the session data in the response
