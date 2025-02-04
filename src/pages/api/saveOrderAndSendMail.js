@@ -23,7 +23,7 @@ export default async function handler(req, res) {
         user_phone: user_phone,
         user_address: user_address,
         details: typeof cart === 'string' ? JSON.parse(cart) : cart,  // Modifé ici
-        deliveryFee: deliveryFee,
+        delivery_Fee: deliveryFee,
         total_amount: total_amount,
         order_status: 'completed',
       },
