@@ -28,7 +28,7 @@ export default async function handler(req, res) {
     const cartItems = session.line_items?.data.map(item => {
       // Extract size and code from metadata if available
       const size = item.metadata?.product.size || 'N/A'; // Use metadata if available
-      const code = item.metadata?.code || 'N/A'; // Use metadata if available
+      const code = item.metadata?.product.code || 'N/A'; // Use metadata if available
 
       return {
         nom_produit: item.description,  // Product name/description
