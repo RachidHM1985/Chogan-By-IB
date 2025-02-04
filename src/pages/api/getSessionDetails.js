@@ -48,6 +48,7 @@ export default async function handler(req, res) {
         // Pour chaque produit, vérifiez s'il correspond à un produit dans le panier
         cartItems.forEach(async (cartItem) => {
           if (cartItem.nom_produit === product.name) {
+            cartItem.code = product.code;
             // Effectuer une requête à Supabase pour récupérer le prix par code
             const { data, error } = await supabase
               .from('parfums')
@@ -63,7 +64,7 @@ export default async function handler(req, res) {
             if (data) {
               // Appliquer les prix en fonction de la taille du produit dans cartItem
               switch (cartItem.prix) {
-                case data.prix_30ml:
+                case data.prix_30ml.:
                   cartItem.size= "30ml" || 0;  // Utiliser prix_30ml, s'il est disponible
                   break;
                 case data.prix_50ml:
@@ -78,7 +79,7 @@ export default async function handler(req, res) {
               }
     
               // Mise à jour du cartItem avec la taille et le prix correct
-              cartItem.code = product.code;
+            
             } else {
               console.log('Produit non trouvé pour le code:', product.code);
             }
