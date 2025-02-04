@@ -1,6 +1,6 @@
 import { buffer } from 'micro';
 import Stripe from 'stripe';
-import { supabase } from '../../supabaseClient';
+import { supabase } from '../../../supabaseClient';
 
 // Initialisation de Stripe avec la clé secrète
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
