@@ -34,7 +34,7 @@ export default async function handler(req, res) {
 
     // Format the cart items from the session's line_items
     const cartItems = session.line_items?.data.map(item => ({
-      nom_produit: item.price_data.products.name,  // Product name/description
+      nom_produit: item.price_data.name,  // Product name/description
       prix: item.amount_total / 100,  // Total amount in euros (converted from cents)
       quantity: item.quantity,       // Quantity of the product
       code:'',                       // Placeholder for the product code
