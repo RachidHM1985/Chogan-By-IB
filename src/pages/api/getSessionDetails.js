@@ -31,15 +31,16 @@ export default async function handler(req, res) {
     });const metadata = session.metadata;
 
     console.log('metadata :', metadata)
-
+    console.log(session.line_items.data)
     // Format the cart items from the session's line_items
     const cartItems = session.line_items?.data.map(item => ({
-      nom_produit: item.price_data.name,  // Product name/description
+      nom_produit: 'test',  
       prix: item.amount_total / 100,  // Total amount in euros (converted from cents)
       quantity: item.quantity,       // Quantity of the product
       code:'',                       // Placeholder for the product code
       size: '',                       // Placeholder for the product size
     })) || [];
+
 
     // Format session data
     const sessionData = {
