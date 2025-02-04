@@ -41,12 +41,14 @@ export default async function handler(req, res) {
       code:'',                       // Placeholder for the product code
       size: '',                       // Placeholder for the product size
     })) || [];
+
     const products = JSON.parse(metadata.products);  // Convertit la chaîne JSON en tableau
     if (Array.isArray(products) && Array.isArray(cartItems)) {
       // Parcourez chaque produit
       products.forEach(async (product) => {
         // Pour chaque produit, vérifiez s'il correspond à un produit dans le panier
         cartItems.forEach(async (cartItem) => {
+          console.log(cartItem)
           if (cartItem.nom_produit === product.name) {
             cartItem.code = product.code;
             // Effectuer une requête à Supabase pour récupérer le prix par code
@@ -63,15 +65,15 @@ export default async function handler(req, res) {
     console
             if (data) {
               // Appliquer les prix en fonction de la taille du produit dans cartItem
-              switch (cartItem.prix) {
-                case data.prix_30ml.:
-                  cartItem.size= "30ml" || 0;  // Utiliser prix_30ml, s'il est disponible
+              switch (cartItem.prix.toFixed(2)) {
+                case data.prix_30ml.toFixed(2):
+                  cartItem.size= "30ml";  // Utiliser prix_30ml, s'il est disponible
                   break;
-                case data.prix_50ml:
-                  cartItem.size = "50ml" || 0;  // Utiliser prix_50ml, s'il est disponible
+                case data.prix_50ml.toFixed(2):
+                  cartItem.size = "50ml";  // Utiliser prix_50ml, s'il est disponible
                   break;
-                case data.prix_70ml:
-                  cartItem.size = "70ml" || 0;  // Utiliser prix_70ml, s'il est disponible
+                case data.prix_70ml.toFixed(2):
+                  cartItem.size = "70ml" ;  // Utiliser prix_70ml, s'il est disponible
                   break;
                 default:
                   console.log(`Taille ${cartItem.size} non définie dans les données produits`);
