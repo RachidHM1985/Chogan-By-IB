@@ -35,14 +35,17 @@ export default async function handler(req, res) {
 
     console.log("Cart items formatés :", cartItems);  // Affiche les articles du panier
 
-    // Creating the session data object
+    // Création d'un objet de session avec les données nécessaires
     const sessionData = {
       cart: cartItems,                           // Cart items formatted
       totalPriceWithDiscount: session.metadata.totalPriceWithDiscount || 0, // Total price (with discount, if available)
-      shippingFee: session.metadata.deliveryFee || 0, // Delivery fee from metadata
-      customerEmail: session.metadata.email || '',  // Customer email from metadata
+      deliveryFee: session.metadata.deliveryFee || 0, // Delivery fee from metadata
+      customerEmail: session.customer_details.email || '',  // Customer email from customer_details
+      customerName: session.customer_details.name || '',    // Customer name from customer_details
+      address: session.metadata.address || '',  // Address from metadata
+      phone: session.metadata.phone || '',      // Customer phone from metadata
     };
-
+        console.log('sessionData :',sessionData)
     // Return the session data in the response
     return res.status(200).json(sessionData);
 
