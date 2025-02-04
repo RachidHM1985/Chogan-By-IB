@@ -26,7 +26,7 @@ console.log('session: ', session)
 
     // Format the cart items from the session's line_items
     const cartItems = session.line_items?.data.map(item => ({
-      nom_produit: item.description || item.price_data.product_data.name,  // Product name/description
+      nom_produit: item.description || item.price_data.products.name,  // Product name/description
       prix: item.amount_total / 100,  // Total amount in euros (converted from cents)
       quantity: item.quantity,       // Quantity of the product
     })) || [];
@@ -40,8 +40,8 @@ console.log('session: ', session)
             nom_produit: item.description,  // Nom du produit
             prix: item.amount_total / 100,  // Prix total (en euros, conversion des centimes)
             quantity: item.quantity,        // Quantité du produit
-            code: session.metadata.product_data.code || '',  // Code du produit (si présent dans le produit)
-            size: session.metadata.product_data.size || '',  // Taille du produit (si présent dans le produit)
+            code: session.metadata.products.code || '',  // Code du produit (si présent dans le produit)
+            size: session.metadata.products.size || '',  // Taille du produit (si présent dans le produit)
           };
         }),
         totalPriceWithDiscount: session.metadata.totalPriceWithDiscount || 0, // Prix total avec remise, si disponible
