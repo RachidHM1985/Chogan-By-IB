@@ -6,7 +6,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const { email, name, total_amount, user_phone, user_address, deliveryFee, cart } = req.body;
+    const { email, name, total_amount, amountPromo, user_phone, user_address, deliveryFee, cart } = req.body;
     console.log(cart)
     // Check if required fields are missing
     if (!cart || !total_amount) {
@@ -19,7 +19,7 @@ export default async function handler(req, res) {
 
       // Filter out 'deliveryFee' items from the cart
       const filteredCart = parsedCart.filter(item => item.nom_produit !== 'deliveryFee');
-console.log("filteredCar:", filteredCart)
+      const filteredCartText = JSON.stringify(filteredCart);
       // Insert order into Supabase database
       const { data, error } = await supabase
         .from('orders')
@@ -29,7 +29,8 @@ console.log("filteredCar:", filteredCart)
             user_email: email,
             user_phone: user_phone,
             user_address: user_address,
-            details: filteredCart,  // Store cart details as JSON
+            amount_promo: amountPromo,
+            details: filteredCartText,  
             delivery_fee: deliveryFee,
             total_amount: total_amount,
             order_status: 'completed',  // Set initial order status

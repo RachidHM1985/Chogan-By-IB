@@ -31,6 +31,7 @@ const Success = () => {
             email: metadata.email,
             name: metadata.name,
             deliveryFee: metadata.deliveryFee,
+            amountPromo: metadata.amountPromo,
             total_amount: amount_total,
             user_phone: metadata.phone,
             user_address: metadata.address,
