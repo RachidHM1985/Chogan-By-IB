@@ -30,12 +30,13 @@ export default async function handler(req, res) {
         console.log('Product data for item:', productData);
 
         // Check for missing or invalid product information
-        if (!productData || !productData.name || !item.size || !productData[`prix_${item.size}`]) {
+        if (!productData || !productData.name || !item.size || !productData.unit_amount) {
           console.log('Missing or invalid product data:', item);
           throw new Error('Missing or invalid product information');
         }
 
-        const originalPrice = productData[`prix_${item.size}`] || item.unit_amount / 100; // Fallback to unit_amount if `prix_{size}` is missing
+        // Use unit_amount as the price for the item (it already includes the price for the size)
+        const originalPrice = item.price_data.unit_amount / 100; // Convert cents to euros
 
         // Calculate the discounted price
         const discountedPrice = item.discountedPrice || (originalPrice - (amountPromo / lineItems.length));
