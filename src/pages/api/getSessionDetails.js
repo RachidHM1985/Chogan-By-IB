@@ -24,8 +24,6 @@ export default async function handler(req, res) {
       return res.status(404).json({ message: 'Session non trouvée' });
     }
 
-    console.log("Session récupérée :", session);  // Ajout d'une ligne de log pour déboguer
-
     // Format the cart items from the session's line_items
     const cartItems = session.line_items?.data.map(item => ({
       nom_produit: item.description || item.price_data.product_data.name,  // Product name/description

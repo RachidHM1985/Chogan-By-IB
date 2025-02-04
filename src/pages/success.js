@@ -6,7 +6,7 @@ import Footer from '../components/Footer';
 
 const Success = () => {
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);  // State to handle errors
+  const [error, setError] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -28,16 +28,23 @@ const Success = () => {
         return response.json();
       })
       .then(async (data) => {
+        console.log("Données de la session Stripe:", data);  // Log the response to see its structure
+        
         if (status === 'succeeded') {
-          // Prepare the order data to be saved
+          // Ensure 'cart' and 'metadata' exist before trying to access them
           const { amount_total, metadata, cart } = data;
 
-          // Ensure metadata contains the necessary properties
-          const product = cart?.[0] || {};  // Assuming cart has products
+          if (!metadata || !cart || cart.length === 0) {
+            setError('Informations de commande manquantes.');
+            setLoading(false);
+            return;
+          }
+
+          const product = cart[0] || {};  // Assuming cart has products
           const orderData = {
             email: metadata.email,
             name: metadata.name,
-            code: product.code || '',
+            code: product.code || '',  // Default to an empty string if product is undefined
             size: product.size || '',
             deliveryFee: metadata.deliveryFee || 0,
             amountPromo: metadata.amountPromo || 0,
@@ -58,7 +65,6 @@ const Success = () => {
             });
 
             const result = await response.json();
-            console.log('result :', result)
             if (response.ok) {
               setLoading(false);
             } else {
