@@ -42,6 +42,16 @@ const Success = () => {
             setLoading(false);
             return;
           }
+          const parsedValue = parseFloat(totalPriceWithDiscount);
+
+          // Vérification si la conversion a réussi
+          if (isNaN(parsedValue)) {
+            console.error("La chaîne ne peut pas être convertie en nombre");
+          } else {
+            // Arrondir le nombre à 2 décimales
+            const roundedValue = Math.round(parsedValue * 100) / 100;
+            console.log(roundedValue);  // Résultat : 49.94
+          }
 
           const orderData = {
             email: customerEmail,
@@ -49,8 +59,8 @@ const Success = () => {
             address,
             phone,
             deliveryFee,
-            total_amount: totalPriceWithDiscount,  // Already in the correct format
-            cart,  // The array of cart items with product details (including code, size, etc.)
+            total_amount: roundedValue,  
+            cart, 
           };
 
           // Send the order details to save and send email confirmation
