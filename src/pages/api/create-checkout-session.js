@@ -32,7 +32,7 @@ export default async function handler(req, res) {
         console.log('Product data for item:', productData);
 
         // Check for missing or invalid product information
-        if (!productData || !productData.name || !item.size || !productData.unit_amount) {
+        if (!productData || !productData.name || !productData.size || !productData.unit_amount) {
           console.error('Missing or invalid product data:', item);
           throw new Error('Missing or invalid product information');
         }
