@@ -6,7 +6,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const { email, name, total_amount, user_phone, user_address, cart } = req.body;
+    const { email, name, total_amount, user_phone, user_address, deliveryFee, cart } = req.body;
 
     // Vérifier les données
     if (!cart || !total_amount) {
