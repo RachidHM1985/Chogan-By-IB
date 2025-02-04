@@ -13,21 +13,21 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: 'Données manquantes' });
     }
 
-    // Enregistrer la commande dans Supabase
+   // Enregistrer la commande dans Supabase
     const { data, error } = await supabase
-      .from('orders')
-      .insert([
-        {
-          user_name: name,
-          user_email: email,
-          user_phone: user_phone,
-          user_address: user_address,
-          details: cart.json(),
-          deliveryFee : deliveryFee,
-          total_amount: total_amount,
-          order_status: 'completed',
-        },
-      ]);
+    .from('orders')
+    .insert([
+      {
+        user_name: name,
+        user_email: email,
+        user_phone: user_phone,
+        user_address: user_address,
+        details: typeof cart === 'string' ? JSON.parse(cart) : cart,  // Modifé ici
+        deliveryFee: deliveryFee,
+        total_amount: total_amount,
+        order_status: 'completed',
+      },
+    ]);
 
     if (error) {
       console.error('Erreur lors de l\'enregistrement de la commande:', error);
