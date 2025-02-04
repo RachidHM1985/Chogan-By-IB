@@ -55,6 +55,12 @@ export default async function handler(req, res) {
           <ul>
             ${filteredCart.map(item => `<li>${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}</li>`).join('')}
           </ul>
+          <ul>
+          Frais de livraison: ${deliveryFee}\n\n${amount_promo > 0 ? `Réduction: ${amount_promo}€\n` : ''}\n
+          </ul>
+           <ul>
+          ${amount_promo > 0 ? `Réduction: ${amount_promo}€` : ''}
+          </ul>
           <p><strong>Total : ${total_amount}€</strong></p>
           <p>Nous vous confirmons que nous avons enregistré votre commande et que nous allons la traiter.<br>Prochainement, nous allons vous contacter pour vous indiquer les modalités de paiement et de livraison.</p>
           <p>Cordialement,<br>Ikram B.</p>
