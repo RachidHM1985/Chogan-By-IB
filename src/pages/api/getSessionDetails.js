@@ -31,28 +31,35 @@ console.log('session: ', session)
     })) || [];
 
     console.log("Cart items formatés :", cartItems);  // Affiche les articles du panier
-console.log(session.metadata.products)
     // Création d'un objet de session avec les données nécessaires
     const sessionData = {
       cart: cartItems.map(item => {
-        return session.metadata.products.map(product => {
-          return {
-            nom_produit: item.nom_produit,  // Nom du produit
-            prix: item.prix / 100,           // Prix total (en euros, conversion des centimes)
-            quantity: item.quantity,         // Quantité du produit
-            code: product.code || '',        // Code du produit (si présent dans le produit)
-            size: product.size || '',        // Taille du produit (si présent dans le produit)
-          };
-        });
+        return {
+          nom_produit: item.nom_produit,  // Nom du produit
+          prix: item.prix / 100,           // Prix total (en euros, conversion des centimes)
+          quantity: item.quantity,         // Quantité du produit
+          code: '',                        // Code du produit, initialisé vide
+          size: '',                        // Taille du produit, initialisée vide
+        };
       }),
-      
-        totalPriceWithDiscount: session.metadata.totalPriceWithDiscount || 0, // Prix total avec remise, si disponible
-        deliveryFee: session.metadata.deliveryFee || 0, // Frais de livraison depuis les metadata
-        customerEmail: session.customer_details.email || '',  // Email du client
-        customerName: session.customer_details.name || '',    // Nom du client
-        address: session.metadata.address || '',  // Adresse du client depuis les metadata
-        phone: session.metadata.phone || '',      // Téléphone du client depuis les metadata
-      };
+    
+      totalPriceWithDiscount: session.metadata.totalPriceWithDiscount || 0, // Prix total avec remise, si disponible
+      deliveryFee: session.metadata.deliveryFee || 0, // Frais de livraison depuis les metadata
+      customerEmail: session.customer_details.email || '',  // Email du client
+      customerName: session.customer_details.name || '',    // Nom du client
+      address: session.metadata.address || '',  // Adresse du client depuis les metadata
+      phone: session.metadata.phone || '',      // Téléphone du client depuis les metadata
+    };
+    
+    // Associer les informations de produit au panier
+    session.metadata.products.forEach(product => {
+      sessionData.cart.forEach(item => {
+        if(item.nom_produit === product.name){
+          item.code = product.code;  // Assigner le code du produit
+          item.size = product.size;  // Assigner la taille du produit
+        }
+      });
+    });    
       
         console.log('sessionData :',sessionData)
     // Return the session data in the response
