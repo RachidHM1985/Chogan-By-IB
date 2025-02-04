@@ -49,7 +49,7 @@ export default async function handler(req, res) {
             product_data: {
               name: productData.name,
               code: productData.code || 'N/A',
-              size: item.size,
+              size: productData.size,
             },
             unit_amount: Math.round(discountedPrice * 100), // Amount in cents
           },
