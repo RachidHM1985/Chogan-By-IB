@@ -18,9 +18,6 @@ export default async function handler(req, res) {
       return res.status(404).json({ message: 'Session non trouvée' });
     }
 
-    // Vérifier si la session a un client
-    const customer = session.customer;
-
     // Récupérer les informations du panier via 'line_items' ou 'metadata' si nécessaire
     const cartItems = session.line_items ? session.line_items.data.map(item => ({
       nom_produit: item.description,
@@ -31,8 +28,7 @@ export default async function handler(req, res) {
 
     // Créer un objet avec les informations de la session
     const sessionData = {
-      customer_email: customer ? customer.email : null,
-      customer_name: customer ? customer.name : null,
+    
       amount_total: session.amount_total / 100,  // Montant total en euros
       shipping: session.shipping || {},
       metadata: session.metadata,

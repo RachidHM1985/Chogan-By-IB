@@ -22,11 +22,12 @@ const Success = () => {
       .then(async (data) => {
         if (status === 'succeeded') {
           // Préparer les données de la commande
-          const { customer_email, customer_name, amount_total, metadata, cart } = data;
+          const { amount_total, metadata, cart } = data;
 
           const orderData = {
-            customer_email,
-            customer_name,
+            email: metadata.email,
+            name: metadata.name,
+            deliveryFee: metadata.deliveryFee,
             total_amount: amount_total,
             user_phone: metadata.phone,
             user_address: metadata.address,

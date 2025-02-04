@@ -65,6 +65,7 @@ export default async function handler(req, res) {
           email: formData.email,
           address: formData.address,
           phone: formData.phone,
+          deliveryFee: deliveryFee,
           discountAmount: amountPromo || '0', // Add promo discount amount here if applicable
           totalPriceWithDiscount: discountedTotal + deliveryFee, // Total after discount + delivery fee
         },

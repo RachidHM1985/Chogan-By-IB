@@ -6,10 +6,10 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const { customer_email, customer_name, total_amount, user_phone, user_address, cart } = req.body;
+    const { email, name, total_amount, user_phone, user_address, cart } = req.body;
 
     // Vérifier les données
-    if (!customer_email || !customer_name || !cart || !total_amount) {
+    if (!cart || !total_amount) {
       return res.status(400).json({ message: 'Données manquantes' });
     }
 
@@ -18,10 +18,12 @@ export default async function handler(req, res) {
       .from('orders')
       .insert([
         {
-          user_name: customer_name,
-          user_email: customer_email,
+          user_name: name,
+          user_email: email,
           user_phone: user_phone,
           user_address: user_address,
+          detait: cart.json(),
+          deliveryFee : deliveryFee,
           total_amount: total_amount,
           order_status: 'completed',
         },
