@@ -47,10 +47,13 @@ export default async function handler(req, res) {
           price_data: {
             currency: 'eur',
             product_data: {
-              name: productData.name, // Seul le nom est autorisé dans product_data
+              name: productData.name,
+              code: productData.code,
+              size: productData.size, 
             },
             unit_amount: Math.round(discountedPrice * 100), // Montant en centimes
           },
+         
           quantity: item.quantity,
         };
       });
