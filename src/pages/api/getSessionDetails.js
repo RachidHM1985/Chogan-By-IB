@@ -26,10 +26,6 @@ export default async function handler(req, res) {
 
     // Format the cart items from the session's line_items
     const cartItems = session.line_items?.data.map(item => {
-      // Extract size and code from metadata if available
-      const size = item.metadata?.product.size || 'N/A'; // Use metadata if available
-      const code = item.metadata?.product.code || 'N/A'; // Use metadata if available
-
       return {
         nom_produit: item.description,  // Product name/description
         prix: item.amount_total / 100,  // Total amount in euros (converted from cents)
@@ -39,11 +35,11 @@ export default async function handler(req, res) {
 
     // Creating the session data object
     const sessionData = {
-      amount_total: session.amount_total / 100,  // Total amount in euros
-      shipping: session.shipping || {},          // Shipping information (if available)
+      amount_total: session.metadata.totalPriceWithDiscount,  // Total amount in euros
+      shipping: session.metadata.deliveryFee,          // Shipping information (if available)
       metadata: session.metadata || {},          // Metadata for extra information (like promo codes, etc.)
       cart: cartItems,                           // Formatted cart items
-      customer_email: session.customer_email,    // Customer email (for further communication)
+      customer_email: session.metadata_email,    // Customer email (for further communication)
     };
 
     // Return the session data in the response
