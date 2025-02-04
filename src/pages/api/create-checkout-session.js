@@ -74,6 +74,10 @@ export default async function handler(req, res) {
       // Log des éléments de ligne finaux
       console.log('Éléments de ligne finaux:', finalLineItems);
 
+      const numericDeliveryFee = parseFloat(deliveryFee) || 0; // Si deliveryFee est null ou NaN, utiliser 0
+      const numericDiscountedTotal = parseFloat(discountedTotal) || 0; // Même logique pour discountedTotal
+      const numericPromoAmount = parseFloat(promoAmount) || 0; 
+
       // Créer la session de paiement avec Stripe
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
@@ -85,10 +89,10 @@ export default async function handler(req, res) {
           name: formData.name,
           email: formData.email,
           address: formData.address,
-          phone: formData.phone,
-          deliveryFee: deliveryFee,
-          discountAmount: promoAmount || '0',
-          totalPriceWithDiscount: discountedTotal + deliveryFee,
+          phone: formData.phone,        
+          deliveryFee: numericDeliveryFee,
+          discountAmount: numericPromoAmount || 0,  // Si promoAmount est défini, l'utiliser sinon mettre 0
+          totalPriceWithDiscount: numericDiscountedTotal + numericDeliveryFee,
           // Ajout des informations sur les produits dans les métadonnées
           products: JSON.stringify(lineItems.map(item => ({
             name: item.price_data?.product_data?.name,
@@ -97,6 +101,8 @@ export default async function handler(req, res) {
           }))),
         },
       });
+
+ 
 
       res.status(200).json({ sessionId: session.id, status: "succeeded" });
     } catch (error) {
