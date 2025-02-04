@@ -26,7 +26,7 @@ export default async function handler(req, res) {
           // Add items to the session
           ...lineItems.map(item => {
             // Ensure all necessary product data is present
-            if (!item.product.nom_produit || !item.size || !item.product[`prix_${item.size}`]) {
+            if (!item.product.name || !item.size || !item.product[`prix_${item.size}`]) {
               throw new Error('Missing or invalid product information');
             }
 
@@ -38,7 +38,7 @@ export default async function handler(req, res) {
               price_data: {
                 currency: 'eur', // Currency (e.g., EUR)
                 product_data: {
-                  name: item.product.nom_produit,
+                  name: item.product.name,
                   code: item.product.code || 'N/A',
                   size: item.size
                 },
