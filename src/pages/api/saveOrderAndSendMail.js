@@ -3,13 +3,13 @@ import sgMail from '@sendgrid/mail';  // Corrected import
 
 // Set up SendGrid API key from the environment
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  const router = useRouter();
+
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     const { email, name, total_amount, amount_promo, user_phone, user_address, deliveryFee, cart } = req.body;
-    if (!router.isReady) {
-      return; // Ne pas exécuter le code tant que le router n'est pas prêt
-    }    // Check if required fields are missing
+  
     if (!cart || !total_amount) {
       return res.status(400).json({ message: 'Données manquantes' });
     }
