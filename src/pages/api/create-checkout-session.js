@@ -20,16 +20,12 @@ export default async function handler(req, res) {
       }
 
       // Appliquer la remise au prix total
-      let discountedTotal = totalPrice + deliveryFee - promoAmount;
+      let discountedTotal = totalPrice - promoAmount;
       if (discountedTotal < 0) discountedTotal = 0;
-
-      // Log des éléments de ligne avant traitement
-      console.log('Éléments de ligne avant traitement:', lineItems);
 
       // Mapper les éléments de ligne pour vérifier que toutes les données nécessaires sont présentes
       const stripeLineItems = lineItems.map(item => {
         const productData = item.price_data?.product_data; // Accès sécurisé
-        console.log('Données du produit pour l\'élément:', productData);
 
         // Vérifier si les informations du produit sont manquantes ou invalides
         if (!productData || !productData.name || !item.price_data.unit_amount) {
@@ -63,17 +59,6 @@ export default async function handler(req, res) {
               description: 'Frais de livraison',
             },
             unit_amount: Math.round(deliveryFee * 100),
-          },
-          quantity: 1,
-        }] : []),
-        ...(promoAmount > 0 ? [{
-          price_data: {
-            currency: 'eur',
-            product_data: {
-              name: 'Réduction',
-              description: 'Réduction sur votre commande',
-            },
-            unit_amount: Math.round(promoAmount * 100),  // Vous pouvez multiplier par 100 pour convertir en centimes
           },
           quantity: 1,
         }] : []),
