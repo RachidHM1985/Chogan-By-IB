@@ -7,10 +7,9 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     const { email, name, total_amount, amount_promo, user_phone, user_address, deliveryFee, cart } = req.body;
-    if (!router.isReady) {
-      return; // Ne pas exécuter le code tant que le router n'est pas prêt
-    }    // Check if required fields are missing
-    if (!cart || !total_amount) {
+
+    // Check if required fields are missing
+    if (!cart || !total_amount || !email || !name || !user_phone || !user_address) {
       return res.status(400).json({ message: 'Données manquantes' });
     }
 
@@ -21,10 +20,15 @@ export default async function handler(req, res) {
       // Filter out 'deliveryFee' items from the cart
       const filteredCart = parsedCart.filter(item => item.nom_produit !== 'deliveryFee');
       const filteredCartText = JSON.stringify(filteredCart);
-      // S'assurer que total_amount est un nombre
-const totalAmountNumber = parseFloat(total_amount);
-const formatted = totalAmountNumber.toFixed(2);
-console.log(formatted)
+
+      // Convert total_amount to a number and ensure it's a valid number
+      let totalAmountNumber = parseFloat(total_amount);
+      if (isNaN(totalAmountNumber)) {
+        return res.status(400).json({ message: 'total_amount est invalide' });
+      }
+
+      const formatted = totalAmountNumber.toFixed(2);  // Format to 2 decimals
+
       // Insert order into Supabase database
       const { data, error } = await supabase
         .from('orders')
@@ -52,7 +56,7 @@ console.log(formatted)
         to: email,
         from: 'choganbyikram.contact@gmail.com',  // Ensure this email is verified with SendGrid
         subject: 'Confirmation de votre commande Chogan',
-        text: `Bonjour ${name},\n\nMerci pour votre commande ! Voici les détails :\n\n${filteredCart.map(item => `${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}`).join('\n')}\nFrais de livraison: ${deliveryFee}\n${amount_promo > 0 ? `Réduction: ${amount_promo}€\n` : ''}\n\nTotal : ${totalAmountNumber}€.\n\nNous allons traiter votre commande et nous reviendrons vers vous pour vous indiquer les modalités de paiement et de livraison.\n\nCordialement,\n\nIkram B.`,
+        text: `Bonjour ${name},\n\nMerci pour votre commande ! Voici les détails :\n\n${filteredCart.map(item => `${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}`).join('\n')}\nFrais de livraison: ${deliveryFee}\n${amount_promo > 0 ? `Réduction: ${amount_promo}€\n` : ''}\n\nTotal : ${formatted}€.\n\nNous allons traiter votre commande et nous reviendrons vers vous pour vous indiquer les modalités de paiement et de livraison.\n\nCordialement,\n\nIkram B.`,
         html: `
           <h1>Confirmation de votre commande</h1>
           <p>Bonjour ${name},</p>
@@ -61,10 +65,10 @@ console.log(formatted)
             ${filteredCart.map(item => `<li>${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}</li>`).join('')}
           </ul>
           <ul>
-          Frais de livraison: ${deliveryFee}€
+            Frais de livraison: ${deliveryFee}€
           </ul>
-           <ul>
-          ${amount_promo > 0 ? `Réduction: ${amount_promo}€` : ''}
+          <ul>
+            ${amount_promo > 0 ? `Réduction: ${amount_promo}€` : ''}
           </ul>
           <p><strong>Total : ${formatted}€</strong></p>
           <p>Nous vous confirmons que nous avons enregistré votre commande et que nous allons la traiter.<br>Prochainement, nous allons vous contacter pour vous indiquer les modalités de paiement et de livraison.</p>
