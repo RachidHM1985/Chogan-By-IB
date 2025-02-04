@@ -19,70 +19,63 @@ const Success = () => {
       return;
     }
 
-    // Fetch the Stripe session details
-    fetch(`/api/getSessionDetails?session_id=${session_id}`)
-      .then(response => {
+    const fetchSessionDetails = async () => {
+      try {
+        // Fetch session details from the API
+        const response = await fetch(`/api/getSessionDetails?session_id=${session_id}`);
         if (!response.ok) {
           throw new Error('Erreur lors de la récupération des détails de la session.');
         }
-        return response.json();
-      })
-      .then(async (data) => {
-        console.log("Données de la session Stripe:", data);  // Log the response to see its structure
-        
-        if (status === 'succeeded') {
-          // Ensure 'cart' and 'metadata' exist before trying to access them
-          const { amount_total, metadata, cart } = data;
 
-          if (!metadata || !cart || cart.length === 0) {
+        const data = await response.json();
+        console.log("Données de la session Stripe:", data);  // Log the response to see its structure
+
+        if (status === 'succeeded') {
+          // Ensure 'cart' exists and is not empty
+          const { totalPriceWithDiscount, deliveryFee, cart, customerEmail, customerName, address, phone } = data;
+
+          if (!cart || cart.length === 0) {
             setError('Informations de commande manquantes.');
             setLoading(false);
             return;
           }
 
-          const product = cart[0] || {};  // Assuming cart has products
           const orderData = {
-            email: metadata.email,
-            name: metadata.name,
-            code: product.code || '',  // Default to an empty string if product is undefined
-            size: product.size || '',
-            deliveryFee: metadata.deliveryFee || 0,
-            amountPromo: metadata.amountPromo || 0,
-            total_amount: amount_total / 100,  // Ensure total_amount is in euros
-            user_phone: metadata.phone || '',
-            user_address: metadata.address || '',
-            cart,
+            email: customerEmail,
+            name: customerName,
+            address,
+            phone,
+            deliveryFee,
+            total_amount: totalPriceWithDiscount,  // Already in the correct format
+            cart,  // The array of cart items with product details (including code, size, etc.)
           };
 
           // Send the order details to save and send email confirmation
-          try {
-            const response = await fetch('/api/saveOrderAndSendMail', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(orderData),
-            });
+          const saveResponse = await fetch('/api/saveOrderAndSendMail', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(orderData),
+          });
 
-            const result = await response.json();
-            if (response.ok) {
-              setLoading(false);
-            } else {
-              setError(result.message || 'Une erreur est survenue lors du traitement de votre commande.');
-            }
-          } catch (err) {
-            console.error('Error while sending order data:', err);
-            setError('Erreur lors de l\'envoi des données. Veuillez réessayer.');
+          const result = await saveResponse.json();
+          if (saveResponse.ok) {
+            setLoading(false);
+          } else {
+            setError(result.message || 'Une erreur est survenue lors du traitement de votre commande.');
           }
         } else {
           setError('Le paiement a échoué. Veuillez réessayer.');
           router.push('/echec?status=failed'); // Redirect to the failure page
         }
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error('Error while fetching session details:', err);
         setError('Erreur lors de la récupération des détails de la session de paiement.');
-      });
+      }
+    };
+
+    fetchSessionDetails();
   }, [router.query]);
 
   return (
