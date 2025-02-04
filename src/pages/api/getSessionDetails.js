@@ -2,7 +2,7 @@ import Stripe from 'stripe';
 
 // Initialize Stripe with the secret key and API version
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2022-08-01', // Make sure you are using the correct version
+  apiVersion: '2022-08-01', // Ensure you are using the correct version
 });
 
 export default async function handler(req, res) {
@@ -25,13 +25,19 @@ export default async function handler(req, res) {
     }
 
     // Format the cart items from the session's line_items
-    const cartItems = session.line_items?.data.map(item => ({
-      nom_produit: item.description,  // Product name/description
-      prix: item.amount_total / 100,  // Total amount in euros (converted from cents)
-      quantity: item.quantity,       // Quantity of the product
-      size:item.size,
-      code: item.code
-    })) || [];
+    const cartItems = session.line_items?.data.map(item => {
+      // Extract size and code from metadata if available
+      const size = item.metadata?.size || 'N/A'; // Use metadata if available
+      const code = item.metadata?.code || 'N/A'; // Use metadata if available
+
+      return {
+        nom_produit: item.description,  // Product name/description
+        prix: item.amount_total / 100,  // Total amount in euros (converted from cents)
+        quantity: item.quantity,       // Quantity of the product
+        size,                          // Extracted size from metadata
+        code,                          // Extracted code from metadata
+      };
+    }) || [];
 
     // Creating the session data object
     const sessionData = {

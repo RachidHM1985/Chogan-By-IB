@@ -14,14 +14,19 @@ const Success = () => {
 
     // Ensure session_id and status are available
     if (!session_id || !status) {
-      setError('Invalid session details.');
+      setError('Détails de session invalides.');
       setLoading(false);
       return;
     }
 
     // Fetch the Stripe session details
     fetch(`/api/getSessionDetails?session_id=${session_id}`)
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Erreur lors de la récupération des détails de la session.');
+        }
+        return response.json();
+      })
       .then(async (data) => {
         if (status === 'succeeded') {
           // Prepare the order data to be saved
@@ -59,7 +64,7 @@ const Success = () => {
             setError('Erreur lors de l\'envoi des données. Veuillez réessayer.');
           }
         } else {
-          setError('Le paiement a échoué.');
+          setError('Le paiement a échoué. Veuillez réessayer.');
           router.push('/echec?status=failed'); // Redirect to the failure page
         }
       })
