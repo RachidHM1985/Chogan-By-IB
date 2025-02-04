@@ -13,22 +13,27 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: 'Données manquantes' });
     }
 
-   // Enregistrer la commande dans Supabase
-    const { data, error } = await supabase
-    .from('orders')
-    .insert([
-      {
-        user_name: name,
-        user_email: email,
-        user_phone: user_phone,
-        user_address: user_address,
-        details: typeof cart === 'string' ? JSON.parse(cart) : cart,  // Modifé ici
-        delivery_Fee: deliveryFee,
-        total_amount: total_amount,
-        order_status: 'completed',
-      },
-    ]);
+    // Assurez-vous que `cart` est un tableau et bien formaté (parse si nécessaire)
+    const parsedCart = Array.isArray(cart) ? cart : JSON.parse(cart);  // Si cart est une chaîne, la parser
 
+    // Enregistrer la commande dans Supabase
+    const { data, error } = await supabase
+      .from('orders')
+      .insert([
+        {
+          user_name: name,
+          user_email: email,
+          user_phone: user_phone,
+          user_address: user_address,
+          details: parsedCart,  // Stocker les détails sous forme de JSON
+          delivery_fee: deliveryFee,  // Frais de livraison
+          total_amount: total_amount,  // Montant total de la commande
+          order_status: 'completed',  // Statut de la commande
+          metadata: null,  // Vous pouvez ajouter des métadonnées si nécessaire
+        },
+      ]);
+
+    // Vérifier s'il y a une erreur
     if (error) {
       console.error('Erreur lors de l\'enregistrement de la commande:', error);
       return res.status(500).json({ message: 'Erreur lors de l\'enregistrement de la commande' });
