@@ -22,7 +22,7 @@ export default async function handler(req, res) {
           user_email: email,
           user_phone: user_phone,
           user_address: user_address,
-          detait: cart.json(),
+          details: cart.json(),
           deliveryFee : deliveryFee,
           total_amount: total_amount,
           order_status: 'completed',
