@@ -40,14 +40,21 @@ export default async function handler(req, res) {
       code:'',                       // Placeholder for the product code
       size: '',                       // Placeholder for the product size
     })) || [];
-    metadata.products.forEach(product => {
-      cartItems.forEach(cartItem => {
-        if (cartItem.nom_produit === product.name) {
-          cartItem.code = product.code;
-          cartItem.size = product.size;
-        }
+    const products = JSON.parse(metadata.products);  // Convertit la chaîne JSON en tableau
+
+    if (Array.isArray(products)) {
+      products.forEach(product => {
+        cartItems.forEach(cartItem => {
+          if (cartItem.nom_produit === product.name) {
+            cartItem.code = product.code;
+            cartItem.size = product.size;
+          }
+        });
       });
-    });
+    } else {
+      console.error('Les produits ne sont pas sous forme de tableau ou sont manquants.');
+    }
+    
     
 
     // Format session data
