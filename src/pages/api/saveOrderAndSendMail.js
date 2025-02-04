@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     // Assurez-vous que `cart` est un tableau et bien formaté (parse si nécessaire)
     const parsedCart = Array.isArray(cart) ? cart : JSON.parse(cart);  // Si cart est une chaîne, la parser
 // Filtrer les éléments où `nom_produit` est égal à 'deliveryFee'
-const filteredCart = parsedCart.filter(item => item.product.nom_produit !== 'deliveryFee');
+const filteredCart = parsedCart.filter(item => item.nom_produit !== 'deliveryFee');
     // Enregistrer la commande dans Supabase
     const { data, error } = await supabase
       .from('orders')
