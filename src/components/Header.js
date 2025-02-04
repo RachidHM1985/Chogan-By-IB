@@ -146,7 +146,7 @@ const handleStripePayment = async () => {
         },
         quantity: item.quantity,
       }));
-
+console.log("stripeLineItems:", stripeLineItems)
       // Add delivery fees as a separate line item (Stripe recognizes this as shipping fee)
       if (delivery && total < 80) {
         // Add shipping fee as a distinct item
