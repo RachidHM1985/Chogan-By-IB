@@ -34,13 +34,21 @@ export default async function handler(req, res) {
     console.log(session.line_items.data)
     // Format the cart items from the session's line_items
     const cartItems = session.line_items?.data.map(item => ({
-      nom_produit: 'test',  
+      nom_produit:item.description,  
       prix: item.amount_total / 100,  // Total amount in euros (converted from cents)
       quantity: item.quantity,       // Quantity of the product
       code:'',                       // Placeholder for the product code
       size: '',                       // Placeholder for the product size
     })) || [];
-
+    metadata.products.forEach(product => {
+      cartItems.forEach(cartItem => {
+        if (cartItem.nom_produit === product.name) {
+          cartItem.code = product.code;
+          cartItem.size = product.size;
+        }
+      });
+    });
+    
 
     // Format session data
     const sessionData = {
