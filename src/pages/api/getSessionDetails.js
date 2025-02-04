@@ -31,7 +31,7 @@ console.log('session: ', session)
     })) || [];
 
     console.log("Cart items formatés :", cartItems);  // Affiche les articles du panier
-
+console.log(session.metadata.products)
     // Création d'un objet de session avec les données nécessaires
     const sessionData = {
       cart: cartItems.map(item => {
@@ -45,7 +45,7 @@ console.log('session: ', session)
           };
         });
       }),
-      
+      console.log('sessionData:', sessionData)
         totalPriceWithDiscount: session.metadata.totalPriceWithDiscount || 0, // Prix total avec remise, si disponible
         deliveryFee: session.metadata.deliveryFee || 0, // Frais de livraison depuis les metadata
         customerEmail: session.customer_details.email || '',  // Email du client
