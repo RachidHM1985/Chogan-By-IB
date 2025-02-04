@@ -1,117 +1,60 @@
 import Stripe from 'stripe';
 
+// Initialize Stripe with the secret key and API version
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2022-08-01',
+  apiVersion: '2022-08-01', // Make sure you are using the correct version
 });
 
 export default async function handler(req, res) {
-  if (req.method === 'POST') {
-    try {
-      const { formData, lineItems, deliveryFee, amountPromo, totalPrice } = req.body;
+  const { session_id } = req.query;
 
-      console.log('Received data:', { formData, lineItems, deliveryFee, amountPromo, totalPrice });
+  // Check if session_id is provided
+  if (!session_id) {
+    return res.status(400).json({ message: 'session_id manquant' });
+  }
 
-      // Sanitize amountPromo: if it's empty, set it to 0
-      const promoAmount = amountPromo ? parseFloat(amountPromo) : 0;
+  try {
+    // Retrieve the Stripe session
+    const session = await stripe.checkout.sessions.retrieve(session_id, {
+      expand: ['customer', 'line_items'], // Expanding relevant fields like customer and line items
+    });
 
-      // Check for missing data
-      if (!formData || !lineItems || lineItems.length === 0 || totalPrice == null) {
-        return res.status(400).json({ error: 'Missing or invalid order data.' });
-      }
-
-      // Apply the discount to the total price
-      let discountedTotal = totalPrice + deliveryFee - promoAmount;
-      if (discountedTotal < 0) discountedTotal = 0;
-
-      // Log the lineItems before processing
-      console.log('Line items before processing:', lineItems);
-
-      // Map over lineItems to ensure all necessary data is present
-      const stripeLineItems = lineItems.map(item => {
-        const productData = item.price_data?.product_data; // Safe access
-        console.log('Product data for item:', productData);
-
-        // Check for missing or invalid product information
-        if (!productData || !productData.name || !item.price_data.unit_amount) {
-          console.error('Missing or invalid product data:', item);
-          throw new Error('Missing or invalid product information');
-        }
-
-        // Use unit_amount as the price for the item (it already includes the price for the size)
-        const originalPrice = item.price_data.unit_amount / 100; // Convert cents to euros
-
-        // Calculate the discounted price
-        const discountedPrice = item.discountedPrice || (originalPrice - (promoAmount / lineItems.length));
-
-        return {
-          price_data: {
-            currency: 'eur',
-            product_data: {
-              name: productData.name, // Only name allowed in product_data
-            },
-            unit_amount: Math.round(discountedPrice * 100), // Amount in cents
-          },
-          quantity: item.quantity,
-        };
-      });
-
-      // Add delivery fee as a separate line item if applicable
-      const finalLineItems = [
-        ...stripeLineItems,
-        ...(deliveryFee && discountedTotal < 80 ? [{
-          price_data: {
-            currency: 'eur',
-            product_data: {
-              name: 'Delivery Fee',
-              description: 'Frais de livraison',
-            },
-            unit_amount: Math.round(deliveryFee * 100),
-          },
-          quantity: 1,
-        }] : []),
-      ];
-
-      // Log the final line items
-      console.log('Final line items:', finalLineItems);
-
-      // Create the payment session with Stripe
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        line_items: finalLineItems,
-        mode: 'payment',
-        success_url: `https://chogan-by-ikram.vercel.app/success?session_id={CHECKOUT_SESSION_ID}&status=succeeded`,
-        cancel_url: `https://chogan-by-ikram.vercel.app/echec?status=failed`,
-        metadata: {
-          name: formData.name,
-          email: formData.email,
-          address: formData.address,
-          phone: formData.phone,
-          deliveryFee: deliveryFee,
-          discountAmount: promoAmount || '0',
-          totalPriceWithDiscount: discountedTotal + deliveryFee,
-          // You can add custom metadata here as needed
-          // For example, adding product info as metadata:
-          products: JSON.stringify(lineItems.map(item => ({
-            name: item.price_data?.product_data?.name,
-            code: item.price_data?.product_data?.code,
-            size: item.price_data?.product_data?.size,
-          }))),
-        },
-      });
-
-      res.status(200).json({ sessionId: session.id });
-    } catch (error) {
-      console.error('Error creating Stripe session:', error);
-
-      if (error.message.includes('Missing product information')) {
-        res.status(400).json({ error: 'A product is missing necessary information' });
-      } else if (error.type === 'StripeInvalidRequestError') {
-        res.status(400).json({ error: 'Invalid data sent to Stripe' });
-      } else {
-        res.status(500).json({ error: 'Internal server error while creating session' });
-      }
+    // Check if session exists
+    if (!session) {
+      return res.status(404).json({ message: 'Session non trouvée' });
     }
-  } else {
-    res.status(405).json({ error: 'Method Not Allowed' });
+
+    // Format the cart items from the session's line_items
+    const cartItems = session.line_items?.data.map(item => ({
+      nom_produit: item.description,  // Product name/description
+      prix: item.amount_total / 100,  // Total amount in euros (converted from cents)
+      quantity: item.quantity,       // Quantity of the product
+      size:item.size,
+      code: item.code
+    })) || [];
+
+    // Creating the session data object
+    const sessionData = {
+      amount_total: session.amount_total / 100,  // Total amount in euros
+      shipping: session.shipping || {},          // Shipping information (if available)
+      metadata: session.metadata || {},          // Metadata for extra information (like promo codes, etc.)
+      cart: cartItems,                           // Formatted cart items
+      customer_email: session.customer_email,    // Customer email (for further communication)
+    };
+
+    // Return the session data in the response
+    return res.status(200).json(sessionData);
+
+  } catch (error) {
+    console.error('Erreur lors de la récupération de la session Stripe:', error);
+
+    // Handle various types of errors gracefully
+    if (error.type === 'StripeInvalidRequestError') {
+      return res.status(400).json({ message: 'Données invalides envoyées à Stripe', error: error.message });
+    } else if (error.type === 'StripeAPIError') {
+      return res.status(500).json({ message: 'Erreur de l\'API Stripe', error: error.message });
+    } else {
+      return res.status(500).json({ message: 'Erreur serveur lors de la récupération de la session', error: error.message });
+    }
   }
 }

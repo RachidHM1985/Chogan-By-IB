@@ -9,64 +9,60 @@ export default async function handler(req, res) {
     try {
       const { formData, lineItems, deliveryFee, amountPromo, totalPrice } = req.body;
 
-      console.log('Received data:', { formData, lineItems, deliveryFee, amountPromo, totalPrice });
+      console.log('Données reçues:', { formData, lineItems, deliveryFee, amountPromo, totalPrice });
 
-      // Sanitize amountPromo: if it's empty, set it to 0
+      // Sanitize amountPromo: si vide, on le définit sur 0
       const promoAmount = amountPromo ? parseFloat(amountPromo) : 0;
 
-      // Check for missing data
+      // Vérifier s'il manque des données
       if (!formData || !lineItems || lineItems.length === 0 || totalPrice == null) {
-        return res.status(400).json({ error: 'Missing or invalid order data.' });
+        return res.status(400).json({ error: 'Données de commande manquantes ou invalides.' });
       }
 
-      // Apply the discount to the total price
+      // Appliquer la remise au prix total
       let discountedTotal = totalPrice + deliveryFee - promoAmount;
       if (discountedTotal < 0) discountedTotal = 0;
 
-      // Log the lineItems before processing
-      console.log('Line items before processing:', lineItems);
+      // Log des éléments de ligne avant traitement
+      console.log('Éléments de ligne avant traitement:', lineItems);
 
-      // Map over lineItems to ensure all necessary data is present
+      // Mapper les éléments de ligne pour vérifier que toutes les données nécessaires sont présentes
       const stripeLineItems = lineItems.map(item => {
-        const productData = item.price_data?.product_data; // Safe access
-        console.log('Product data for item:', productData);
+        const productData = item.price_data?.product_data; // Accès sécurisé
+        console.log('Données du produit pour l\'élément:', productData);
 
-        // Check for missing or invalid product information
+        // Vérifier si les informations du produit sont manquantes ou invalides
         if (!productData || !productData.name || !item.price_data.unit_amount) {
-          console.error('Missing or invalid product data:', item);
-          throw new Error('Missing or invalid product information');
+          console.error('Informations produit manquantes ou invalides:', item);
+          throw new Error('Informations produit manquantes ou invalides');
         }
 
-        // Use unit_amount as the price for the item (it already includes the price for the size)
-        const originalPrice = item.price_data.unit_amount / 100; // Convert cents to euros
+        // Utiliser unit_amount comme prix de l'article (il inclut déjà le prix pour la taille)
+        const originalPrice = item.price_data.unit_amount / 100; // Convertir les centimes en euros
 
-        // Calculate the discounted price
+        // Calculer le prix réduit
         const discountedPrice = item.discountedPrice || (originalPrice - (promoAmount / lineItems.length));
 
         return {
           price_data: {
             currency: 'eur',
             product_data: {
-              name: productData.name, // Only name allowed in product_data
+              name: productData.name, // Seul le nom est autorisé dans product_data
             },
-            unit_amount: Math.round(discountedPrice * 100), // Amount in cents
+            unit_amount: Math.round(discountedPrice * 100), // Montant en centimes
           },
           quantity: item.quantity,
-          metadata: {
-            code: productData.code || 'N/A', // Adding as metadata
-            size: productData.size || 'N/A', // Adding as metadata
-          },
         };
       });
 
-      // Add delivery fee as a separate line item if applicable
+      // Ajouter des frais de livraison comme élément séparé si nécessaire
       const finalLineItems = [
         ...stripeLineItems,
         ...(deliveryFee && discountedTotal < 80 ? [{
           price_data: {
             currency: 'eur',
             product_data: {
-              name: 'Delivery Fee',
+              name: 'Frais de livraison',
               description: 'Frais de livraison',
             },
             unit_amount: Math.round(deliveryFee * 100),
@@ -75,10 +71,10 @@ export default async function handler(req, res) {
         }] : []),
       ];
 
-      // Log the final line items
-      console.log('Final line items:', finalLineItems);
+      // Log des éléments de ligne finaux
+      console.log('Éléments de ligne finaux:', finalLineItems);
 
-      // Create the payment session with Stripe
+      // Créer la session de paiement avec Stripe
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: finalLineItems,
@@ -93,22 +89,28 @@ export default async function handler(req, res) {
           deliveryFee: deliveryFee,
           discountAmount: promoAmount || '0',
           totalPriceWithDiscount: discountedTotal + deliveryFee,
+          // Ajout des informations sur les produits dans les métadonnées
+          products: JSON.stringify(lineItems.map(item => ({
+            name: item.price_data?.product_data?.name,
+            code: item.price_data?.product_data?.code,
+            size: item.price_data?.product_data?.size,
+          }))),
         },
       });
 
       res.status(200).json({ sessionId: session.id });
     } catch (error) {
-      console.error('Error creating Stripe session:', error);
+      console.error('Erreur lors de la création de la session Stripe:', error);
 
-      if (error.message.includes('Missing product information')) {
-        res.status(400).json({ error: 'A product is missing necessary information' });
+      if (error.message.includes('Informations produit manquantes')) {
+        res.status(400).json({ error: 'Un produit manque des informations nécessaires' });
       } else if (error.type === 'StripeInvalidRequestError') {
-        res.status(400).json({ error: 'Invalid data sent to Stripe' });
+        res.status(400).json({ error: 'Données invalides envoyées à Stripe' });
       } else {
-        res.status(500).json({ error: 'Internal server error while creating session' });
+        res.status(500).json({ error: 'Erreur interne lors de la création de la session' });
       }
     }
   } else {
-    res.status(405).json({ error: 'Method Not Allowed' });
+    res.status(405).json({ error: 'Méthode non autorisée' });
   }
 }
