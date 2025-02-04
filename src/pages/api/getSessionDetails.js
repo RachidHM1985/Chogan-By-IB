@@ -41,19 +41,55 @@ export default async function handler(req, res) {
       size: '',                       // Placeholder for the product size
     })) || [];
     const products = JSON.parse(metadata.products);  // Convertit la chaîne JSON en tableau
-
-    if (Array.isArray(products)) {
-      products.forEach(product => {
-        cartItems.forEach(cartItem => {
+    if (Array.isArray(products) && Array.isArray(cartItems)) {
+      // Parcourez chaque produit
+      products.forEach(async (product) => {
+        // Pour chaque produit, vérifiez s'il correspond à un produit dans le panier
+        cartItems.forEach(async (cartItem) => {
           if (cartItem.nom_produit === product.name) {
-            cartItem.code = product.code;
-            cartItem.size = product.size;
+            // Effectuer une requête à Supabase pour récupérer le prix par code
+            const { data, error } = await supabase
+              .from('parfums')
+              .select('*')
+              .eq('code', product.code)
+              .single();  // On s'attend à un seul résultat pour le produit
+    
+            if (error) {
+              console.error('Erreur lors de la récupération du produit:', error.message);
+              return;
+            }
+    
+            if (data) {
+              // Appliquer les prix en fonction de la taille du produit dans cartItem
+              switch (cartItem.size) {
+                case '30ml':
+                  cartItem.prix = data.prix_30ml || 0;  // Utiliser prix_30ml, s'il est disponible
+                  break;
+                case '50ml':
+                  cartItem.prix = data.prix_50ml || 0;  // Utiliser prix_50ml, s'il est disponible
+                  break;
+                case '70ml':
+                  cartItem.prix = data.prix_70ml || 0;  // Utiliser prix_70ml, s'il est disponible
+                  break;
+                default:
+                  console.log(`Taille ${cartItem.size} non définie dans les données produits`);
+                  break;
+              }
+    
+              // Mise à jour du cartItem avec la taille et le prix correct
+              cartItem.code = product.code;
+            } else {
+              console.log('Produit non trouvé pour le code:', product.code);
+            }
           }
         });
       });
     } else {
-      console.error('Les produits ne sont pas sous forme de tableau ou sont manquants.');
+      // Si les produits ou le panier ne sont pas sous forme de tableau
+      console.error('Les produits ou le panier ne sont pas sous forme de tableau.');
     }
+    
+
     
     const filteredCartItems = cartItems.filter(item => item.nom_produit !== 'Frais de livraison');
     
