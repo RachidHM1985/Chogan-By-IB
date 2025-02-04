@@ -36,33 +36,29 @@ const handleWebhook = async (req, res) => {
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
 
-      // Récupérer les données pertinentes de la session
+      // Assurez-vous que les données nécessaires existent dans la session
       const { customer_email, customer_name, amount_total, shipping, metadata } = session;
 
+      if (!customer_email || !customer_name || !amount_total || !shipping) {
+        console.error('Informations de la session manquantes.');
+        return res.status(400).send('Données de la session manquantes');
+      }
+
+      // Créer l'objet de commande
       const orderData = {
         user_name: customer_name,
         user_email: customer_email,
         user_phone: shipping.phone,
         user_address: shipping.address.line1,
         total_amount: amount_total / 100, // Montant en cents
-        delivery_fee: metadata.deliveryFee || 0, // Si les métadonnées contiennent une livraison
+        delivery_fee: metadata?.deliveryFee || 0, // Si les métadonnées contiennent une livraison
         order_status: 'completed',
       };
 
       // Enregistrer la commande dans Supabase
       const { data, error } = await supabase
         .from('orders')
-        .insert([
-          {
-            user_name: customer_name,
-            user_email: customer_email,
-            user_phone: shipping.phone,
-            user_address: shipping.address.line1,
-            total_amount: amount_total / 100, // Montant en cents
-            delivery_fee: metadata.deliveryFee || 0, // Si les métadonnées contiennent une livraison
-            order_status: 'completed',
-          },
-        ]);
+        .insert([orderData]);
 
       if (error) {
         console.error('Erreur d\'insertion de la commande dans Supabase:', error);
@@ -71,9 +67,9 @@ const handleWebhook = async (req, res) => {
 
       console.log('Commande enregistrée avec succès dans Supabase:', data);
 
-      // Faire appel à l'API de notification (e.g., envoi de mail)
+      // Faire appel à l'API de notification (par exemple, envoi de mail)
       try {
-        const response = await fetch('/api/sendMail', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/sendMail`, {
           method: 'POST',
           body: JSON.stringify(orderData),
           headers: {
@@ -87,9 +83,11 @@ const handleWebhook = async (req, res) => {
           console.error('Erreur lors de l\'envoi de la confirmation');
         }
       } catch (error) {
-        console.error("Erreur lors de l'envoi de la commande", error);
+        console.error("Erreur lors de l'envoi de l'email de confirmation", error);
         return res.status(500).send("Erreur lors de l'envoi de l'email de confirmation");
       }
+    } else {
+      console.log(`Événement ignoré: ${event.type}`);
     }
 
     // Répondre à Stripe pour confirmer que l'événement a été traité
