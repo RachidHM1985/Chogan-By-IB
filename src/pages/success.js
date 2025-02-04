@@ -8,106 +8,77 @@ const Success = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);  // State pour gérer les erreurs
   const router = useRouter();
-  
+
   useEffect(() => {
     const { session_id, status } = router.query;
-  
+
     if (!session_id || !status) {
-      setError('Données manquantes dans l\'URL.');
-      setLoading(false);
       return;
     }
-  
-    const handlePaymentSuccess = async () => {
-      try {
-        const response = await fetch(`/api/getSessionDetails?session_id=${session_id}`);
-        const data = await response.json();
-  
-        // Vérification si les données retournées sont valides
-        if (!data || !data.customer_email || !data.cart) {
-          setError('Erreur lors de la récupération des détails de la session.');
-          setLoading(false);
-          return;
-        }
-  
-        const { customer_email, customer_name, amount_total, shipping, metadata, cart } = data;
-  
-        const orderData = {
-          user_name: customer_name,
-          user_email: customer_email,
-          user_phone: shipping ? shipping.phone : 'Non précisé',  // Vérifier si shipping existe
-          user_address: shipping ? shipping.address.line1 : 'Non précisé',  // Vérifier si shipping existe
-          total_amount: amount_total / 100, // Montant en cents
-          delivery_fee: metadata?.deliveryFee || 0,
-          order_status: 'completed',
-          cart,  // Inclure le panier pour l'email
-        };
-  
-        const apiResponse = await fetch('/api/saveOrderAndSendMail', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(orderData),
-        });
-  
-        if (apiResponse.status === 200) {
-          console.log('Commande enregistrée et mail envoyé');
-          setLoading(false);
+
+    // Récupération des détails de la session Stripe
+    fetch(`/api/getSessionDetails?session_id=${session_id}`)
+      .then(response => response.json())
+      .then(async (data) => {
+        if (data.status === 'succeeded') {
+          // Préparer les données de la commande
+          const { customer_email, customer_name, amount_total, metadata, cart } = data;
+
+          const orderData = {
+            customer_email,
+            customer_name,
+            total_amount: amount_total,
+            user_phone: metadata.phone,
+            user_address: metadata.address,
+            cart,
+          };
+
+          // Envoi des détails vers l'API pour enregistrer la commande et envoyer les emails
+          try {
+            const response = await fetch('/api/saveOrderAndSendMail', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(orderData),
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+              setLoading(false);
+            } else {
+              setError(result.message || 'Une erreur est survenue');
+            }
+          } catch (err) {
+            console.error('Erreur lors de l\'envoi des données:', err);
+            setError('Erreur lors de l\'envoi des données');
+          }
         } else {
-          setError('Une erreur est survenue lors de l\'enregistrement de la commande et de l\'envoi du mail.');
-          setLoading(false);
+          setError('Le paiement a échoué.');
+          router.push('/echec?status=failed'); // Redirige vers la page d'échec
         }
-      } catch (error) {
-        console.error('Erreur lors du traitement du paiement:', error);
-        setError('Erreur lors du traitement du paiement.');
-        setLoading(false);
-      }
-    };
-  
-    if (status === 'succeeded') {
-      handlePaymentSuccess();
-    } else {
-      setError('Le paiement a échoué.');
-      router.push('/echec?status=failed');
-    }
+      })
+      .catch((err) => {
+        console.error('Erreur lors de la récupération des détails de la session:', err);
+        setError('Erreur lors de la récupération des détails de la session.');
+      });
   }, [router.query]);
-  
-  
+
   return (
     <>
       <Header />
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: '100vh', // Garantir que le contenu prend tout l'espace vertical
-      }}>
-        <div style={{
-          flex: 1, // Faire en sorte que le contenu principal prenne toute la hauteur disponible
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          flexDirection: 'column',
-          padding: '20px',
-        }}>
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', padding: '20px' }}>
           {loading ? (
-            <Typography variant="h6" align="center">
-              Vérification du paiement...
-            </Typography>
+            <Typography variant="h6" align="center">Vérification du paiement...</Typography>
           ) : (
             <div>
-              {error ? (  // Si une erreur est présente, affiche un message d'erreur
-                <Typography variant="h6" align="center" color="error">
-                  {error}
-                </Typography>
+              {error ? (
+                <Typography variant="h6" align="center" color="error">{error}</Typography>
               ) : (
                 <div>
-                  <Typography variant="h4" align="center" color="green">
-                    Paiement réussi !
-                  </Typography>
-                  <Typography variant="h6" align="center">
-                    Merci pour votre commande, votre paiement a été effectué avec succès. Vous allez recevoir un mail de confirmation.
-                  </Typography>
+                  <Typography variant="h4" align="center" color="green">Paiement réussi !</Typography>
+                  <Typography variant="h6" align="center">Merci pour votre commande, votre paiement a été effectué avec succès. Vous allez recevoir un mail de confirmation.</Typography>
                 </div>
               )}
               <div style={{ textAlign: 'center', marginTop: '20px' }}>

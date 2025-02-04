@@ -9,20 +9,34 @@ export default async function handler(req, res) {
   }
 
   try {
-    const session = await stripe.checkout.sessions.retrieve(session_id);
+    // Récupération des détails de la session Stripe
+    const session = await stripe.checkout.sessions.retrieve(session_id, {
+      expand: ['customer', 'line_items'],
+    });
 
     if (!session) {
       return res.status(404).json({ message: 'Session non trouvée' });
     }
 
-    // Formater et renvoyer les informations de la session
+    // Vérifier si la session a un client
+    const customer = session.customer;
+
+    // Récupérer les informations du panier via 'line_items' ou 'metadata' si nécessaire
+    const cartItems = session.line_items ? session.line_items.data.map(item => ({
+      nom_produit: item.description,
+      size: item.custom_fields ? item.custom_fields[0].value : 'N/A', // Supposons que la taille soit stockée ici
+      prix: item.amount_total / 100, // Montant total en euros
+      quantity: item.quantity,
+    })) : [];
+
+    // Créer un objet avec les informations de la session
     const sessionData = {
-      customer_email: session.customer_email,
-      customer_name: session.customer_name,
-      amount_total: session.amount_total,
-      shipping: session.shipping,
+      customer_email: customer ? customer.email : null,
+      customer_name: customer ? customer.name : null,
+      amount_total: session.amount_total / 100,  // Montant total en euros
+      shipping: session.shipping || {},
       metadata: session.metadata,
-      cart: session.metadata.cart,  // Supposons que le panier soit dans les métadonnées
+      cart: cartItems,  // Panier formaté
     };
 
     return res.status(200).json(sessionData);

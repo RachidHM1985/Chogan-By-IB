@@ -1,5 +1,3 @@
-// pages/api/saveOrderAndSendMail.js
-
 import { supabase } from '../../supabaseClient';  // Assurez-vous que votre instance Supabase est correctement configurée
 import sgMail from '@sendgrid/mail';  // Corrected import
 
