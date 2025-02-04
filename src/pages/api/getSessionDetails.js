@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     const session = await stripe.checkout.sessions.retrieve(session_id, {
       expand: ['line_items'], // Expanding relevant fields like line items
     });
-
+console.log('session: ', session)
     // Check if session exists
     if (!session) {
       return res.status(404).json({ message: 'Session non trouvée' });
@@ -40,8 +40,8 @@ export default async function handler(req, res) {
             nom_produit: item.description,  // Nom du produit
             prix: item.amount_total / 100,  // Prix total (en euros, conversion des centimes)
             quantity: item.quantity,        // Quantité du produit
-            code: item.product_data?.code || '',  // Code du produit (si présent dans le produit)
-            size: item.product_data?.size || '',  // Taille du produit (si présent dans le produit)
+            code: session.metadata.product_data.code || '',  // Code du produit (si présent dans le produit)
+            size: session.metadata.product_data.size || '',  // Taille du produit (si présent dans le produit)
           };
         }),
         totalPriceWithDiscount: session.metadata.totalPriceWithDiscount || 0, // Prix total avec remise, si disponible
