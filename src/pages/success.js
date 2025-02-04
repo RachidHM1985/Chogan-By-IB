@@ -20,7 +20,7 @@ const Success = () => {
     fetch(`/api/getSessionDetails?session_id=${session_id}`)
       .then(response => response.json())
       .then(async (data) => {
-        if (data.status === 'succeeded') {
+        if (status === 'succeeded') {
           // Préparer les données de la commande
           const { customer_email, customer_name, amount_total, metadata, cart } = data;
 
