@@ -10,7 +10,6 @@ export default async function handler(req, res) {
       // Verifying the received data
       const { formData, lineItems, deliveryFee, amountPromo, totalPrice  } = req.body;
   
-
       if (!formData || !lineItems || lineItems.length === 0 || totalPrice == null) {
         return res.status(400).json({ error: 'Missing or invalid order data.' });
       }
@@ -25,22 +24,23 @@ export default async function handler(req, res) {
         line_items: [
           // Add items to the session
           ...lineItems.map(item => {
-            // Ensure all necessary product data is present
-            if (!item.product.name || !item.size || !item.product[`prix_${item.size}`]) {
+            // Ensure necessary product data is present (access product_data correctly)
+            const productData = item.price_data?.product_data; // Safe access
+            if (!productData || !productData.name || !item.size || !productData[`prix_${item.size}`]) {
               throw new Error('Missing or invalid product information');
             }
 
             // Calculate the discounted price for each item
-            const originalPrice = item.product[`prix_${item.size}`];
+            const originalPrice = productData[`prix_${item.size}`];
             const discountedPrice = item.discountedPrice || (originalPrice - (amountPromo / lineItems.length)); // Distribute the discount evenly among items
 
             return {
               price_data: {
                 currency: 'eur', // Currency (e.g., EUR)
                 product_data: {
-                  name: item.product.name,
-                  code: item.product.code || 'N/A',
-                  size: item.size
+                  name: productData.name,
+                  code: productData.code || 'N/A',
+                  size: item.size,
                 },
                 unit_amount: Math.round(discountedPrice * 100), // Amount in cents (1 € = 100 cents)
               },
