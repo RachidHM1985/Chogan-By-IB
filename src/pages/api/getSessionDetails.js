@@ -23,10 +23,10 @@ console.log('session: ', session)
     if (!session) {
       return res.status(404).json({ message: 'Session non trouvée' });
     }
-
+console.log('session.line_items', session.line_items)
     // Format the cart items from the session's line_items
     const cartItems = session.line_items?.data.map(item => ({
-      nom_produit: item.description || item.price_data.products.name,  // Product name/description
+      nom_produit: item.price_data.products.name,  // Product name/description
       prix: item.amount_total / 100,  // Total amount in euros (converted from cents)
       quantity: item.quantity,       // Quantity of the product
     })) || [];
@@ -37,8 +37,8 @@ console.log('session: ', session)
     const sessionData = {
         cart: cartItems.map(item => {
           return {
-            nom_produit: item.description,  // Nom du produit
-            prix: item.amount_total / 100,  // Prix total (en euros, conversion des centimes)
+            nom_produit: item.nom_produit,  // Nom du produit
+            prix: item.prix / 100,  // Prix total (en euros, conversion des centimes)
             quantity: item.quantity,        // Quantité du produit
             code: session.metadata.products.code || '',  // Code du produit (si présent dans le produit)
             size: session.metadata.products.size || '',  // Taille du produit (si présent dans le produit)
