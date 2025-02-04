@@ -20,6 +20,8 @@ export default async function handler(req, res) {
       // Filter out 'deliveryFee' items from the cart
       const filteredCart = parsedCart.filter(item => item.nom_produit !== 'deliveryFee');
       const filteredCartText = JSON.stringify(filteredCart);
+      // S'assurer que total_amount est un nombre
+const totalAmountNumber = parseFloat(total_amount);
       // Insert order into Supabase database
       const { data, error } = await supabase
         .from('orders')
@@ -32,7 +34,7 @@ export default async function handler(req, res) {
             amount_promo: amount_promo,
             details: filteredCartText,  
             delivery_fee: deliveryFee,
-            total_amount: total_amount,
+            total_amount: totalAmountNumber,
             order_status: 'completed',  // Set initial order status
           },
         ]);
@@ -47,7 +49,7 @@ export default async function handler(req, res) {
         to: email,
         from: 'choganbyikram.contact@gmail.com',  // Ensure this email is verified with SendGrid
         subject: 'Confirmation de votre commande Chogan',
-        text: `Bonjour ${name},\n\nMerci pour votre commande ! Voici les détails :\n\n${filteredCart.map(item => `${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}`).join('\n')}\nFrais de livraison: ${deliveryFee}\n${amount_promo > 0 ? `Réduction: ${amount_promo}€\n` : ''}\n\nTotal : ${total_amount}€.\n\nNous allons traiter votre commande et nous reviendrons vers vous pour vous indiquer les modalités de paiement et de livraison.\n\nCordialement,\n\nIkram B.`,
+        text: `Bonjour ${name},\n\nMerci pour votre commande ! Voici les détails :\n\n${filteredCart.map(item => `${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}`).join('\n')}\nFrais de livraison: ${deliveryFee}\n${amount_promo > 0 ? `Réduction: ${amount_promo}€\n` : ''}\n\nTotal : ${totalAmountNumber}€.\n\nNous allons traiter votre commande et nous reviendrons vers vous pour vous indiquer les modalités de paiement et de livraison.\n\nCordialement,\n\nIkram B.`,
         html: `
           <h1>Confirmation de votre commande</h1>
           <p>Bonjour ${name},</p>
@@ -61,7 +63,7 @@ export default async function handler(req, res) {
            <ul>
           ${amount_promo > 0 ? `Réduction: ${amount_promo}€` : ''}
           </ul>
-          <p><strong>Total : ${total_amount.toFixed(2)}€</strong></p>
+          <p><strong>Total : ${totalAmountNumber.toFixed(2)}€</strong></p>
           <p>Nous vous confirmons que nous avons enregistré votre commande et que nous allons la traiter.<br>Prochainement, nous allons vous contacter pour vous indiquer les modalités de paiement et de livraison.</p>
           <p>Cordialement,<br>Ikram B.</p>
         `,
