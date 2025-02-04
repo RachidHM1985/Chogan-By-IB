@@ -35,6 +35,8 @@ const Success = () => {
           const orderData = {
             email: metadata.email,
             name: metadata.name,
+            code: metadata.product.code,
+            size: metadata.product.size,
             deliveryFee: metadata.deliveryFee,
             amount_promo: metadata.amountPromo,
             total_amount: amount_total,

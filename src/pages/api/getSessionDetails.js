@@ -27,15 +27,13 @@ export default async function handler(req, res) {
     // Format the cart items from the session's line_items
     const cartItems = session.line_items?.data.map(item => {
       // Extract size and code from metadata if available
-      const size = item.metadata?.size || 'N/A'; // Use metadata if available
+      const size = item.metadata?.product.size || 'N/A'; // Use metadata if available
       const code = item.metadata?.code || 'N/A'; // Use metadata if available
 
       return {
         nom_produit: item.description,  // Product name/description
         prix: item.amount_total / 100,  // Total amount in euros (converted from cents)
-        quantity: item.quantity,       // Quantity of the product
-        size,                          // Extracted size from metadata
-        code,                          // Extracted code from metadata
+        quantity: item.quantity,       // Quantity of the product               
       };
     }) || [];
 
