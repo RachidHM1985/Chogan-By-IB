@@ -45,7 +45,7 @@ console.log(session.metadata.products)
           };
         });
       }),
-      console.log('sessionData:', sessionData),
+      
         totalPriceWithDiscount: session.metadata.totalPriceWithDiscount || 0, // Prix total avec remise, si disponible
         deliveryFee: session.metadata.deliveryFee || 0, // Frais de livraison depuis les metadata
         customerEmail: session.customer_details.email || '',  // Email du client
