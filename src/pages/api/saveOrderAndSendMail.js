@@ -15,7 +15,8 @@ export default async function handler(req, res) {
 
     // Assurez-vous que `cart` est un tableau et bien formaté (parse si nécessaire)
     const parsedCart = Array.isArray(cart) ? cart : JSON.parse(cart);  // Si cart est une chaîne, la parser
-
+// Filtrer les éléments où `nom_produit` est égal à 'deliveryFee'
+const filteredCart = parsedCart.filter(item => item.product.nom_produit !== 'deliveryFee');
     // Enregistrer la commande dans Supabase
     const { data, error } = await supabase
       .from('orders')
@@ -25,11 +26,10 @@ export default async function handler(req, res) {
           user_email: email,
           user_phone: user_phone,
           user_address: user_address,
-          details: parsedCart,  // Stocker les détails sous forme de JSON
+          details: filteredCart,  // Stocker les détails sous forme de JSON
           delivery_fee: deliveryFee,  // Frais de livraison
           total_amount: total_amount,  // Montant total de la commande
           order_status: 'completed',  // Statut de la commande
-          metadata: null,  // Vous pouvez ajouter des métadonnées si nécessaire
         },
       ]);
 
@@ -44,13 +44,13 @@ export default async function handler(req, res) {
       to: email,
       from: 'choganbyikram.contact@gmail.com',  // Assurez-vous que l'adresse email est validée
       subject: 'Confirmation de votre commande Chogan',
-      text: `Bonjour ${name},\n\nMerci pour votre commande ! Voici les détails :\n\n${cart.map(item => `${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}`).join('\n')}\n\nTotal : ${total_amount}€.\n\nNous allons traiter votre commande et nous reviendrons vers vous pour vous indiquer les modalités de paiement et de livraison.\n\nCordialement,\n\nIkram B.`,
+      text: `Bonjour ${name},\n\nMerci pour votre commande ! Voici les détails :\n\n${filteredCart.map(item => `${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}`).join('\n')}\n\nTotal : ${total_amount}€.\n\nNous allons traiter votre commande et nous reviendrons vers vous pour vous indiquer les modalités de paiement et de livraison.\n\nCordialement,\n\nIkram B.`,
       html: `
         <h1>Confirmation de votre commande</h1>
         <p>Bonjour ${name},</p>
         <p>Merci pour votre commande ! Voici les détails :</p>
         <ul>
-          ${cart.map(item => `<li>${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}</li>`).join('')}
+          ${filteredCart.map(item => `<li>${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}</li>`).join('')}
         </ul>
         <p><strong>Total : ${total_amount}€</strong></p>
         <p>Nous vous confirmons que nous avons enregistré votre commande et que nous allons la traiter.<br>Prochainement, nous allons vous contacter pour vous indiquer les modalités de paiement et de livraison.</p>
@@ -63,7 +63,7 @@ export default async function handler(req, res) {
       to: 'choganbyikram.contact@gmail.com',
       from: 'hachem.rach@gmail.com',
       subject: `Nouvelle commande de ${name}`,
-      text: `Nouvelle commande reçue :\n\nNom: ${name}\nEmail: ${email}\n\nDétails de la commande:\n${cart.map(item => `${item.code} - ${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}`).join('\n')}\n\nTotal : ${total_amount}€.\n\nMerci de traiter cette commande.`,
+      text: `Nouvelle commande reçue :\n\nNom: ${name}\nEmail: ${email}\n\nDétails de la commande:\n${filteredCart.map(item => `${item.code} - ${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}`).join('\n')}\nFrais de livraison: ${deliveryFee}\n\nTotal : ${total_amount}€.\n\nMerci de traiter cette commande.`,
     };
 
     try {

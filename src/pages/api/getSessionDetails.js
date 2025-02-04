@@ -21,7 +21,6 @@ export default async function handler(req, res) {
     // Récupérer les informations du panier via 'line_items' ou 'metadata' si nécessaire
     const cartItems = session.line_items ? session.line_items.data.map(item => ({
       nom_produit: item.description,
-      size: item.custom_fields ? item.custom_fields[0].value : 'N/A', // Supposons que la taille soit stockée ici
       prix: item.amount_total / 100, // Montant total en euros
       quantity: item.quantity,
     })) : [];
