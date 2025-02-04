@@ -22,6 +22,8 @@ export default async function handler(req, res) {
       const filteredCartText = JSON.stringify(filteredCart);
       // S'assurer que total_amount est un nombre
 const totalAmountNumber = parseFloat(total_amount);
+const formatted = totalAmountNumber.toFixed(2);
+console.log(formatted)
       // Insert order into Supabase database
       const { data, error } = await supabase
         .from('orders')
@@ -63,7 +65,7 @@ const totalAmountNumber = parseFloat(total_amount);
            <ul>
           ${amount_promo > 0 ? `Réduction: ${amount_promo}€` : ''}
           </ul>
-          <p><strong>Total : ${totalAmountNumber.toFixed(2)}€</strong></p>
+          <p><strong>Total : ${totalAmountNumber}€</strong></p>
           <p>Nous vous confirmons que nous avons enregistré votre commande et que nous allons la traiter.<br>Prochainement, nous allons vous contacter pour vous indiquer les modalités de paiement et de livraison.</p>
           <p>Cordialement,<br>Ikram B.</p>
         `,
@@ -74,7 +76,7 @@ const totalAmountNumber = parseFloat(total_amount);
         to: 'choganbyikram.contact@gmail.com',
         from: 'hachem.rach@gmail.com',
         subject: `Nouvelle commande de ${name}`,
-        text: `Nouvelle commande reçue :\n\nNom: ${name}\nEmail: ${email}\n\nDétails de la commande:\n${filteredCart.map(item => `${item.code} - ${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}`).join('\n')}\nFrais de livraison: ${deliveryFee}€\n\n${amount_promo > 0 ? `Réduction: ${amount_promo}€\n` : ''}\n\nTotal : ${totalAmountNumber.toFixed(2)}€.\n\nMerci de traiter cette commande.`,
+        text: `Nouvelle commande reçue :\n\nNom: ${name}\nEmail: ${email}\n\nDétails de la commande:\n${filteredCart.map(item => `${item.code} - ${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}`).join('\n')}\nFrais de livraison: ${deliveryFee}€\n\n${amount_promo > 0 ? `Réduction: ${amount_promo}€\n` : ''}\n\nTotal : ${totalAmountNumber}€.\n\nMerci de traiter cette commande.`,
       };
 
       try {
