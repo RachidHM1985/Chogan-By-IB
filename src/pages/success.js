@@ -8,12 +8,14 @@ const Success = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);  // State pour gérer les erreurs
   const router = useRouter();
-
+  
   useEffect(() => {
     const { session_id, status } = router.query;
   
     if (!session_id || !status) {
-      return; // Si les données sont incomplètes, ne fais rien
+      setError('Données manquantes dans l\'URL.');
+      setLoading(false);
+      return;
     }
   
     const handlePaymentSuccess = async () => {
@@ -21,7 +23,8 @@ const Success = () => {
         const response = await fetch(`/api/getSessionDetails?session_id=${session_id}`);
         const data = await response.json();
   
-        if (response.status !== 200) {
+        // Vérification si les données retournées sont valides
+        if (!data || !data.customer_email || !data.cart) {
           setError('Erreur lors de la récupération des détails de la session.');
           setLoading(false);
           return;
@@ -32,8 +35,8 @@ const Success = () => {
         const orderData = {
           user_name: customer_name,
           user_email: customer_email,
-          user_phone: shipping.phone,
-          user_address: shipping.address.line1,
+          user_phone: shipping ? shipping.phone : 'Non précisé',  // Vérifier si shipping existe
+          user_address: shipping ? shipping.address.line1 : 'Non précisé',  // Vérifier si shipping existe
           total_amount: amount_total / 100, // Montant en cents
           delivery_fee: metadata?.deliveryFee || 0,
           order_status: 'completed',
@@ -69,6 +72,7 @@ const Success = () => {
       router.push('/echec?status=failed');
     }
   }, [router.query]);
+  
   
   return (
     <>
