@@ -29,8 +29,8 @@ export default async function handler(req, res) {
       nom_produit: item.description,  // Product name/description
       prix: item.amount_total / 100,  // Total amount in euros (converted from cents)
       quantity: item.quantity,       // Quantity of the product
-      size: item.description.split('Taille: ')[1] || 'N/A', // Extract the size if it's part of the description
-      code: item.description.split('Code Parfum: ')[1] || 'N/A', // Extract the perfume code if available
+      size: item.size,
+      code: item.code
     })) || [];
 
     // Creating the session data object

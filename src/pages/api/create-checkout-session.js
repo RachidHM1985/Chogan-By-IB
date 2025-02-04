@@ -38,7 +38,8 @@ export default async function handler(req, res) {
                 currency: 'eur', // Currency (e.g., EUR)
                 product_data: {
                   name: item.product.nom_produit,
-                  description: `Size: ${item.size}, Code Parfum: ${item.product.code || 'N/A'}`, // Add code to the description
+                  code: item.product.code || 'N/A',
+                  size: item.size
                 },
                 unit_amount: Math.round(discountedPrice * 100), // Amount in cents (1 € = 100 cents)
               },
@@ -51,7 +52,7 @@ export default async function handler(req, res) {
               currency: 'eur',
               product_data: {
                 name: 'Delivery Fee',
-                description: 'Shipping Costs',
+                description: 'Frais de livraison',
               },
               unit_amount: Math.round(deliveryFee * 100), // Delivery fee in cents
             },
