@@ -90,9 +90,9 @@ export default async function handler(req, res) {
           email: formData.email,
           address: formData.address,
           phone: formData.phone,        
-          deliveryFee: numericDeliveryFee,
-          discountAmount: numericPromoAmount || 0,  // Si promoAmount est défini, l'utiliser sinon mettre 0
-          totalPriceWithDiscount: numericDiscountedTotal + numericDeliveryFee,
+          deliveryFee: numericDeliveryFee.toFixed(2),
+          discountAmount: numericPromoAmount.toFixed(2),  // Si promoAmount est défini, l'utiliser sinon mettre 0
+          totalPriceWithDiscount: numericDiscountedTotal.toFixed(2) + numericDeliveryFee.toFixed(2),
           // Ajout des informations sur les produits dans les métadonnées
           products: JSON.stringify(lineItems.map(item => ({
             name: item.price_data?.product_data?.name,
