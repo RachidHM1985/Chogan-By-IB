@@ -55,11 +55,11 @@ export default async function handler(req, res) {
       console.error('Les produits ne sont pas sous forme de tableau ou sont manquants.');
     }
     
+    const filteredCartItems = cartItems.filter(item => item.nom_produit !== 'Frais de livraison');
     
-
     // Format session data
     const sessionData = {
-      cart: cartItems,
+      cart: filteredCartItems,
       totalPriceWithDiscount: session.metadata.totalPriceWithDiscount || 0, // Total price with discount
       deliveryFee: session.metadata.deliveryFee || 0, // Delivery fee
       customerEmail: session.customer_details.email || '', // Customer email
