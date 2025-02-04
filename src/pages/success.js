@@ -32,16 +32,18 @@ const Success = () => {
           // Prepare the order data to be saved
           const { amount_total, metadata, cart } = data;
 
+          // Ensure metadata contains the necessary properties
+          const product = cart?.[0] || {};  // Assuming cart has products
           const orderData = {
             email: metadata.email,
             name: metadata.name,
-            code: metadata.product.code,
-            size: metadata.product.size,
-            deliveryFee: metadata.deliveryFee,
-            amount_promo: metadata.amountPromo,
-            total_amount: amount_total,
-            user_phone: metadata.phone,
-            user_address: metadata.address,
+            code: product.code || '',
+            size: product.size || '',
+            deliveryFee: metadata.deliveryFee || 0,
+            amountPromo: metadata.amountPromo || 0,
+            total_amount: amount_total / 100,  // Ensure total_amount is in euros
+            user_phone: metadata.phone || '',
+            user_address: metadata.address || '',
             cart,
           };
 
@@ -56,6 +58,7 @@ const Success = () => {
             });
 
             const result = await response.json();
+            console.log('result :', result)
             if (response.ok) {
               setLoading(false);
             } else {
