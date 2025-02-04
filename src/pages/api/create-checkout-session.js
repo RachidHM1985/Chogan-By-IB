@@ -40,16 +40,13 @@ export default async function handler(req, res) {
         // Utiliser unit_amount comme prix de l'article (il inclut déjà le prix pour la taille)
         const originalPrice = item.price_data.unit_amount / 100; // Convertir les centimes en euros
 
-        // Calculer le prix réduit
-        const discountedPrice = item.discountedPrice || (originalPrice - (promoAmount / lineItems.length));
-
         return {
           price_data: {
             currency: 'eur',
             product_data: {
               name: productData.name,              
             },
-            unit_amount: Math.round(discountedPrice * 100), // Montant en centimes
+            unit_amount: originalPrice * 100, // Montant en centimes
           },
           quantity: item.quantity,
         };
@@ -69,7 +66,19 @@ export default async function handler(req, res) {
           },
           quantity: 1,
         }] : []),
+        ...(promoAmount > 0 ? [{
+          price_data: {
+            currency: 'eur',
+            product_data: {
+              name: 'Réduction',
+              description: 'Réduction sur votre commande',
+            },
+            unit_amount: Math.round(promoAmount * 100),  // Vous pouvez multiplier par 100 pour convertir en centimes
+          },
+          quantity: 1,
+        }] : []),
       ];
+      
  
       const prixTotal = discountedTotal + deliveryFee
       // Créer la session de paiement avec Stripe
@@ -85,7 +94,7 @@ export default async function handler(req, res) {
           address: formData.address,
           phone: formData.phone,
           deliveryFee: deliveryFee,
-          discountAmount: promoAmount || '0',
+          discountAmount: promoAmount,
           totalPriceWithDiscount: prixTotal.toFixed(2),
           // Ajout des informations sur les produits dans les métadonnées
           products: JSON.stringify(lineItems.map(item => ({
