@@ -154,7 +154,6 @@ const handleStripePayment = async () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           formData,
-          cartItems,
           deliveryFee,
           amountPromo,
           totalPrice: total,
