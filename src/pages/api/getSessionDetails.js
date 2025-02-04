@@ -1,4 +1,5 @@
 import Stripe from 'stripe';
+import { supabase } from '../../supabaseClient';
 
 // Initialize Stripe with the secret key and API version
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -58,7 +59,7 @@ export default async function handler(req, res) {
               console.error('Erreur lors de la récupération du produit:', error.message);
               return;
             }
-    
+    console
             if (data) {
               // Appliquer les prix en fonction de la taille du produit dans cartItem
               switch (data.prix_30ml) {
