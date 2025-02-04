@@ -11,13 +11,16 @@ export default async function handler(req, res) {
 
       console.log('Received data:', { formData, lineItems, deliveryFee, amountPromo, totalPrice });
 
+      // Sanitize amountPromo: if it's empty, set it to 0
+      const promoAmount = amountPromo ? parseFloat(amountPromo) : 0;
+
       // Check for missing data
       if (!formData || !lineItems || lineItems.length === 0 || totalPrice == null) {
         return res.status(400).json({ error: 'Missing or invalid order data.' });
       }
 
       // Apply the discount to the total price
-      let discountedTotal = totalPrice + deliveryFee - amountPromo;
+      let discountedTotal = totalPrice + deliveryFee - promoAmount;
       if (discountedTotal < 0) discountedTotal = 0;
 
       // Log the lineItems before processing
@@ -26,12 +29,11 @@ export default async function handler(req, res) {
       // Map over lineItems to ensure all necessary data is present
       const stripeLineItems = lineItems.map(item => {
         const productData = item.price_data?.product_data; // Safe access
-
         console.log('Product data for item:', productData);
 
         // Check for missing or invalid product information
         if (!productData || !productData.name || !item.size || !productData.unit_amount) {
-          console.log('Missing or invalid product data:', item);
+          console.error('Missing or invalid product data:', item);
           throw new Error('Missing or invalid product information');
         }
 
@@ -39,7 +41,7 @@ export default async function handler(req, res) {
         const originalPrice = item.price_data.unit_amount / 100; // Convert cents to euros
 
         // Calculate the discounted price
-        const discountedPrice = item.discountedPrice || (originalPrice - (amountPromo / lineItems.length));
+        const discountedPrice = item.discountedPrice || (originalPrice - (promoAmount / lineItems.length));
 
         return {
           price_data: {
@@ -71,6 +73,9 @@ export default async function handler(req, res) {
         }] : []),
       ];
 
+      // Log the final line items
+      console.log('Final line items:', finalLineItems);
+
       // Create the payment session with Stripe
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
@@ -84,7 +89,7 @@ export default async function handler(req, res) {
           address: formData.address,
           phone: formData.phone,
           deliveryFee: deliveryFee,
-          discountAmount: amountPromo || '0',
+          discountAmount: promoAmount || '0',
           totalPriceWithDiscount: discountedTotal + deliveryFee,
         },
       });
