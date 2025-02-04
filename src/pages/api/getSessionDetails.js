@@ -28,15 +28,17 @@ export default async function handler(req, res) {
     // Retrieve the Stripe session
     const session = await stripe.checkout.sessions.retrieve(session_id, {
       expand: ['line_items'], // Expanding relevant fields like line items
-    });
+    });const metadata = session.metadata;
+
+    console.log('metadata :', metadata)
 
     // Format the cart items from the session's line_items
     const cartItems = session.line_items?.data.map(item => ({
       nom_produit: item.price_data.products.name,  // Product name/description
       prix: item.amount_total / 100,  // Total amount in euros (converted from cents)
       quantity: item.quantity,       // Quantity of the product
-      code: item.price_data.products.code,                       // Placeholder for the product code
-      size: item.price_data.products.size,                       // Placeholder for the product size
+      code:'',                       // Placeholder for the product code
+      size: '',                       // Placeholder for the product size
     })) || [];
 
     // Format session data
@@ -71,3 +73,4 @@ console.log("produc :", session.metadata)
     return handleError(res, error);  // Handle error using the helper function
   }
 }
+ 

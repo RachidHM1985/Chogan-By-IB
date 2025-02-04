@@ -89,13 +89,13 @@ export default async function handler(req, res) {
           deliveryFee: deliveryFee,
           discountAmount: promoAmount || '0',
           totalPriceWithDiscount: discountedTotal + deliveryFee,
-         
+          // Ajout des informations sur les produits dans les métadonnées
+          products: JSON.stringify(lineItems.map(item => ({
+            name: item.price_data?.product_data?.name,
+            code: item.price_data?.product_data?.code,
+            size: item.price_data?.product_data?.size,
+          }))),
         },
-        products: JSON.stringify(lineItems.map(item => ({
-          name: item.price_data?.product_data?.name,
-          code: item.price_data?.product_data?.code,
-          size: item.price_data?.product_data?.size,
-        }))),
       });
 
       res.status(200).json({ sessionId: session.id });
