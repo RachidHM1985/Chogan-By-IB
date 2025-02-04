@@ -61,15 +61,15 @@ export default async function handler(req, res) {
     
             if (data) {
               // Appliquer les prix en fonction de la taille du produit dans cartItem
-              switch (cartItem.size) {
-                case '30ml':
-                  cartItem.prix = data.prix_30ml || 0;  // Utiliser prix_30ml, s'il est disponible
+              switch (data.prix_30ml) {
+                case cartItem.prix:
+                  cartItem.size= "30ml" || 0;  // Utiliser prix_30ml, s'il est disponible
                   break;
-                case '50ml':
-                  cartItem.prix = data.prix_50ml || 0;  // Utiliser prix_50ml, s'il est disponible
+                case cartItem.prix:
+                  cartItem.size = "50ml" || 0;  // Utiliser prix_50ml, s'il est disponible
                   break;
-                case '70ml':
-                  cartItem.prix = data.prix_70ml || 0;  // Utiliser prix_70ml, s'il est disponible
+                case cartItem.prix:
+                  cartItem.size = "70ml" || 0;  // Utiliser prix_70ml, s'il est disponible
                   break;
                 default:
                   console.log(`Taille ${cartItem.size} non définie dans les données produits`);

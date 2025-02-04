@@ -10,6 +10,10 @@ const Success = () => {
   const router = useRouter();
 
   useEffect(() => {
+
+    if (!router.isReady) {
+      return; // Ne pas exécuter le code tant que le router n'est pas prêt
+    }
     const { session_id, status } = router.query;
     // Ensure session_id and status are available
     if (!session_id) {
