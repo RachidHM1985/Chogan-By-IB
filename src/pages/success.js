@@ -1,27 +1,30 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Typography, Button } from '@mui/material';
+import { Typography, Button, CircularProgress } from '@mui/material';
 import Header from '../components/Header.js';
 import Footer from '../components/Footer';
 
 const Success = () => {
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);  // State pour gérer les erreurs
+  const [error, setError] = useState(null);  // State to handle errors
   const router = useRouter();
 
   useEffect(() => {
     const { session_id, status } = router.query;
 
+    // Ensure session_id and status are available
     if (!session_id || !status) {
+      setError('Invalid session details.');
+      setLoading(false);
       return;
     }
 
-    // Récupération des détails de la session Stripe
+    // Fetch the Stripe session details
     fetch(`/api/getSessionDetails?session_id=${session_id}`)
       .then(response => response.json())
       .then(async (data) => {
         if (status === 'succeeded') {
-          // Préparer les données de la commande
+          // Prepare the order data to be saved
           const { amount_total, metadata, cart } = data;
 
           const orderData = {
@@ -34,7 +37,7 @@ const Success = () => {
             cart,
           };
 
-          // Envoi des détails vers l'API pour enregistrer la commande et envoyer les emails
+          // Send the order details to save and send email confirmation
           try {
             const response = await fetch('/api/saveOrderAndSendMail', {
               method: 'POST',
@@ -48,20 +51,20 @@ const Success = () => {
             if (response.ok) {
               setLoading(false);
             } else {
-              setError(result.message || 'Une erreur est survenue');
+              setError(result.message || 'Une erreur est survenue lors du traitement de votre commande.');
             }
           } catch (err) {
-            console.error('Erreur lors de l\'envoi des données:', err);
-            setError('Erreur lors de l\'envoi des données');
+            console.error('Error while sending order data:', err);
+            setError('Erreur lors de l\'envoi des données. Veuillez réessayer.');
           }
         } else {
           setError('Le paiement a échoué.');
-          router.push('/echec?status=failed'); // Redirige vers la page d'échec
+          router.push('/echec?status=failed'); // Redirect to the failure page
         }
       })
       .catch((err) => {
-        console.error('Erreur lors de la récupération des détails de la session:', err);
-        setError('Erreur lors de la récupération des détails de la session.');
+        console.error('Error while fetching session details:', err);
+        setError('Erreur lors de la récupération des détails de la session de paiement.');
       });
   }, [router.query]);
 
@@ -71,7 +74,12 @@ const Success = () => {
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', padding: '20px' }}>
           {loading ? (
-            <Typography variant="h6" align="center">Vérification du paiement...</Typography>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <CircularProgress />
+              <Typography variant="h6" align="center" style={{ marginTop: '20px' }}>
+                Vérification du paiement...
+              </Typography>
+            </div>
           ) : (
             <div>
               {error ? (

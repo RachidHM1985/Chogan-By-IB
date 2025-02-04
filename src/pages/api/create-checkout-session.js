@@ -10,7 +10,7 @@ export default async function handler(req, res) {
       // Verifying the received data
       const { formData, cartItems, deliveryFee, amountPromo, totalPrice } = req.body;
 
-      if (!formData || !cartItems || cartItems.length === 0 || !totalPrice) {
+      if (!formData || !cartItems || cartItems.length === 0 || totalPrice == null) {
         return res.status(400).json({ error: 'Missing or invalid order data.' });
       }
 
@@ -24,28 +24,29 @@ export default async function handler(req, res) {
         line_items: [
           // Add items to the session
           ...cartItems.map(item => {
+            // Ensure all necessary product data is present
             if (!item.product.nom_produit || !item.size || !item.product[`prix_${item.size}`]) {
               throw new Error('Missing or invalid product information');
             }
 
             // Calculate the discounted price for each item
             const originalPrice = item.product[`prix_${item.size}`];
-            const discountedPrice = item.discountedPrice || originalPrice - (amountPromo / cartItems.length); // Distribute the discount evenly among items
+            const discountedPrice = item.discountedPrice || (originalPrice - (amountPromo / cartItems.length)); // Distribute the discount evenly among items
 
             return {
               price_data: {
                 currency: 'eur', // Currency (e.g., EUR)
                 product_data: {
                   name: item.product.nom_produit,
-                  description: item.size,
+                  description: `Size: ${item.size}, Code Parfum: ${item.product.code || 'N/A'}`, // Add code to the description
                 },
                 unit_amount: Math.round(discountedPrice * 100), // Amount in cents (1 € = 100 cents)
               },
               quantity: item.quantity,
             };
           }),
-          // Add delivery fee as a separate line item
-          {
+          // Add delivery fee as a separate line item if applicable
+          ...(deliveryFee && discountedTotal < 80 ? [{
             price_data: {
               currency: 'eur',
               product_data: {
@@ -55,7 +56,7 @@ export default async function handler(req, res) {
               unit_amount: Math.round(deliveryFee * 100), // Delivery fee in cents
             },
             quantity: 1, // Only one line item for delivery fee
-          },
+          }] : []),
         ],
         mode: 'payment',
         success_url: `https://chogan-by-ikram.vercel.app/success?session_id={CHECKOUT_SESSION_ID}&status=succeeded`, // Redirect to success page

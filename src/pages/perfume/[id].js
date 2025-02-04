@@ -22,12 +22,7 @@ const PerfumeDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipMessage, setTooltipMessage] = useState('');
-
-  const capitalizeFirstLetter = (text) => {
-    if (!text) return '';
-    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
-  };
-
+  
   useEffect(() => {
     setSelectedSizes({});
     setQuantities({});

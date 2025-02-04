@@ -124,48 +124,76 @@ const validateForm = (data) => {
     if (!data.phone) errors.phone = 'Phone number is required';
     return errors;
 };
-
 const handleStripePayment = async () => {
   const errors = validateForm(formData);
   setFormErrors(errors);
 
   if (Object.keys(errors).length === 0) {
-      try {
-          // Calculer le total en prenant en compte les frais de livraison et la réduction du code promo
-          let total = totalPriceWithDelivery - amountPromo; // Appliquer la réduction du code promo
-          // Si le total est inférieur ou égal à 0, le prix total devient 0
-          total = total <= 0 ? 0 : total;
+    try {
+      // Calculate total price after applying promo discount
+      let total = totalPriceWithDelivery - amountPromo; // Apply promo discount
+      total = total <= 0 ? 0 : total;
 
-          const response = await fetch('/api/create-checkout-session', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                  formData,
-                  cartItems,
-                  deliveryFee,
-                  amountPromo,
-                  totalPrice: total,
-              }),
-          });
+      // Create line items for Stripe including perfume size in the description
+      const stripeLineItems = cartItems.map(item => ({
+        price_data: {
+          currency: 'eur',  // Currency should match your setup
+          product_data: {
+            name: item.product.nom_produit,
+            description: `Taille: ${item.size}, Code Parfum: ${item.product.code || 'N/A'}`, // Include the size in the description
+          },
+          unit_amount: Math.round((item.discountedPrice || item.product[`prix_${item.size}`]) * 100),  // Convert to cents
+        },
+        quantity: item.quantity,
+      }));
 
-          const { sessionId } = await response.json();
-
-          if (sessionId) {
-              const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
-              const { error } = await stripe.redirectToCheckout({ sessionId });
-
-              if (error) {
-                  console.error('Stripe redirect error:', error);
-              }
-          } else {
-              console.error('No Stripe session returned.');
-          }
-      } catch (error) {
-          console.error('Error creating Stripe session:', error);
+      // Add delivery fees as a separate line item (Stripe recognizes this as shipping fee)
+      if (delivery && total < 80) {
+        // Add shipping fee as a distinct item
+        stripeLineItems.push({
+          price_data: {
+            currency: 'eur',
+            product_data: {
+              name: 'Frais de Livraison',
+              description: 'Frais de livraison pour votre commande',
+            },
+            unit_amount: Math.round(deliveryFee * 100),  // Convert delivery fee to cents
+          },
+          quantity: 1,  // This is a shipping cost, so quantity is 1
+        });
       }
+
+      // Send a request to create a Stripe checkout session
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          formData,
+          cartItems,
+          deliveryFee,
+          amountPromo,
+          totalPrice: total,
+          lineItems: stripeLineItems,  // Send line items with sizes and shipping fee
+        }),
+      });
+
+      const { sessionId } = await response.json();
+
+      if (sessionId) {
+        const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
+        const { error } = await stripe.redirectToCheckout({ sessionId });
+
+        if (error) {
+          console.error('Stripe redirect error:', error);
+        }
+      } else {
+        console.error('No Stripe session returned.');
+      }
+    } catch (error) {
+      console.error('Error creating Stripe session:', error);
+    }
   }
 };
-
 
 const handleDeliveryChange = (event) => {
     setDelivery(event.target.checked);
