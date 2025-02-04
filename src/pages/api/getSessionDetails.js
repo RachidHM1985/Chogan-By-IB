@@ -35,14 +35,23 @@ export default async function handler(req, res) {
 
     // Création d'un objet de session avec les données nécessaires
     const sessionData = {
-      cart: cartItems,                           // Cart items formatted
-      totalPriceWithDiscount: session.metadata.totalPriceWithDiscount || 0, // Total price (with discount, if available)
-      deliveryFee: session.metadata.deliveryFee || 0, // Delivery fee from metadata
-      customerEmail: session.customer_details.email || '',  // Customer email from customer_details
-      customerName: session.customer_details.name || '',    // Customer name from customer_details
-      address: session.metadata.address || '',  // Address from metadata
-      phone: session.metadata.phone || '',      // Customer phone from metadata
-    };
+        cart: cartItems.map(item => {
+          return {
+            nom_produit: item.description,  // Nom du produit
+            prix: item.amount_total / 100,  // Prix total (en euros, conversion des centimes)
+            quantity: item.quantity,        // Quantité du produit
+            code: item.product_data?.code || '',  // Code du produit (si présent dans le produit)
+            size: item.product_data?.size || '',  // Taille du produit (si présent dans le produit)
+          };
+        }),
+        totalPriceWithDiscount: session.metadata.totalPriceWithDiscount || 0, // Prix total avec remise, si disponible
+        deliveryFee: session.metadata.deliveryFee || 0, // Frais de livraison depuis les metadata
+        customerEmail: session.customer_details.email || '',  // Email du client
+        customerName: session.customer_details.name || '',    // Nom du client
+        address: session.metadata.address || '',  // Adresse du client depuis les metadata
+        phone: session.metadata.phone || '',      // Téléphone du client depuis les metadata
+      };
+      
         console.log('sessionData :',sessionData)
     // Return the session data in the response
     return res.status(200).json(sessionData);
