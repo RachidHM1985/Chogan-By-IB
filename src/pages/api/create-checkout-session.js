@@ -98,7 +98,7 @@ export default async function handler(req, res) {
         },
       });
 
-      res.status(200).json({ sessionId: session.id });
+      res.status(200).json({ sessionId: session.id, status: "succeeded" });
     } catch (error) {
       console.error('Erreur lors de la création de la session Stripe:', error);
 

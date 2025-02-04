@@ -10,7 +10,7 @@ const Success = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const { session_id } = router.query;
+    const { session_id, status } = router.query;
     // Ensure session_id and status are available
     if (!session_id) {
       setError('Détails de session invalides.');
