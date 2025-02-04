@@ -29,8 +29,6 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        right:'5%',
-        left:'5%',
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'scale(1.05)'; // Zoom léger au survol

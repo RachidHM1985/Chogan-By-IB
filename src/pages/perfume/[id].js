@@ -114,6 +114,9 @@ const PerfumeDetailPage = () => {
             alignItems: 'center',
             minHeight: '100%',
             overflow: 'hidden',
+            position:'relative',
+            left:'5%',
+            right:'5%',
           }}
         >
           <Box sx={{ flexGrow: 1 }}>
