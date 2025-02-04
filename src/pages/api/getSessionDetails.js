@@ -23,7 +23,6 @@ console.log('session: ', session)
     if (!session) {
       return res.status(404).json({ message: 'Session non trouvée' });
     }
-console.log('session.line_items', session.line_items)
     // Format the cart items from the session's line_items
     const cartItems = session.line_items?.data.map(item => ({
       nom_produit: item.price_data.products.name,  // Product name/description
@@ -35,15 +34,18 @@ console.log('session.line_items', session.line_items)
 
     // Création d'un objet de session avec les données nécessaires
     const sessionData = {
-        cart: cartItems.map(item => {
+      cart: cartItems.map(item => {
+        return session.metadata.products.map(product => {
           return {
             nom_produit: item.nom_produit,  // Nom du produit
-            prix: item.prix / 100,  // Prix total (en euros, conversion des centimes)
-            quantity: item.quantity,        // Quantité du produit
-            code: session.metadata.products.code || '',  // Code du produit (si présent dans le produit)
-            size: session.metadata.products.size || '',  // Taille du produit (si présent dans le produit)
+            prix: item.prix / 100,           // Prix total (en euros, conversion des centimes)
+            quantity: item.quantity,         // Quantité du produit
+            code: product.code || '',        // Code du produit (si présent dans le produit)
+            size: product.size || '',        // Taille du produit (si présent dans le produit)
           };
-        }),
+        });
+      }),
+      
         totalPriceWithDiscount: session.metadata.totalPriceWithDiscount || 0, // Prix total avec remise, si disponible
         deliveryFee: session.metadata.deliveryFee || 0, // Frais de livraison depuis les metadata
         customerEmail: session.customer_details.email || '',  // Email du client
