@@ -32,7 +32,7 @@ export default async function handler(req, res) {
         console.log('Product data for item:', productData);
 
         // Check for missing or invalid product information
-        if (!productData || !productData.name || !productData.size || !item.price_data.unit_amount) {
+        if (!productData || !productData.name || !item.price_data.unit_amount) {
           console.error('Missing or invalid product data:', item);
           throw new Error('Missing or invalid product information');
         }
@@ -47,13 +47,15 @@ export default async function handler(req, res) {
           price_data: {
             currency: 'eur',
             product_data: {
-              name: productData.name,
-              code: productData.code || 'N/A',
-              size: productData.size,
+              name: productData.name, // Only name allowed in product_data
             },
             unit_amount: Math.round(discountedPrice * 100), // Amount in cents
           },
           quantity: item.quantity,
+          metadata: {
+            code: productData.code || 'N/A', // Adding as metadata
+            size: productData.size || 'N/A', // Adding as metadata
+          },
         };
       });
 
@@ -100,6 +102,8 @@ export default async function handler(req, res) {
 
       if (error.message.includes('Missing product information')) {
         res.status(400).json({ error: 'A product is missing necessary information' });
+      } else if (error.type === 'StripeInvalidRequestError') {
+        res.status(400).json({ error: 'Invalid data sent to Stripe' });
       } else {
         res.status(500).json({ error: 'Internal server error while creating session' });
       }
