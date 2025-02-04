@@ -35,11 +35,7 @@ export default async function handler(req, res) {
 
     // Creating the session data object
     const sessionData = {
-      amount_total: session.metadata.totalPriceWithDiscount,  // Total amount in euros
-      shipping: session.metadata.deliveryFee,          // Shipping information (if available)
-      metadata: session.metadata || {},          // Metadata for extra information (like promo codes, etc.)
-      cart: cartItems,                           // Formatted cart items
-      customer_email: session.metadata_email,    // Customer email (for further communication)
+              cart: cartItems,                           
     };
 
     // Return the session data in the response
