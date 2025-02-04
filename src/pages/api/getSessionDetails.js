@@ -65,14 +65,14 @@ export default async function handler(req, res) {
     console
             if (data) {
               // Appliquer les prix en fonction de la taille du produit dans cartItem
-              switch (cartItem.prix.toFixed(2)) {
-                case data.prix_30ml.toFixed(2):
+              switch (cartItem.prix) {
+                case data.prix_30ml:
                   cartItem.size= "30ml";  // Utiliser prix_30ml, s'il est disponible
                   break;
-                case data.prix_50ml.toFixed(2):
+                case data.prix_50ml:
                   cartItem.size = "50ml";  // Utiliser prix_50ml, s'il est disponible
                   break;
-                case data.prix_70ml.toFixed(2):
+                case data.prix_70ml:
                   cartItem.size = "70ml" ;  // Utiliser prix_70ml, s'il est disponible
                   break;
                 default:
