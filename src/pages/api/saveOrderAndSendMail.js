@@ -36,13 +36,13 @@ export default async function handler(req, res) {
 
     // Envoi d'un e-mail à l'utilisateur via SendGrid
     const userMailOptions = {
-      to: customer_email,
+      to: email,
       from: 'choganbyikram.contact@gmail.com',  // Assurez-vous que l'adresse email est validée
       subject: 'Confirmation de votre commande Chogan',
-      text: `Bonjour ${customer_name},\n\nMerci pour votre commande ! Voici les détails :\n\n${cart.map(item => `${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}`).join('\n')}\n\nTotal : ${total_amount}€.\n\nNous allons traiter votre commande et nous reviendrons vers vous pour vous indiquer les modalités de paiement et de livraison.\n\nCordialement,\n\nIkram B.`,
+      text: `Bonjour ${name},\n\nMerci pour votre commande ! Voici les détails :\n\n${cart.map(item => `${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}`).join('\n')}\n\nTotal : ${total_amount}€.\n\nNous allons traiter votre commande et nous reviendrons vers vous pour vous indiquer les modalités de paiement et de livraison.\n\nCordialement,\n\nIkram B.`,
       html: `
         <h1>Confirmation de votre commande</h1>
-        <p>Bonjour ${customer_name},</p>
+        <p>Bonjour ${name},</p>
         <p>Merci pour votre commande ! Voici les détails :</p>
         <ul>
           ${cart.map(item => `<li>${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}</li>`).join('')}
@@ -57,8 +57,8 @@ export default async function handler(req, res) {
     const adminMailOptions = {
       to: 'choganbyikram.contact@gmail.com',
       from: 'hachem.rach@gmail.com',
-      subject: `Nouvelle commande de ${customer_name}`,
-      text: `Nouvelle commande reçue :\n\nNom: ${customer_name}\nEmail: ${customer_email}\n\nDétails de la commande:\n${cart.map(item => `${item.code} - ${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}`).join('\n')}\n\nTotal : ${total_amount}€.\n\nMerci de traiter cette commande.`,
+      subject: `Nouvelle commande de ${name}`,
+      text: `Nouvelle commande reçue :\n\nNom: ${name}\nEmail: ${email}\n\nDétails de la commande:\n${cart.map(item => `${item.code} - ${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}`).join('\n')}\n\nTotal : ${total_amount}€.\n\nMerci de traiter cette commande.`,
     };
 
     try {
