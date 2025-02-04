@@ -88,7 +88,9 @@ export default function Home() {
           flexDirection: 'column',
           minHeight: '100vh', 
           top:'10vh', 
-          position: 'relative'
+          position: 'relative',
+          left:'5%',
+          right:'5%',
         }}
       >
         {/* Carrousel automatique pour les images promotionnelles */}
