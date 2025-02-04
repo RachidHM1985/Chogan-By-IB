@@ -140,29 +140,14 @@ const handleStripePayment = async () => {
           currency: 'eur',  // Currency should match your setup
           product_data: {
             name: item.product.nom_produit,
-            description: `Taille: ${item.size}, Code Parfum: ${item.product.code || 'N/A'}`, // Include the size in the description
+            size: item.size,
+            code: item.product.code,
           },
           unit_amount: Math.round((item.discountedPrice || item.product[`prix_${item.size}`]) * 100),  // Convert to cents
         },
         quantity: item.quantity,
       }));
-console.log("stripeLineItems:", stripeLineItems)
-      // Add delivery fees as a separate line item (Stripe recognizes this as shipping fee)
-      if (delivery && total < 80) {
-        // Add shipping fee as a distinct item
-        stripeLineItems.push({
-          price_data: {
-            currency: 'eur',
-            product_data: {
-              name: 'Frais de Livraison',
-              description: 'Frais de livraison pour votre commande',
-            },
-            unit_amount: Math.round(deliveryFee * 100),  // Convert delivery fee to cents
-          },
-          quantity: 1,  // This is a shipping cost, so quantity is 1
-        });
-      }
-
+        console.log("stripeLineItems:", stripeLineItems)
       // Send a request to create a Stripe checkout session
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',

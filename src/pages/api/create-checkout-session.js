@@ -8,9 +8,10 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
       // Verifying the received data
-      const { formData, cartItems, deliveryFee, amountPromo, totalPrice } = req.body;
+      const { formData, lineItems, deliveryFee, amountPromo, totalPrice  } = req.body;
+  
 
-      if (!formData || !cartItems || cartItems.length === 0 || totalPrice == null) {
+      if (!formData || !lineItems || lineItems.length === 0 || totalPrice == null) {
         return res.status(400).json({ error: 'Missing or invalid order data.' });
       }
 
@@ -23,7 +24,7 @@ export default async function handler(req, res) {
         payment_method_types: ['card'],
         line_items: [
           // Add items to the session
-          ...cartItems.map(item => {
+          ...lineItems.map(item => {
             // Ensure all necessary product data is present
             if (!item.product.nom_produit || !item.size || !item.product[`prix_${item.size}`]) {
               throw new Error('Missing or invalid product information');
@@ -31,7 +32,7 @@ export default async function handler(req, res) {
 
             // Calculate the discounted price for each item
             const originalPrice = item.product[`prix_${item.size}`];
-            const discountedPrice = item.discountedPrice || (originalPrice - (amountPromo / cartItems.length)); // Distribute the discount evenly among items
+            const discountedPrice = item.discountedPrice || (originalPrice - (amountPromo / lineItems.length)); // Distribute the discount evenly among items
 
             return {
               price_data: {
