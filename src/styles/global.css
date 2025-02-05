@@ -20,4 +20,9 @@ body {
 html {
     scroll-behavior: smooth;
   }
+
+  div.css-1bupzq4-MuiContainer-root {
+    padding-left: 1px;
+    padding-right: 1px;
+  }
   
