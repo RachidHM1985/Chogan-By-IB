@@ -108,15 +108,11 @@ const PerfumeDetailPage = () => {
         <Container
           fluid
           style={{
-            maxWidth: '1550px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             minHeight: '100%',
             overflow: 'hidden',
-            position:'relative',
-            left:'5%',
-            right:'5%',
           }}
         >
           <Box sx={{ flexGrow: 1 }}>

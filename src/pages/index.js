@@ -89,8 +89,6 @@ export default function Home() {
           minHeight: '100vh', 
           top:'10vh', 
           position: 'relative',
-          left:'5%',
-          right:'5%',
         }}
       >
         {/* Carrousel automatique pour les images promotionnelles */}

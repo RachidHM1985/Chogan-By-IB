@@ -4,6 +4,7 @@ import { Typography, Container, Box, IconButton, Link } from '@mui/material';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import { FaTiktok } from 'react-icons/fa'; // TikTok avec react-icons
 import { FaSnapchatSquare } from 'react-icons/fa'; // Snapchat avec react-icons
+import { relative } from 'path';
 
 const Footer = () => {
   return (
@@ -17,7 +18,7 @@ const Footer = () => {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center', // Centrer le contenu si nécessaire
+        justifyContent: 'center', 
       }}
     >
       <Container
