@@ -86,8 +86,9 @@ export default function Home() {
         sx={{
           display: 'flex',
           flexDirection: 'column',
+          minWidth: '46vh',
           minHeight: '100vh', 
-          top:'10vh', 
+          top:'8vh', 
           position: 'relative',
         }}
       >
