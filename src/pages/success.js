@@ -35,7 +35,7 @@ const Success = () => {
 
         if (status === 'succeeded') {
           // Ensure 'cart' exists and is not empty
-          const { totalPriceWithDiscount, deliveryFee, cart, customerEmail, customerName, address, phone } = data;
+          const { totalPriceWithDiscount,amountPromo, deliveryFee, cart, customerEmail, customerName, address, phone } = data;
 
           if (!cart || cart.length === 0) {
             setError('Informations de commande manquantes.');
@@ -46,9 +46,10 @@ const Success = () => {
           const orderData = {
             email: customerEmail,
             name: customerName,
-            address,
-            phone,
-            deliveryFee,
+            address: address,
+            phone: phone,
+            deliveryFee: deliveryFee,
+            amountPromo:amountPromo,
             total_amount: totalPriceWithDiscount,  // Already in the correct format
             cart,  // The array of cart items with product details (including code, size, etc.)
           };

@@ -45,64 +45,71 @@ export default async function handler(req, res) {
     const products = JSON.parse(metadata.products);  // Convertit la chaîne JSON en tableau
     if (Array.isArray(products) && Array.isArray(cartItems)) {
       // Parcourez chaque produit
-      products.forEach(async (product) => {
+      for (const product of products) {
         // Pour chaque produit, vérifiez s'il correspond à un produit dans le panier
-        cartItems.forEach(async (cartItem) => {
-          console.log(cartItem)
+        for (const cartItem of cartItems) {
+          console.log(cartItem);
           if (cartItem.nom_produit === product.name) {
             cartItem.code = product.code;
-            // Effectuer une requête à Supabase pour récupérer le prix par code
-            const { data, error } = await supabase
-              .from('parfums')
-              .select('*')
-              .eq('code', product.code)
-              .single();  // On s'attend à un seul résultat pour le produit
-    
-            if (error) {
-              console.error('Erreur lors de la récupération du produit:', error.message);
-              return;
-            }
-    console
-            if (data) {
-              // Appliquer les prix en fonction de la taille du produit dans cartItem
-              switch (cartItem.prix) {
-                case data.prix_30ml:
-                  cartItem.size= "30ml";  // Utiliser prix_30ml, s'il est disponible
-                  break;
-                case data.prix_50ml:
-                  cartItem.size = "50ml";  // Utiliser prix_50ml, s'il est disponible
-                  break;
-                case data.prix_70ml:
-                  cartItem.size = "70ml" ;  // Utiliser prix_70ml, s'il est disponible
-                  break;
-                default:
-                  console.log(`Taille ${cartItem.size} non définie dans les données produits`);
-                  break;
-              }
-    
-              // Mise à jour du cartItem avec la taille et le prix correct
             
-            } else {
-              console.log('Produit non trouvé pour le code:', product.code);
+            try {
+              // Effectuer une requête à Supabase pour récupérer le prix par code
+              const { data, error } = await supabase
+                .from('parfums')
+                .select('*')
+                .eq('code', product.code)
+                .single();  // On s'attend à un seul résultat pour le produit
+            
+              if (error) {
+                console.error('Erreur lors de la récupération du produit:', error.message);
+                continue;  // Passer au produit suivant
+              }
+              
+              // Convertir le prix de cartItem en float
+              const prix = parseFloat(cartItem.prix);
+            
+              if (data) {
+                // Appliquer les prix en fonction de la taille du produit dans cartItem
+                switch (prix) {
+                  case parseFloat(data.prix_30ml):
+                    cartItem.size = "30ml";  // Utiliser prix_30ml, s'il est disponible
+                    break;
+                  case parseFloat(data.prix_50ml):
+                    cartItem.size = "50ml";  // Utiliser prix_50ml, s'il est disponible
+                    break;
+                  case parseFloat(data.prix_70ml):
+                    cartItem.size = "70ml";  // Utiliser prix_70ml, s'il est disponible
+                    break;
+                  default:
+                    console.log(`Taille ${cartItem.size} non définie dans les données produits`);
+                    break;
+                }
+              } else {
+                console.log('Produit non trouvé pour le code:', product.code);
+              }
+            } catch (err) {
+              console.error('Erreur lors de l\'exécution de la requête Supabase:', err.message);
             }
           }
-        });
-      });
+        }
+      }
     } else {
       // Si les produits ou le panier ne sont pas sous forme de tableau
       console.error('Les produits ou le panier ne sont pas sous forme de tableau.');
-    }    
-    const filteredCartItems = cartItems.filter(item => item.nom_produit !== 'Frais de livraison');
+    }
     
+    const filteredCartItems = cartItems.filter(item => item.nom_produit !== 'Frais de livraison');
+    console.log("filteredCartItems:", filteredCartItems)
     // Format session data
     const sessionData = {
       cart: filteredCartItems,
+      amountPromo: session.metadata.amount_discount,
       totalPriceWithDiscount: session.metadata.totalPriceWithDiscount || 0, // Total price with discount
       deliveryFee: session.metadata.deliveryFee || 0, // Delivery fee
-      customerEmail: session.customer_details.email || '', // Customer email
-      customerName: session.customer_details.name || '', // Customer name
-      address: session.metadata.address || '', // Customer address
-      phone: session.metadata.phone || '', // Customer phone number
+      customerEmail: session.customer_details.email, // Customer email
+      customerName: session.customer_details.name , // Customer name
+      address: session.metadata.address , // Customer address
+      phone: session.metadata.phone, // Customer phone number
     };
 console.log("produc :", session.metadata)
 

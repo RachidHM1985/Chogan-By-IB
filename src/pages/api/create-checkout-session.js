@@ -13,6 +13,7 @@ export default async function handler(req, res) {
 
       // Sanitize amountPromo: si vide, on le définit sur 0
       const promoAmount = amountPromo ? parseFloat(amountPromo) : 0;
+      const fraisLivraison = totalPrice > 80 ? 0 : deliveryFee;
 
       // Vérifier s'il manque des données
       if (!formData || !lineItems || lineItems.length === 0 || totalPrice == null) {
@@ -65,20 +66,20 @@ export default async function handler(req, res) {
       ];
       
  
-      const prixTotal = discountedTotal + deliveryFee
+      const prixTotal = discountedTotal
       // Créer la session de paiement avec Stripe
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: finalLineItems,
         mode: 'payment',
-        success_url: `https://chogan-by-ikram.vercel.app/success?session_id={CHECKOUT_SESSION_ID}&status=succeeded`,
-        cancel_url: `https://chogan-by-ikram.vercel.app/echec?status=failed`,
+        success_url: `${process.env.BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}&status=succeeded`,
+        cancel_url: `${process.env.BASE_URL}/echec?status=failed`,
         metadata: {
           name: formData.name,
           email: formData.email,
           address: formData.address,
           phone: formData.phone,
-          deliveryFee: deliveryFee,
+          deliveryFee: fraisLivraison,
           discountAmount: promoAmount,
           totalPriceWithDiscount: prixTotal.toFixed(2),
           // Ajout des informations sur les produits dans les métadonnées

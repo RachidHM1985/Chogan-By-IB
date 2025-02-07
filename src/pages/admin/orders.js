@@ -21,7 +21,7 @@ const AdminOrders = () => {
         const { data, error } = await supabase
           .from('orders')
           .select(
-            'id, user_name, user_email, user_phone, user_address, total_amount, delivery_fee, order_status, created_at, updated_at'
+            'id, user_name, user_email, user_phone, user_address, total_amount, details, delivery_fee, order_status, created_at, updated_at'
           );
         if (error) throw error;
         setOrders(data);
@@ -108,7 +108,7 @@ const AdminOrders = () => {
 
   return (
     <AuthGuard>
-      <Container component="main" maxWidth="lg">
+      <Container component="main" maxWidth="lg" sx={{width:'100%'}}>
         <Box sx={{ mt: 4 }}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
@@ -148,59 +148,64 @@ const AdminOrders = () => {
               </Grid>
             )}
             <Grid item xs={12}>
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Numéro de commande</TableCell>
-                      <TableCell>Nom utilisateur</TableCell>
-                      <TableCell>Email utilisateur</TableCell>
-                      <TableCell>Téléphone utilisateur</TableCell>
-                      <TableCell>Adresse utilisateur</TableCell>
-                      <TableCell>Total</TableCell>
-                      <TableCell>Details Commande</TableCell>
-                      <TableCell>Frais de livraison</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell>Créé le</TableCell>
-                      <TableCell>Mis à jour le</TableCell>
-                      <TableCell>Actions</TableCell>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ minWidth: 10 }}>Numéro de commande</TableCell>
+                    <TableCell sx={{ minWidth: 150 }}>Nom utilisateur</TableCell>
+                    <TableCell sx={{ minWidth: 200 }}>Email utilisateur</TableCell>
+                    <TableCell sx={{ minWidth: 120 }}>Téléphone utilisateur</TableCell>
+                    <TableCell sx={{ minWidth: 300 }}>Adresse utilisateur</TableCell>
+                    <TableCell sx={{ minWidth: 120 }}>Total</TableCell>
+                    <TableCell sx={{ minWidth: 500 }}>Details Commande</TableCell>
+                    <TableCell sx={{ minWidth: 120 }}>Frais de livraison</TableCell>
+                    <TableCell sx={{ minWidth: 120 }}>Status</TableCell>
+                    <TableCell sx={{ minWidth: 150 }}>Créé le</TableCell>
+                    <TableCell sx={{ minWidth: 150 }}>Mis à jour le</TableCell>
+                    <TableCell sx={{ minWidth: 150 }}>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {orders.map((order) => (
+                    <TableRow key={order.id} onClick={() => handleRowClick(order)}>
+                      <TableCell sx={{ minWidth: 100 }}>{order.id}</TableCell>
+                      <TableCell sx={{ minWidth: 150 }}>{order.user_name}</TableCell>
+                      <TableCell sx={{ minWidth: 200 }}>{order.user_email}</TableCell>
+                      <TableCell sx={{ minWidth: 120 }}>{order.user_phone}</TableCell>
+                      <TableCell sx={{ minWidth: 300 }}>{order.user_address}</TableCell>
+                      <TableCell sx={{ minWidth: 120 }}>{order.total_amount} €</TableCell>
+                      <TableCell sx={{ minWidth: 300 }}>{order.details}</TableCell>
+                      <TableCell sx={{ minWidth: 120 }}>{order.delivery_fee} €</TableCell>
+                      <TableCell sx={{ minWidth: 120 }}>{order.order_status}</TableCell>
+                      <TableCell sx={{ minWidth: 150 }}>
+                        {new Date(order.created_at).toLocaleDateString('fr-FR')}
+                      </TableCell>
+                      <TableCell sx={{ minWidth: 150 }}>
+                        {new Date(order.updated_at).toLocaleDateString('fr-FR')}
+                      </TableCell>
+                      <TableCell sx={{ minWidth: 150 }}>
+                        <FormControl sx={{ minWidth: 120 }} size="small">
+                          <InputLabel>Status</InputLabel>
+                          <Select
+                            label="Status"
+                            value={status || order.order_status}
+                            onChange={(e) => handleStatusChange(e, order.id)}
+                            disabled={loadingUpdate}
+                          >
+                            <MenuItem value="En attente">En attente</MenuItem>
+                            <MenuItem value="Expédié">Expédié</MenuItem>
+                            <MenuItem value="Livré">Livré</MenuItem>
+                            <MenuItem value="Annulé">Annulé</MenuItem>
+                          </Select>
+                        </FormControl>
+                      </TableCell>
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {orders.map((order) => (
-                      <TableRow key={order.id} onClick={() => handleRowClick(order)}>
-                        <TableCell>{order.id}</TableCell>
-                        <TableCell>{order.user_name}</TableCell>
-                        <TableCell>{order.user_email}</TableCell>
-                        <TableCell>{order.user_phone}</TableCell>
-                        <TableCell>{order.user_address}</TableCell>
-                        <TableCell>{order.total_amount} €</TableCell>
-                        <TableCell>{order.detail_order} €</TableCell>
-                        <TableCell>{order.delivery_fee} €</TableCell>
-                        <TableCell>{order.order_status}</TableCell>
-                        <TableCell>{new Date(order.created_at).toLocaleDateString('fr-FR')}</TableCell>
-                        <TableCell>{new Date(order.updated_at).toLocaleDateString('fr-FR')}</TableCell>
-                        <TableCell>
-                          <FormControl sx={{ minWidth: 120 }} size="small">
-                            <InputLabel>Status</InputLabel>
-                            <Select
-                              label="Status"
-                              value={status || order.order_status}
-                              onChange={(e) => handleStatusChange(e, order.id)}
-                              disabled={loadingUpdate}
-                            >
-                              <MenuItem value="En attente">En attente</MenuItem>
-                              <MenuItem value="Expédié">Expédié</MenuItem>
-                              <MenuItem value="Livré">Livré</MenuItem>
-                              <MenuItem value="Annulé">Annulé</MenuItem>
-                            </Select>
-                          </FormControl>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
             </Grid>
           </Grid>
         </Box>

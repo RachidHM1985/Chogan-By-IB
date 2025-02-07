@@ -25,4 +25,8 @@ html {
     padding-left: 1px;
     padding-right: 1px;
   }
-  
+  @media (min-width: 1200px){
+  main.css-19xko21-MuiContainer-root{
+    max-width: 100%;
+  }
+}
