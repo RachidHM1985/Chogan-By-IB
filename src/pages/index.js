@@ -140,7 +140,7 @@ export default function Home() {
                 sx={{
                   justifyContent: 'center',
                   alignItems: 'center',
-                  height: '25vh',
+                  height: '100%',
                   overflow: 'hidden',
                   marginBottom: '30px',
                   textAlign: 'center',

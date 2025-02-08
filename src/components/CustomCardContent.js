@@ -69,12 +69,12 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
       {/* Card Content Section */}
       <Box
         sx={{
-          padding: '5px',
+          padding: '1px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center', // Centrage vertical
           alignItems: 'center', // Centrage horizontal
-          height: '150px', // Hauteur fixe pour la structure
+          height: '100px', // Hauteur fixe pour la structure
           textAlign: 'center', // Alignement du texte à gauche
         }}
       >
@@ -94,7 +94,7 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
           sx={{
             fontFamily: 'Noto Sans', // Police moderne et classe
             fontWeight: '600',
-            fontSize: '1.2rem',
+            fontSize: '0.8rem',
             textTransform: 'capitalize',
             marginBottom: '4px', // Un peu plus d'espace en bas
             whiteSpace: 'normal',

@@ -24,10 +24,9 @@ html {
   div.css-1bupzq4-MuiContainer-root {
     padding-left: 1px;
     padding-right: 1px;
-    min-width: 100vh;
 }
   @media (min-width: 1200px){
   main.css-19xko21-MuiContainer-root{
-    width: 100vh;    
+    width: 100%;    
   }
 }

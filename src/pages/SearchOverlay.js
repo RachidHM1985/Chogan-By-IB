@@ -125,6 +125,7 @@ const SearchOverlay = ({ open, onClose }) => {
         overflowY: 'auto',
         top: '10px',
         position: 'absolute',
+        height:'100%'
       }}>
         {/* Formulaire de recherche */}
         <form onSubmit={handleSearchSubmit} style={{ width: '100%' }}>
