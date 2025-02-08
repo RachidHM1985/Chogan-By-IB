@@ -14,7 +14,6 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
     <CardContent
       className="custom-card-content p-3 d-flex flex-column position-relative"
       sx={{
-        height: '350px',
         position: 'relative',
         borderRadius: '15px', // Bordures arrondies de la carte
         overflow: 'hidden',
