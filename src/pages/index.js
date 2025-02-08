@@ -86,7 +86,7 @@ export default function Home() {
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          minWidth: '46vh',
+          minWidth: '60vh',
           minHeight: '100vh', 
           top:'8vh', 
           position: 'relative',

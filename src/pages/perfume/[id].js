@@ -111,11 +111,11 @@ const PerfumeDetailPage = () => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            minHeight: '100%',
             overflow: 'hidden',
+            minHeight: '100vh', // Prendre toute la hauteur de la fenêtre
           }}
         >
-          <Box sx={{ flexGrow: 1 }}>
+          <Box sx={{ flexGrow: 1,width: '100%' }}>
             {loading ? (
               <Typography variant="h6" align="center">Chargement...</Typography>
             ) : error ? (
