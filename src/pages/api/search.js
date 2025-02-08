@@ -25,8 +25,7 @@ export default async function handler(req, res) {
       .select('*')
       .or(
         `nom_produit.ilike.%${query}%,code.ilike.%${query}%,nom_marque.ilike.%${query}%,genre.ilike.%${query}%,description.ilike.%${query}%`
-      )
-      .eq('code', query); // Vous pouvez ajouter d'autres colonnes ici si nécessaire.
+      );
 
     if (error) {
       console.error('Erreur Supabase:', error);

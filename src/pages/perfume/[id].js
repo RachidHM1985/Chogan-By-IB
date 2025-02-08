@@ -217,54 +217,79 @@ const PerfumeDetailPage = () => {
                       </Button>
                     </Col>
                   </Row>
-                  {/* Accordion for Description and Notes Olfactives */}
-                <Accordion sx={{width: '50%',minWidth:'350px', boxShadow: 'none',  borderBottom: '1px solid black', '&:before': { display: 'none' } }}>
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="description-content" id="description-header">
-                    <Typography variant="body1">Description</Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Typography variant="body2" sx={{paddingBottom: '10px'}}>
-                  Cette fragrance s'inspire des notes olfactives du parfum {perfume.nom_produit} de {perfume.nom_marque}, sans être affiliée à la marque. Elle offre une alternative unique avec une composition différente.
-                  </Typography>
-                    <Typography variant="body2">
-                      {perfume.description || 'Aucune description disponible pour ce parfum.'}
-                      </Typography>
-                  </AccordionDetails>
-                </Accordion>
-
-                <Accordion sx={{ width: '70%', minWidth:'350px', boxShadow: 'none', borderBottom: '1px solid black', '&:before': { display: 'none' }, '&:before': { display: 'none' } }}>
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="notes-content" id="notes-header">
-                    <Typography variant="body1">Notes Olfactives</Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Grid container spacing={2} justifyContent="center">
-                      <Grid item xs={4}>
-                        <Typography variant="body2" color="primary" align="center">
-                          Notes de tête:
+                  {/* Description and Notes Olfactives */}
+                  <Box sx={{
+                          width: {
+                            xs: '100%',  // Écran mobile : 100%
+                            sm: '70vh',  // Petit écran (sm, md, etc.) : 70%
+                          },
+                          paddingTop: '10px',
+                          paddingBottom: '10px',
+                          marginLeft: '5%',
+                          borderBottom: '1px solid black',
+                        }}
+                      >
+                        <Typography variant="body1" sx={{ fontWeight: 'bold', marginBottom: '10px' }}>
+                          Description
                         </Typography>
-                        <Typography variant="body2" align="center">
-                          {perfume.notes_tete}
+                        <Typography variant="body2" sx={{ paddingBottom: '10px' }}>
+                          Cette fragrance s'inspire des notes olfactives du parfum {perfume.nom_produit} de {perfume.nom_marque}, sans être affiliée à la marque. Elle offre une alternative unique avec une composition différente.
                         </Typography>
-                      </Grid>
-                      <Grid item xs={4}>
-                        <Typography variant="body2" color="primary" align="center">
-                          Notes de cœur:
+                        <Typography variant="body2">
+                          {perfume.description || 'Aucune description disponible pour ce parfum.'}
                         </Typography>
-                        <Typography variant="body2" align="center">
-                          {perfume.notes_coeur}
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={4}>
-                        <Typography variant="body2" color="primary" align="center">
-                          Notes de fond:
-                        </Typography>
-                        <Typography variant="body2" align="center">
-                          {perfume.notes_fond}
-                        </Typography>
-                      </Grid>
-                    </Grid>
-                  </AccordionDetails>
-                </Accordion>
+                      </Box>
+                      <Accordion
+                        sx={{
+                          width: {
+                            xs: '100%',  // Écran mobile : 100%
+                            sm: '70vh',  // Petit écran (sm, md, etc.) : 70%
+                          },
+                          boxShadow: 'none',
+                          marginLeft: '5%',
+                          borderBottom: '1px solid black',
+                          '&.Mui-expanded': { 
+                            margin: 0, // Suppression du margin lorsque l'Accordion est étendu
+                          },
+                          '&:before': { display: 'none' }, // Supprimer le style de séparation avant
+                        }}
+                      >
+                        <AccordionSummary
+                          expandIcon={<ExpandMoreIcon />}
+                          aria-controls="notes-content"
+                          id="notes-header"
+                        >
+                          <Typography variant="body1">Notes Olfactives</Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                          <Grid container spacing={2} justifyContent="center">
+                            <Grid item xs={4}>
+                              <Typography variant="body2" color="primary" align="center">
+                                Notes de tête:
+                              </Typography>
+                              <Typography variant="body2" align="center">
+                                {perfume.notes_tete}
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={4}>
+                              <Typography variant="body2" color="primary" align="center">
+                                Notes de cœur:
+                              </Typography>
+                              <Typography variant="body2" align="center">
+                                {perfume.notes_coeur}
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={4}>
+                              <Typography variant="body2" color="primary" align="center">
+                                Notes de fond:
+                              </Typography>
+                              <Typography variant="body2" align="center">
+                                {perfume.notes_fond}
+                              </Typography>
+                            </Grid>
+                          </Grid>
+                        </AccordionDetails>
+                      </Accordion>
                   <ReviewsSection productId={perfume.code} isInsertComment={true} />
                 </>
               )

@@ -27,7 +27,6 @@ html {
   }
   @media (min-width: 1200px){
   main.css-19xko21-MuiContainer-root{
-    max-width: 100%;
-    
+    width: 100vh;    
   }
 }

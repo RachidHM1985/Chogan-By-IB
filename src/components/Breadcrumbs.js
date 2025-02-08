@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Breadcrumbs, Link, Typography } from '@mui/material';
+import { Breadcrumbs, Link, Typography, IconButton } from '@mui/material';
+import { Home as HomeIcon } from '@mui/icons-material'; // Import de l'icône Home
 import { useRouter } from 'next/router';
 
 const MyBreadcrumbs = () => {
@@ -48,12 +49,29 @@ const MyBreadcrumbs = () => {
     setBreadcrumbs(crumbs);
   }, [router.query, router.asPath]); // Re-calculer si la route change
 
+  // Fonction pour gérer les clics sur les breadcrumbs
+  const handleBreadcrumbClick = (href) => {
+    if (href !== '#') {
+      router.push(href); // Naviguer vers la page sans rafraîchissement
+    }
+  };
+
   return (
     <Breadcrumbs aria-label="fil d'ariane" sx={{ marginBottom: '20px' }}>
       {breadcrumbs.map((breadcrumb, index) => (
         // Si le lien n'est pas un ID (href !== '#'), on l'affiche comme un lien cliquable
         breadcrumb.href !== '#' ? (
-          <Link key={index} color="inherit" href={breadcrumb.href}>
+          <Link
+            key={index}
+            color="inherit"
+            onClick={(e) => {
+              e.preventDefault(); // Empêche le comportement de lien classique
+              handleBreadcrumbClick(breadcrumb.href); // Gère la navigation fluide
+            }}
+            sx={{ cursor: 'pointer' }}
+          >
+            {/* Ajouter l'icône Home avant "Accueil" */}
+            {index === 0 && <HomeIcon sx={{ marginRight: '8px' }} />} 
             {breadcrumb.label}
           </Link>
         ) : (
