@@ -112,9 +112,11 @@ const PerfumeDetailPage = () => {
             flexDirection: 'column',
             alignItems: 'center',
             overflow: 'hidden',
+            width: '100%',  // Assurez-vous que la largeur est 100%
+            padding: 0, // Enlevez les espacements si vous voulez une largeur complète
           }}
         >
-          <Box sx={{ flexGrow: 1,width: '100%' }}>
+          <Box sx={{ flexGrow: 1, width: '100%' }}>
             {loading ? (
               <Typography variant="h6" align="center">Chargement...</Typography>
             ) : error ? (
@@ -152,15 +154,18 @@ const PerfumeDetailPage = () => {
                         alt={perfume.nom_produit}
                         className="img-fluid"
                         style={{
-                          maxWidth: '50%',
+                          maxWidth: '100%',  // Assurez-vous que l'image prend toute la largeur disponible
                           height: 'auto',
                           borderRadius: '10px',
                           objectFit: 'contain',
+                          display: 'block',  // Utilisez block pour qu'elle se comporte comme un élément de bloc
+                          marginLeft: 'auto',  // Centrer horizontalement avec flexbox
+                          marginRight: 'auto', // Centrer horizontalement avec flexbox
                         }}
                       />
                     </Col>
                     <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">
-                    <Typography variant="body1" align="center">
+                      <Typography variant="body1" align="center">
                         Choisissez une contenance :
                       </Typography>
                       <div className="size-selection" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px' }}>
@@ -225,13 +230,10 @@ const PerfumeDetailPage = () => {
                   </Row>
                   {/* Description and Notes Olfactives */}
                   <Box sx={{
-                          width: {
-                            xs: '100%',  
-                            sm: '70vh',  
-                          },
+                          width: '100%', // Assurez-vous que le box prend toute la largeur
                           paddingTop: '10px',
                           paddingBottom: '10px',
-                          marginLeft: '2%',
+                          marginLeft: '0%',
                           borderBottom: '1px solid black',
                         }}
                       >
@@ -245,14 +247,12 @@ const PerfumeDetailPage = () => {
                           {perfume.description || 'Aucune description disponible pour ce parfum.'}
                         </Typography>
                       </Box>
-                      <Accordion
+                  {/* Notes Olfactives Accordion */}
+                  <Accordion
                         sx={{
-                          width: {
-                            xs: '100%',  
-                            sm: '70vh',  
-                          },
+                          width: '100%', // Assurez-vous que l'accordion prend toute la largeur
                           boxShadow: 'none',
-                          marginLeft: '2%',
+                          marginLeft: '0%',
                           borderBottom: '1px solid black',
                           '&.Mui-expanded': { 
                             margin: 0, 
