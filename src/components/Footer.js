@@ -12,7 +12,6 @@ const Footer = () => {
       sx={{
         backgroundColor: '#F8F8F8', // Rose poudré
         padding: '5px 0', // Réduction de l'espacement pour un footer encore plus petit
-        width: '100%', // Couvre toute la largeur de la page
         zIndex: 1000,
         boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.1)', // Ombre pour le footer
         display: 'flex',
