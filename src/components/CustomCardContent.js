@@ -14,6 +14,7 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
     <CardContent
       className="custom-card-content p-3 d-flex flex-column position-relative"
       sx={{
+        height: '350px',
         position: 'relative',
         borderRadius: '15px', // Bordures arrondies de la carte
         overflow: 'hidden',
@@ -74,7 +75,7 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
           flexDirection: 'column',
           justifyContent: 'center', // Centrage vertical
           alignItems: 'center', // Centrage horizontal
-          height: '100px', // Hauteur fixe pour la structure
+          height: '150px', // Hauteur fixe pour la structure
           textAlign: 'center', // Alignement du texte à gauche
         }}
       >
