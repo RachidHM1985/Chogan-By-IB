@@ -223,9 +223,12 @@ const PerfumeDetailPage = () => {
                     <Typography variant="body1">Description</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
+                    <Typography variant="body2" sx={{paddingBottom: '10px'}}>
+                  Cette fragrance s'inspire des notes olfactives du parfum {perfume.nom_produit} de {perfume.nom_marque}, sans être affiliée à la marque. Elle offre une alternative unique avec une composition différente.
+                  </Typography>
                     <Typography variant="body2">
                       {perfume.description || 'Aucune description disponible pour ce parfum.'}
-                    </Typography>
+                      </Typography>
                   </AccordionDetails>
                 </Accordion>
 

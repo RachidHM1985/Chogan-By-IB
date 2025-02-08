@@ -38,8 +38,9 @@ const MyBreadcrumbs = () => {
       }
     }
 
+    // Ajouter l'ID du parfum dans les crumbs si présent
     if (id) {
-      crumbs.push({ label: `Parfums`, href: '/perfumes' });  // Lien vers la page Parfums
+      crumbs.push({ label: 'Parfums', href: '/perfumes' });  // Lien vers la page Parfums
       crumbs.push({ label: `${id}`, href: '#' }); // Affichage de l'ID sans lien
     }
 
@@ -50,9 +51,17 @@ const MyBreadcrumbs = () => {
   return (
     <Breadcrumbs aria-label="fil d'ariane" sx={{ marginBottom: '20px' }}>
       {breadcrumbs.map((breadcrumb, index) => (
-        <Link key={index} color="inherit" href={breadcrumb.href}>
-          {breadcrumb.label}
-        </Link>
+        // Si le lien n'est pas un ID (href !== '#'), on l'affiche comme un lien cliquable
+        breadcrumb.href !== '#' ? (
+          <Link key={index} color="inherit" href={breadcrumb.href}>
+            {breadcrumb.label}
+          </Link>
+        ) : (
+          // Sinon, afficher le texte sans lien (pour l'ID)
+          <Typography key={index} color="text.primary">
+            {breadcrumb.label}
+          </Typography>
+        )
       ))}
     </Breadcrumbs>
   );

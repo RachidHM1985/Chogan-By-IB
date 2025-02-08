@@ -1,11 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Box, CircularProgress, Typography, Card, TextField } from '@mui/material';
+import { Container, Box, CircularProgress, Typography, Card, TextField, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { supabase } from '../supabaseClient';
 import { useRouter } from 'next/router';
 import CustomCardContent from '../components/CustomCardContent';
 import { useCart } from '../context/CartContext';
 import Layout from '../components/Layout';
 import 'bootstrap/dist/css/bootstrap.min.css';
+
+// Message défilant
+const Marquee = () => {
+  return (
+    <Box
+      sx={{
+        borderRadius:'15px',
+        width: '100%',
+        height: '30px',
+        backgroundColor: '#EFE7DB',
+        overflow: 'hidden',
+        position: 'relative',
+        boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
+      }}
+    >
+      <Box
+        sx={{
+          position: 'absolute',
+          whiteSpace: 'nowrap',
+          animation: 'scrollLeft 20s linear infinite',
+          fontSize: '1.2em',
+          color: '#333',
+          padding: '0 20px',
+        }}
+      >Inspirés par des marques prestigieuses, nos parfums ont une composition unique et sont accessibles, sans lien officiel avec ces marques.</Box>
+      <style jsx>{`
+        @keyframes scrollLeft {
+          0% {
+            transform: translateX(30%);
+          }
+          100% {
+            transform: translateX(-95%);
+          }
+        }
+      `}</style>
+    </Box>
+  );
+};
 
 const PerfumesPage = () => {
   const [category, setCategory] = useState('All');
@@ -16,16 +54,13 @@ const PerfumesPage = () => {
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
-  const { addToCart } = useCart();
 
-  // Fonction de nettoyage pour les chaînes (enlève les espaces et la casse)
   const cleanString = (str) => str.trim().toLowerCase().replace(/[^a-z0-9]/gi, '');
 
-  // Fonction pour récupérer les parfums depuis la base de données
   const fetchPerfumes = async (category, brand) => {
     setLoading(true);
     setError(null);
-    let query = supabase.from('parfums').select('*').order('nom_marque','code', { ascending: true });
+    let query = supabase.from('parfums').select('*').order('nom_marque', 'code', { ascending: true });
 
     if (category !== 'All') {
       query = query.eq('genre', category);
@@ -42,39 +77,32 @@ const PerfumesPage = () => {
       setError(error.message);
     } else {
       setPerfumes(data);
-      setFilteredPerfumes(data); // Initialisation des parfums filtrés avec les données récupérées
+      setFilteredPerfumes(data);
     }
     setLoading(false);
   };
 
-  // Fonction de recherche et filtrage
   const filterPerfumes = (query) => {
     const queryLower = cleanString(query);
 
     const filteredPerfumes = perfumes.filter((perfume) => {
-      // Nettoyer les champs avant de comparer
       const codeToCompare = cleanString(perfume.code);
       const nameMatch = cleanString(perfume.nom_produit).includes(queryLower);
       const brandMatch = cleanString(perfume.nom_marque).includes(queryLower);
-
-      // Retourner les parfums qui correspondent sur le code, le nom ou la marque
       return (codeToCompare === queryLower || nameMatch || brandMatch);
     });
 
-    // Mettre à jour l'état des parfums filtrés
     setFilteredPerfumes(filteredPerfumes);
   };
 
-  // Fonction pour gérer le changement dans la barre de recherche
   const handleSearchChange = (event) => {
     const query = event.target.value;
     setSearchQuery(query);
     filterPerfumes(query);
   };
 
-  // Fonction pour naviguer vers la page de détails du parfum
   const handleCardClick = (perfumeCode) => {
-    router.push(`/perfume/${perfumeCode}`); // Navigue vers la page de détails du parfum
+    router.push(`/perfume/${perfumeCode}`);
   };
 
   // Récupérer le prix le plus bas parmi les différentes tailles
@@ -92,8 +120,9 @@ const PerfumesPage = () => {
   }, [router.query.category, selectedBrand]);
 
   return (
-    <>
+    <>  
       <Layout>
+      <Marquee />
         <Container
           fluid
           sx={{

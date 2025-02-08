@@ -65,9 +65,7 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
           },
         }}
       />
-
       </Box>
-
       {/* Card Content Section */}
       <Box
         sx={{
@@ -104,7 +102,7 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
             marginBottom: '2px', // Espacement réduit
           }}
         >
-          Parfum {perfume.genre} Essence 30%
+          Parfum inspiré {perfume.nom_produit}
         </Typography>
         
         {/* Price */}
