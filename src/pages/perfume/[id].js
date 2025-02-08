@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
-import { Typography, Box, Button, TextField, IconButton, Tooltip, Accordion, AccordionSummary, AccordionDetails, Grid } from '@mui/material';
+import { Typography, Box, Button, TextField, IconButton, Tooltip, Accordion, AccordionSummary, AccordionDetails, Grid, Rating } from '@mui/material';
 import { Add, Remove } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import { supabase } from '../../supabaseClient';
@@ -22,7 +22,7 @@ const PerfumeDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipMessage, setTooltipMessage] = useState('');
-  
+
   useEffect(() => {
     setSelectedSizes({});
     setQuantities({});
@@ -125,21 +125,28 @@ const PerfumeDetailPage = () => {
                 <>
                   <Row className="d-flex justify-content-center align-items-center" style={{ width: '100%' }}>
                     <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">
+                      {/* Star Rating above the title */}
+                      <Rating 
+                        value={perfume.note || 0} 
+                        readOnly 
+                        sx={{ marginBottom: '10px' }} 
+                      />
+                      
                       <Typography
-                                variant="h6"
-                                sx={{
-                                  fontFamily: 'Noto Sans', // Police moderne et classe
-                                  fontWeight: '600',
-                                  fontSize: '1.2rem',
-                                  textTransform: 'capitalize',
-                                  marginBottom: '4px', // Un peu plus d'espace en bas
-                                  whiteSpace: 'normal',
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
-                                }}
-                              >
-                                 PARFUM N°{perfume.code}
-                              </Typography>
+                        variant="h6"
+                        sx={{
+                          fontFamily: 'Noto Sans', 
+                          fontWeight: '600',
+                          fontSize: '1.2rem',
+                          textTransform: 'capitalize',
+                          marginBottom: '4px',
+                          whiteSpace: 'normal',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                      >
+                        PARFUM N°{perfume.code}
+                      </Typography>
                      
                       <img
                         src={`../../photos/products/${perfume.genre.toLowerCase()}.png`}
@@ -220,12 +227,12 @@ const PerfumeDetailPage = () => {
                   {/* Description and Notes Olfactives */}
                   <Box sx={{
                           width: {
-                            xs: '100%',  // Écran mobile : 100%
-                            sm: '70vh',  // Petit écran (sm, md, etc.) : 70%
+                            xs: '100%',  
+                            sm: '70vh',  
                           },
                           paddingTop: '10px',
                           paddingBottom: '10px',
-                          marginLeft: '5%',
+                          marginLeft: '2%',
                           borderBottom: '1px solid black',
                         }}
                       >
@@ -242,16 +249,16 @@ const PerfumeDetailPage = () => {
                       <Accordion
                         sx={{
                           width: {
-                            xs: '100%',  // Écran mobile : 100%
-                            sm: '70vh',  // Petit écran (sm, md, etc.) : 70%
+                            xs: '100%',  
+                            sm: '70vh',  
                           },
                           boxShadow: 'none',
-                          marginLeft: '5%',
+                          marginLeft: '2%',
                           borderBottom: '1px solid black',
                           '&.Mui-expanded': { 
-                            margin: 0, // Suppression du margin lorsque l'Accordion est étendu
+                            margin: 0, 
                           },
-                          '&:before': { display: 'none' }, // Supprimer le style de séparation avant
+                          '&:before': { display: 'none' }, 
                         }}
                       >
                         <AccordionSummary

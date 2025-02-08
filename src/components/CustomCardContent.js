@@ -1,5 +1,5 @@
 import React from 'react';
-import { CardContent, Typography, Box, CardMedia } from '@mui/material';
+import { CardContent, Typography, Box, CardMedia, Rating } from '@mui/material';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Category } from '@mui/icons-material';
 
@@ -78,6 +78,16 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
           textAlign: 'center', // Alignement du texte à gauche
         }}
       >
+        {/* Display the Rating above the title */}
+        <Rating
+          value={perfume.note || 0} // Utiliser la note récupérée de 'perfume'
+          readOnly
+          sx={{
+            marginBottom: '8px', // Espacement entre la note et le titre
+            color: '#ff9800', // Couleur de l'étoile
+          }}
+        />
+        
         {/* Product code */}
         <Typography
           variant="h6"

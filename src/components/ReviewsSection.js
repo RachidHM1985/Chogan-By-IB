@@ -15,42 +15,66 @@ const ReviewsSection = ({ productId, isInsertComment }) => {
   const [showSuccessTooltip, setShowSuccessTooltip] = useState(false); // State to control success tooltip visibility
   const [reviewsUpdated, setReviewsUpdated] = useState(false); // State to trigger re-fetch after posting a review
 
-  // Fetch reviews from Supabase when the component mounts or when filterRating, productId, or reviewsUpdated changes
   useEffect(() => {
-    const fetchReviews = async () => {
+    const fetchReviewsAndPerfume = async () => {
       setLoading(true);
 
-      // Create the base query
+      // Fetch reviews from 'avis' table and filter by rating
       let query = supabase
         .from('avis')
         .select('*')
         .gte('rating', filterRating)  // Filter by rating
         .order('created_at', { ascending: false });  // Sort by date (latest first)
 
-      // If isInsertComment is false, get reviews for all products
-      if (!isInsertComment) {
-        query = query;  // No change in query
-      } else {
-        // If isInsertComment is true, filter by product_id
+      // If isInsertComment is true, filter by product_id
+      if (isInsertComment) {
         query = query.eq('product_id', productId);  // Filter by product_id
       }
 
-      // Execute the query
-      const { data, error } = await query;
+      // Execute the query for reviews
+      const { data: reviewsData, error: reviewsError } = await query;
 
-      if (error) {
-        console.error('Error fetching reviews:', error);
+      if (reviewsError) {
+        console.error('Error fetching reviews:', reviewsError);
         setError('Erreur lors de la récupération des avis');
       } else {
-        setReviews(data);
+        setReviews(reviewsData);
       }
-
       setLoading(false);
     };
 
-    fetchReviews();
+    fetchReviewsAndPerfume();
   }, [productId, filterRating, reviewsUpdated, isInsertComment]); // Re-fetch reviews when dependencies change
 
+  // Calculate the average rating and update the perfume record
+  const updatePerfumeAverageRating = async () => {
+    // Fetch all reviews for the product
+    const { data: allReviews, error: reviewsError } = await supabase
+      .from('avis')
+      .select('rating')
+      .eq('product_id', productId);
+
+    if (reviewsError) {
+      console.error('Error fetching reviews:', reviewsError);
+      return;
+    }
+
+    // Calculate the average rating
+    const totalRating = allReviews.reduce((sum, review) => sum + review.rating, 0);
+    const averageRating = totalRating / allReviews.length;
+
+    // Update the perfume record with the new average rating
+    const { error: updateError } = await supabase
+      .from('parfums')
+      .update({ note: averageRating })
+      .eq('code', productId);
+
+    if (updateError) {
+      console.error('Error updating perfume average rating:', updateError);
+    }
+  };
+
+  // Handle posting a new review
   const handlePostReview = async () => {
     if (rating === 0 || !reviewText || !userName) {
       alert('Veuillez remplir tous les champs.');
@@ -80,10 +104,13 @@ const ReviewsSection = ({ productId, isInsertComment }) => {
       setRating(0);
       setReviewText('');
       setUserName('');
-      
+
+      // After posting the review, update the average rating in the perfume table
+      await updatePerfumeAverageRating();
+
       // Show success tooltip after successful submission
       setShowSuccessTooltip(true);
-      
+
       // Hide the tooltip after a short duration
       setTimeout(() => {
         setShowSuccessTooltip(false);
@@ -100,7 +127,21 @@ const ReviewsSection = ({ productId, isInsertComment }) => {
   const currentReviews = reviews.slice((page - 1) * reviewsPerPage, page * reviewsPerPage);
 
   return (
-    <Box sx={{ marginTop: '10px', backgroundColor: '#f8f8f8', padding: '40px 20px' }}>
+    <Box
+      sx={{
+        marginTop: '10px',
+        backgroundColor: '#f8f8f8',
+        padding: '40px 20px',
+        width: {
+          xs: '100%',  // For mobile screens, set width to 100%
+          sm: '80%',   // For small screens, 80%
+          md: '70%',   // For medium screens, 70%
+          lg: '60%'    // For large screens, 60%
+        },
+        marginLeft: 'auto',   // Centering the Box horizontally
+        marginRight: 'auto',  // Centering the Box horizontally
+      }}
+    >
       <Typography variant="h6" sx={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '20px' }}>
         Avis Clients
       </Typography>
@@ -135,6 +176,7 @@ const ReviewsSection = ({ productId, isInsertComment }) => {
             currentReviews.map((review) => (
               <Box key={review.id} sx={{ marginBottom: '20px', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
                 <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{review.user_name}</Typography>
+                <Typography variant="h6">Chogan n°{review.product_id}</Typography>
                 <Rating name="read-only" value={review.rating} readOnly sx={{ marginBottom: '10px' }} />
                 <Typography variant="body2" sx={{ color: '#555' }}>"{review.review}"</Typography>
               </Box>
