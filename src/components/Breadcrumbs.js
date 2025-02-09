@@ -57,7 +57,7 @@ const MyBreadcrumbs = () => {
   };
 
   return (
-    <Breadcrumbs aria-label="fil d'ariane" sx={{ marginBottom: '20px' }}>
+    <Breadcrumbs aria-label="fil d'ariane" sx={{marginBottom: '20px' }}>
       {breadcrumbs.map((breadcrumb, index) => (
         // Si le lien n'est pas un ID (href !== '#'), on l'affiche comme un lien cliquable
         breadcrumb.href !== '#' ? (

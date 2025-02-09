@@ -29,8 +29,10 @@ import Sidebar from './SideBar';
 import { useCart } from '../context/CartContext';
 import { loadStripe } from '@stripe/stripe-js';     
 import { Add, Remove } from '@mui/icons-material'; // Importer les icônes
+import ScrollingBanner from './ScrollingBanner';
 
 const Header = () => {
+  const [showBanner, setShowBanner] = useState(false);
   const [openSidebar, setOpenSidebar] = useState(false);
   const [openCart, setOpenCart] = useState(false);
   const [openConfirmation, setOpenConfirmation] = useState(false);
@@ -57,6 +59,15 @@ const Header = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const[amountPromo, setAmountPromo] = useState('');
+
+  useEffect(() => {
+    if (router.pathname === '/') {
+      setShowBanner(true); // Affiche le ScrollingBanner sur la page d'accueil
+    } else {
+      setShowBanner(false); // Cache le ScrollingBanner sur d'autres pages
+    }
+  }, [router.pathname]);
+
 
   const toggleSidebar = () => {
     setOpenSidebar(!openSidebar);
@@ -462,10 +473,12 @@ useEffect(() => {
         zIndex: 1100,
         backgroundColor: '#EFE7DB',
         boxShadow: 'none',
-        height: '65px',
+        height: showBanner ? '95px' : '75px',
+        transition: 'height 0.3s ease',
       }}
     >
-      <Toolbar>
+      {showBanner && <ScrollingBanner />}
+        <Toolbar>
         <Grid container alignItems="center" justifyContent="space-between">
           <Grid item xs={2} sx={{ display: 'flex', justifyContent: 'flex-start', paddingLeft: '20px' }}>
             <IconButton
@@ -478,7 +491,7 @@ useEffect(() => {
             </IconButton>
           </Grid>
 
-          <Grid item xs={6} sm={4} md={2} sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'row', alignItems: 'center', paddingTop:'10px' }}>
+          <Grid item xs={6} sm={4} md={2} sx={{marginTop:'7px', display: 'flex', justifyContent: 'center', flexDirection: 'row', alignItems: 'center', paddingTop:'10px' }}>
             <Link href="/" passHref>
               <IconButton edge="start" color="inherit" aria-label="logo">
                 <Image
@@ -492,10 +505,7 @@ useEffect(() => {
             <IconButton color="inherit" onClick={handleOpenSearch}>
               <SearchIcon sx={{ color: 'black' }} />
             </IconButton>
-          </Grid>
-         
-     
-
+          </Grid>     
           <Grid item xs={2} sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', paddingRight: '20px' }}>
             <IconButton color="inherit" sx={{ color: 'black' }} onClick={handleOpenCart}>
               <Badge badgeContent={getTotalQuantity()} color="error">

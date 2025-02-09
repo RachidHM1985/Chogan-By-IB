@@ -88,7 +88,7 @@ export default function Home() {
           flexDirection: 'column',
           minWidth: '60vh',
           minHeight: '100vh', 
-          top:'8vh', 
+          top:'15vh', 
           position: 'relative',
         }}
       >
