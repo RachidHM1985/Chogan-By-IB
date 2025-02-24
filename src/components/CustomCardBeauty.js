@@ -148,7 +148,7 @@ const CustomCardBeauty = ({ produit }) => {
             textAlign: 'center',
           }}
         >
-          prix: {produit.prix}
+          prix: {produit.prix.toFixed(2)}€
         </Typography>
       </Box>
     </CardContent>

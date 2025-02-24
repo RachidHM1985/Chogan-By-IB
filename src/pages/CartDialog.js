@@ -349,7 +349,7 @@ useEffect(() => {
             {errorMessage && <Typography color="error">{errorMessage}</Typography>}
           </Grid>
         </Grid>
-        {totalPriceWithDelivery > 80 ? (
+        {(totalPriceWithDelivery - deliveryFee) > 80 ? (
             <>
               <Typography sx={{ mt: 2 }}>🚚 Livraison offerte via Mondial Relay 🎉</Typography>
             </>
