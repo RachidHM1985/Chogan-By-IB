@@ -7,7 +7,6 @@ const CustomCardBeauty = ({ produit }) => {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    // Simulate image loading
     setLoading(true);
     const img = new Image();
     img.src = `/images/products/${produit.code_produit}.jpg`;
@@ -37,8 +36,10 @@ const CustomCardBeauty = ({ produit }) => {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        width: '300px', // Fixed width for all cards
-        height: '450px', // Fixed height for all cards
+        width: { xs: '90%', sm: '300px' }, // Responsive width
+        height: { xs: 'auto', sm: '450px' }, // Adjust height for mobile
+        padding: '15px',
+        margin: '10px auto', // Center on mobile
       }}
     >
       {/* Card Image Section */}
@@ -49,9 +50,8 @@ const CustomCardBeauty = ({ produit }) => {
           position: 'relative',
           overflow: 'hidden',
           marginBottom: '10px',
-          transition: 'all 0.3s ease',
-          width: '100%', // Ensure the image container takes full width
-          height: '200px', // Fixed height for the image container
+          width: '100%',
+          height: { xs: '180px', sm: '200px' }, // Responsive image size
         }}
       >
         {loading ? (
@@ -68,7 +68,7 @@ const CustomCardBeauty = ({ produit }) => {
             sx={{
               width: '100%',
               height: '100%',
-              objectFit: 'contain', // Ensure the image fits within the container
+              objectFit: 'contain',
               borderRadius: '10px',
               transition: 'transform 0.3s ease',
               '&:hover': {
@@ -78,77 +78,70 @@ const CustomCardBeauty = ({ produit }) => {
           />
         )}
       </Box>
+
       {/* Card Content Section */}
       <Box
         sx={{
-          padding: '1px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          height: '150px',
+          height: 'auto',
           textAlign: 'center',
+          gap: '8px',
+          padding: '10px 0',
         }}
       >
-        {/* Display the Rating above the title */}
         <Rating
           value={produit.note || 0}
           readOnly
-          sx={{
-            marginBottom: '8px',
-            color: '#ff9800',
-          }}
+          sx={{ color: '#ff9800' }}
         />
-        
-        {/* Product code */}
+
         <Typography
           variant="h6"
           sx={{
             fontFamily: 'Noto Sans',
             fontWeight: '600',
-            fontSize: '0.8rem',
+            fontSize: { xs: '0.9rem', sm: '1rem' },
             textTransform: 'capitalize',
-            marginBottom: '4px',
             whiteSpace: 'normal',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
           }}
         >
           Ref n°: {produit.code_produit}
-        </Typography>      
+        </Typography>
+
         <Typography
           variant="body1"
           sx={{
-            fontSize: '0.8rem',
+            fontSize: { xs: '0.8rem', sm: '0.9rem' },
             opacity: 0.7,
-            marginBottom: '2px',
           }}
         >
           {produit.description}
         </Typography>
+
         <Typography
           variant="body1"
           sx={{
-            fontSize: '0.8rem',
+            fontSize: { xs: '0.8rem', sm: '0.9rem' },
             fontWeight: '400',
-            width: '100%',
-            textAlign: 'center',
           }}
         >
           Contenance: {produit.contenance}
         </Typography>
-        
-        {/* Price */}
+
         <Typography
           variant="body1"
           sx={{
-            fontSize: '0.8rem',
-            fontWeight: '400',
-            width: '100%',
-            textAlign: 'center',
+            fontSize: { xs: '0.8rem', sm: '1rem' },
+            fontWeight: '500',
+            color: '#E53935',
           }}
         >
-          prix: {produit.prix.toFixed(2)}€
+          Prix: {produit.prix.toFixed(2)}€
         </Typography>
       </Box>
     </CardContent>
