@@ -102,7 +102,7 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
             textOverflow: 'ellipsis',
           }}
         >
-          PARFUM N°{perfume.code}
+          PARFUM N°{perfume.code_produit}
         </Typography>      
         <Typography
           variant="body1"

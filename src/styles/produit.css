@@ -1,0 +1,69 @@
+.produit-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 cartes sur mobile */
+    gap: 0px; /* Espace réduit entre les cartes */
+    padding: 0; /* Retirer toute marge interne */
+  }
+  
+  @media (min-width: 768px) {
+    .produit-grid {
+      grid-template-columns: repeat(4, 1fr); /* 4 cartes sur grand écran */
+    }
+  }
+  
+  
+  .produit-grid::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Masquer la barre de défilement dans Firefox */
+  .produit-grid {
+    scrollbar-width: none; /* Firefox */
+  }
+  
+  /* Masquer la barre de défilement dans IE et Edge */
+  .produit-grid {
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+  }
+  
+  .produit-card {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+    height: 300px; /* Fixe la hauteur des cartes */
+  }
+  
+  .produit-card-inner {
+    position: relative;
+    height: 90%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .produit-card-content {
+    background-size: cover;
+    background-position: center;
+    height: 90%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.3s ease;
+  }
+  
+  .produit-card:hover {
+    transform: translateY(-10px);
+  }
+  
+  .produit-card-content:hover {
+    transform: scale(1.05);
+  }
+  
+  /* Effet de zoom sur les cartes au survol */
+  @media (min-width: 768px) {
+    .produit-grid {
+      grid-template-columns: repeat(4, 1fr); /* 4 cartes sur écran PC */
+    }
+  }

@@ -24,7 +24,7 @@ export default async function handler(req, res) {
       .from('parfums')
       .select('*')
       .or(
-        `nom_produit.ilike.%${query}%,code.ilike.%${query}%,nom_marque.ilike.%${query}%,genre.ilike.%${query}%,description.ilike.%${query}%`
+        `nom_produit.ilike.%${query}%,code_produit.ilike.%${query}%,nom_marque.ilike.%${query}%,genre.ilike.%${query}%,description.ilike.%${query}%`
       );
 
     if (error) {

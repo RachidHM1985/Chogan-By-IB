@@ -86,7 +86,7 @@ const PerfumesPage = () => {
     const queryLower = cleanString(query);
 
     const filteredPerfumes = perfumes.filter((perfume) => {
-      const codeToCompare = cleanString(perfume.code);
+      const codeToCompare = cleanString(perfume.code_produit);
       const nameMatch = cleanString(perfume.nom_produit).includes(queryLower);
       const brandMatch = cleanString(perfume.nom_marque).includes(queryLower);
       return (codeToCompare === queryLower || nameMatch || brandMatch);
@@ -200,7 +200,7 @@ const PerfumesPage = () => {
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
                     }}
-                    onClick={() => handleCardClick(perfume.code)}
+                    onClick={() => handleCardClick(perfume.code_produit)}
                     key={perfume.id}
                   >
                     <CustomCardContent perfume={perfume} getLowestPrice={getLowestPrice} />

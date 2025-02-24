@@ -36,7 +36,7 @@ const PerfumeDetailPage = () => {
         const { data, error } = await supabase
           .from('parfums')
           .select('*')
-          .eq('code', id)
+          .eq('code_produit', id)
           .single();
 
         if (error) {
@@ -148,7 +148,7 @@ const PerfumeDetailPage = () => {
                         textAlign: 'center', // Centrer le texte si nécessaire
                       }}
                     >
-                      PARFUM N°{perfume.code}
+                      PARFUM N°{perfume.code_produit}
                     </Typography>
                    
                     <img
@@ -298,7 +298,7 @@ const PerfumeDetailPage = () => {
                         </Grid>
                       </AccordionDetails>
                     </Accordion>
-                <ReviewsSection productId={perfume.code} isInsertComment={true} />
+                <ReviewsSection productId={perfume.code_produit} isInsertComment={true} />
               </>
             )
           )}

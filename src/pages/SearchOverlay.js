@@ -65,7 +65,7 @@ const SearchOverlay = ({ open, onClose }) => {
           const cleanedQuery = searchQuery.trim().toLowerCase();
           const nameMatch = perfume.nom_produit.toLowerCase().includes(cleanedQuery);
           const brandMatch = perfume.nom_marque.toLowerCase().includes(cleanedQuery);
-          const codeMatch = perfume.code.toLowerCase().includes(cleanedQuery);
+          const codeMatch = perfume.code_produit.toLowerCase().includes(cleanedQuery);
           const genreMatch = perfume.genre.toLowerCase().includes(cleanedQuery);
           
           return nameMatch || brandMatch || codeMatch || genreMatch;
@@ -186,7 +186,7 @@ const SearchOverlay = ({ open, onClose }) => {
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
                     }}
-                    onClick={() => handleCardClick(perfume.code)}
+                    onClick={() => handleCardClick(perfume.code_produit)}
                   >
                     <CustomCardContent 
                       perfume={perfume} 

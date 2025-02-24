@@ -31,7 +31,7 @@ export default function Home() {
     { src: '/images/olfazeta.png', link: '/perfumes' },
     {src:'/images/hover-cooperativa.png',link: ''},
     {src:'/images/peptilux.png', link: ''},
-    {src:'/images/aurodhea.png', link: ''},
+    {src:'/images/aurodhea.png', link: '/beauty'},
     {src:'/images/brilhome.png', link: ''},
   ];
 
@@ -151,20 +151,18 @@ export default function Home() {
                     <div key={index}>
                       {/* Envelopper l'image avec un <Link> pour la redirection */}
                       <Link href={image.link} passHref>
-                        
-                          <img
-                            src={image.src}
-                            alt={`Image ${index}`}
-                            style={{
-                              borderRadius: '30px',
-                              width: '100%',
-                              height: '100%',
-                              objectFit: 'cover',
-                              paddingLeft: '11px',
-                              paddingRight: '12px',
-                            }}
-                          />
-                        
+                        <img
+                          src={image.src}
+                          alt={`Image ${index}`}
+                          style={{
+                            borderRadius: '30px',
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            paddingLeft: '11px',
+                            paddingRight: '12px',
+                          }}
+                        />
                       </Link>
                     </div>
                   ))}
