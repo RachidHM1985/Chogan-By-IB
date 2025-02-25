@@ -18,8 +18,8 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Données de commande manquantes ou invalides.' });
       }
 
-      let discountedTotal = totalPrice - promoAmount;
-      if (discountedTotal < 0) discountedTotal = 0;
+      let discountedTotal = totalPrice + promoAmount; // Ajoutez promoAmount au prix total
+      if (discountedTotal < 0) discountedTotal = 0; // Assurez-vous que le total ne soit pas négatif
 
       const stripeLineItems = lineItems.map(item => {
         const productData = item.price_data?.product_data;
@@ -36,7 +36,7 @@ export default async function handler(req, res) {
             currency: 'eur',
             product_data: {
               name: productData.name,
-              description: `Taille: ${productData.size}`, // Ajout de la taille dans la description
+              description: `Taille: ${productData.size}`,
             },
             unit_amount: Math.round(originalPrice * 100),
           },
@@ -58,7 +58,7 @@ export default async function handler(req, res) {
           quantity: 1,
         }] : []),
       ];
-      
+
       const prixTotal = discountedTotal;
 
       const session = await stripe.checkout.sessions.create({
@@ -75,11 +75,10 @@ export default async function handler(req, res) {
           deliveryFee: fraisLivraison,
           discountAmount: promoAmount,
           totalPriceWithDiscount: prixTotal.toFixed(2),
-          // Ajout des informations sur les produits dans les métadonnées
           products: JSON.stringify(lineItems.map(item => ({
             name: item.price_data?.product_data?.name,
             code: item.price_data?.product_data?.code,
-            size: item.price_data?.product_data.size || "Non spécifié", // Ajout de la taille
+            size: item.price_data?.product_data.size || "Non spécifié",
           }))),
         },
       });
