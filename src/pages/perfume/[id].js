@@ -5,7 +5,6 @@ import { Add, Remove } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import { supabase } from '../../supabaseClient';
 import { useCart } from '../../context/CartContext';
-import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import ReviewsSection from '../../components/ReviewsSection';
 import Layout from '../../components/Layout';

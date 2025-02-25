@@ -11,45 +11,39 @@ export default async function handler(req, res) {
 
       console.log('Données reçues:', { formData, lineItems, deliveryFee, amountPromo, totalPrice });
 
-      // Sanitize amountPromo: si vide, on le définit sur 0
       const promoAmount = amountPromo ? parseFloat(amountPromo) : 0;
       const fraisLivraison = totalPrice > 80 ? 0 : deliveryFee;
 
-      // Vérifier s'il manque des données
       if (!formData || !lineItems || lineItems.length === 0 || totalPrice == null) {
         return res.status(400).json({ error: 'Données de commande manquantes ou invalides.' });
       }
 
-      // Appliquer la remise au prix total
       let discountedTotal = totalPrice - promoAmount;
       if (discountedTotal < 0) discountedTotal = 0;
 
-      // Mapper les éléments de ligne pour vérifier que toutes les données nécessaires sont présentes
       const stripeLineItems = lineItems.map(item => {
-        const productData = item.price_data?.product_data; // Accès sécurisé
+        const productData = item.price_data?.product_data;
 
-        // Vérifier si les informations du produit sont manquantes ou invalides
         if (!productData || !productData.name || !item.price_data.unit_amount) {
           console.error('Informations produit manquantes ou invalides:', item);
           throw new Error('Informations produit manquantes ou invalides');
         }
 
-        // Utiliser unit_amount comme prix de l'article (il inclut déjà le prix pour la taille)
-        const originalPrice = item.price_data.unit_amount / 100; // Convertir les centimes en euros
+        const originalPrice = item.price_data.unit_amount / 100;
 
         return {
           price_data: {
             currency: 'eur',
             product_data: {
-              name: productData.name,              
+              name: productData.name,
+              description: `Taille: ${productData.size}`, // Ajout de la taille dans la description
             },
-            unit_amount: originalPrice * 100, // Montant en centimes
+            unit_amount: Math.round(originalPrice * 100),
           },
           quantity: item.quantity,
         };
       });
 
-      // Ajouter des frais de livraison comme élément séparé si nécessaire
       const finalLineItems = [
         ...stripeLineItems,
         ...(deliveryFee && discountedTotal < 80 ? [{
@@ -65,9 +59,8 @@ export default async function handler(req, res) {
         }] : []),
       ];
       
- 
-      const prixTotal = discountedTotal
-      // Créer la session de paiement avec Stripe
+      const prixTotal = discountedTotal;
+
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: finalLineItems,
@@ -86,12 +79,10 @@ export default async function handler(req, res) {
           products: JSON.stringify(lineItems.map(item => ({
             name: item.price_data?.product_data?.name,
             code: item.price_data?.product_data?.code,
-            size: item.price_data?.product_data?.size,
+            size: item.price_data?.product_data.size || "Non spécifié", // Ajout de la taille
           }))),
         },
       });
-
- 
 
       res.status(200).json({ sessionId: session.id, status: "succeeded" });
     } catch (error) {

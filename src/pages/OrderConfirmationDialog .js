@@ -99,7 +99,7 @@ const OrderConfirmationDialog = ({
           Fermer
         </Button>
         <Button onClick={handleConfirm} color="primary">
-          Payer avec Stripe
+           Payer
         </Button>
       </DialogActions>
     </Dialog>

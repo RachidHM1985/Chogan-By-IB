@@ -17,8 +17,8 @@ const ProduitDetailPage = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedQuantity, setSelectedQuantity] = useState(1);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [tooltipMessage, setTooltipMessage] = useState('');
+  const [showTooltip, setShowTooltip] = useState(false);
 
   useEffect(() => {
     if (!code_produit) return;
@@ -48,10 +48,16 @@ const ProduitDetailPage = () => {
 
   const handleAddToCart = () => {
     if (!produit) return;
-    addToCart(produit, null, selectedQuantity);
-    setSnackbarMessage(`${produit.sous_categorie} Chogan n°${produit.code_produit} ajouté(s) au panier`);
-    setSnackbarOpen(true);
+    addToCart(produit, produit.contenance, selectedQuantity);
+    setTooltipMessage(`${produit.sous_categorie} Chogan n°${produit.code_produit} ajouté(s) au panier`);
+    setShowTooltip(true);
+    setTimeout(() => setShowTooltip(false), 2000);
   };
+
+   useEffect(() => {
+      setShowTooltip(false);
+      setTooltipMessage('');
+    }, [code_produit]);
 
   return (
     <Layout>
@@ -103,7 +109,14 @@ const ProduitDetailPage = () => {
             )
           )}
         </Box>
-        <Snackbar open={snackbarOpen} autoHideDuration={2000} onClose={() => setSnackbarOpen(false)} message={snackbarMessage} />
+        {showTooltip && (
+          <div
+          className ="tooltip tooltip-succes show"
+            style={{ top: `${window.scrollY + 10}px` }}
+          >
+            {tooltipMessage}
+          </div>
+        )}
       </Container>
       <Footer />
     </Layout>

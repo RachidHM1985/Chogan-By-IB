@@ -29,7 +29,8 @@ export default async function handler(req, res) {
     // Retrieve the Stripe session
     const session = await stripe.checkout.sessions.retrieve(session_id, {
       expand: ['line_items'], // Expanding relevant fields like line items
-    });const metadata = session.metadata;
+    });
+    const metadata = session.metadata;
 
     console.log('metadata :', metadata)
     console.log(session.line_items.data)
@@ -39,7 +40,7 @@ export default async function handler(req, res) {
       prix: item.amount_total / 100,  // Total amount in euros (converted from cents)
       quantity: item.quantity,       // Quantity of the product
       code:'',                       // Placeholder for the product code
-      size: '',                       // Placeholder for the product size
+      size:'',                       // Placeholder for the product size
     })) || [];
 
     const products = JSON.parse(metadata.products);  // Convertit la chaîne JSON en tableau
@@ -51,13 +52,13 @@ export default async function handler(req, res) {
           console.log(cartItem);
           if (cartItem.nom_produit === product.name) {
             cartItem.code = product.code;
-            
+            cartItem.size = product.size;
             try {
               // Effectuer une requête à Supabase pour récupérer le prix par code
               const { data, error } = await supabase
                 .from('parfums')
                 .select('*')
-                .eq('code', product.code)
+                .eq('code_produit', product.code)
                 .single();  // On s'attend à un seul résultat pour le produit
             
               if (error) {
@@ -111,7 +112,7 @@ export default async function handler(req, res) {
       address: session.metadata.address , // Customer address
       phone: session.metadata.phone, // Customer phone number
     };
-console.log("produc :", session.metadata)
+console.log("product :", session.metadata)
 
     console.log('sessionData:', sessionData);
     

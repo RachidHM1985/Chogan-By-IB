@@ -54,13 +54,12 @@ export default async function handler(req, res) {
         to: email,
         from: 'choganbyikram.contact@gmail.com',  // Ensure this email is verified with SendGrid
         subject: 'Confirmation de votre commande Chogan',
-        text: `Bonjour ${name},\n\nMerci pour votre commande ! Voici les détails :\n\n${filteredCart.map(item => `${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}`).join('\n')}\nFrais de livraison: ${deliveryFee}\n${amountPromo > 0 ? `Réduction: ${amountPromo}€\n` : ''}\n\nTotal : ${total_amount}€.\n\nNous allons traiter votre commande et nous reviendrons vers vous pour vous indiquer les modalités de paiement et de livraison.\n\nCordialement,\n\nIkram B.`,
         html: `
           <h1>Confirmation de votre commande</h1>
           <p>Bonjour ${name},</p>
           <p>Merci pour votre commande ! Voici les détails :</p>
           <ul>
-            ${filteredCart.map(item => `<li>${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}</li>`).join('')}
+            ${filteredCart.map(item => `<li>${item.nom_produit} - ${item.size} - ${item.prix.toFixed(2)}€ x ${item.quantity}</li>`).join('')}
           </ul>
           <ul>
           Frais de livraison: ${deliveryFee}€
@@ -79,7 +78,7 @@ export default async function handler(req, res) {
         to: 'choganbyikram.contact@gmail.com',
         from: 'hachem.rach@gmail.com',
         subject: `Nouvelle commande de ${name}`,
-        text: `Nouvelle commande reçue :\n\nNom: ${name}\nEmail: ${email}\n\nDétails de la commande:\n${filteredCart.map(item => `${item.code} - ${item.nom_produit} - ${item.size} - ${item.prix}€ x ${item.quantity}`).join('\n')}\nFrais de livraison: ${deliveryFee}€\n\n${amountPromo > 0 ? `Réduction: ${amountPromo}€\n` : ''}\n\nTotal : ${total_amount}€.\n\nMerci de traiter cette commande.`,
+        text: `Nouvelle commande reçue :\n\nNom: ${name}\nEmail: ${email}\n\nDétails de la commande:\n${filteredCart.map(item => `${item.code} - ${item.nom_produit} - ${item.size} - ${item.prix.toFixed(2)}€ x ${item.quantity}`).join('\n')}\nFrais de livraison: ${deliveryFee}€\n\n${amountPromo > 0 ? `Réduction: ${amountPromo}€\n` : ''}\n\nTotal : ${total_amount}€.\n\nMerci de traiter cette commande.`,
       };
 
       try {

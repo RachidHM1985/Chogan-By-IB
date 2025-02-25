@@ -36,7 +36,7 @@ const CartDialog = ({
   const [deliveryFee, setDeliveryFee] = useState(0);
   const [totalPriceWithDelivery, setTotalPriceWithDelivery] = useState(0);
   const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false);
-
+console.log(cartItems)
   // Gestion du code promo avec debounce
   const debouncedPromoCode = useDebounce(promoCode, 500);
 
@@ -228,23 +228,31 @@ useEffect(() => {
       const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
       let total = totalPriceWithDelivery - amountPromo;
   
-      // Ensure you use backticks for string interpolation
-      const stripeLineItems = cartItems.map((item) => ({
-        price_data: {
-          currency: "eur",
-          product_data: {
-            name: `Chogan n°${item.product?.code_produit}`,
-          },
-          unit_amount: Math.round((item.discountedPrice || item.product.prix)).toFixed(2) * 100,
-        },
-        quantity: item.quantity,
-      }));
+      // Création des articles Stripe
+      const stripeLineItems = cartItems.map((item) => {
+        const price = item.discountedPrice || item.product?.prix || item.product?.[`prix_${item.size}`];
   
+        return {
+          price_data: {
+            currency: "eur",
+            product_data: {
+              name: `Chogan n°${item.product?.code_produit}`,
+              code: item.product?.code_produit,
+              size: item.size,
+              
+            },
+            unit_amount: Math.round(price * 100), // Correction du calcul du prix
+          },
+          quantity: item.quantity,
+        };
+      });
+  
+      // Envoi des données à l'API backend
       const response = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          formData, // This will include the form data in the request payload
+          formData,
           deliveryFee,
           amountPromo,
           totalPrice: total,
@@ -262,6 +270,7 @@ useEffect(() => {
       console.error("Erreur de paiement Stripe:", error);
     }
   };
+  
   
   // Si le panier est vide
   if (cartItems.length === 0) {
