@@ -43,6 +43,7 @@ console.log(cartItems)
     // Optimisation de la suppression d'article
     const removeFromCartMemoized = useCallback((id, size) => {
       removeFromCart(id, size);
+      setAmountPromo(0)
     }, [removeFromCart]);
 
   const calculerFraisLivraison = (cartItems, totalPrice) => {
@@ -118,8 +119,12 @@ console.log(cartItems)
           return;
         }
   
-        // Trier les articles par prix croissant
-        expandedCartItems.sort((a, b) => a.product.prix - b.product.prix);
+        // Trier les articles par prix croissant (du moins cher au plus cher)
+        expandedCartItems.sort((a, b) => {
+          let prixA = a.product?.prix ? a.product.prix : a.product[`prix_${a.size}`] || 0;
+          let prixB = b.product?.prix ? b.product.prix : b.product[`prix_${b.size}`] || 0;
+          return prixA - prixB; // Tri ascendant (du moins cher au plus cher)
+        });         
   
         // Déterminer combien d'articles seront réduits (toujours la moitié du total, arrondi à l'entier inférieur)
         let discountCount = Math.floor(expandedCartItems.length / 2);
@@ -128,17 +133,19 @@ console.log(cartItems)
         let discountedItems = new Set();
         let discountApplied = 0;
   
-        // Appliquer la réduction sur les articles les moins chers
-        for (let i = 0; i < expandedCartItems.length; i++) {
-          if (discountApplied >= discountCount) break;
-  
+        // Appliquer la réduction sur les articles les MOINS chers
+        for (let i = 0; i < discountCount; i++) {
           let item = expandedCartItems[i];
-          let prix = item.product?.prix ? (item.product.prix).toFixed(2) : (item.product[`prix_${item.size}`]);
+          let prix = item.product?.prix ? item.product.prix : item.product[`prix_${item.size}`];
   
           // Vérifier si cet article peut être réduit
           if (!discountedItems.has(item.uniqueId)) {
             let discountedPrice = prix * 0.5; // 50% de réduction
             totalDiscount += prix - discountedPrice;
+  
+            // Marquer l'article comme réduit
+            item.discounted = true;
+            item.discountedPrice = discountedPrice;
             discountedItems.add(item.uniqueId);
             discountApplied++;
           }
@@ -157,7 +164,12 @@ console.log(cartItems)
             }
           });
   
-          return { ...item, discountedPrice: null, discountedQty: 0 }; // Remettre les autres articles à leur prix normal
+          // Appliquer le prix réduit uniquement sur les articles éligibles
+          return {
+            ...item,
+            discountedPrice: discountedQty > 0 ? item.product.prix * 0.5 : null,
+            discountedQty: discountedQty
+          };
         });
   
         setAmountPromo(totalDiscount);
@@ -198,6 +210,7 @@ useEffect(() => {
   
     if (newQuantity === 0) {
       removeFromCartMemoized(item.product.id, item.size);
+      applyPromoCode();
       return;
     }
   
@@ -292,111 +305,138 @@ useEffect(() => {
   }
 
   return (
-    <Dialog open={open} onClose={handleCloseCart} fullWidth maxWidth="md">
-      <DialogTitle>Récapitulatif de votre panier</DialogTitle>
-      <DialogContent>
-        {cartItems.map((item, index) => (
-          <Grid container key={index} spacing={2} sx={{ mb: 2, pb: 2, borderBottom: "1px solid #ddd" }}>
-            <Grid item xs={9}>
-              <Typography variant="body2" component="div">
-                Chogan n°{item.product?.code_produit} - {item.product?.nom_marque ? item.product?.nom_marque : item.product?.sous_categorie} - {item.size}
-                <br />
-                <Typography variant="body2" color="textSecondary" component="span">
-                  Prix : {item.product?.prix ? (item.product.prix * item.quantity).toFixed(2) : (item.product[`prix_${item.size}`] * item.quantity).toFixed(2)}€
-                </Typography>
-              </Typography>
-            </Grid>
-            <Grid item xs={3} sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <IconButton onClick={() => handleQuantityChangeMemoized(index, item.quantity - 1)}>
-                <Remove />
-              </IconButton>
-              <TextField
-                value={item.quantity}
-                onChange={(e) => {
-                  const value = Number(e.target.value);
-                  if (!isNaN(value)) {
-                    handleQuantityChangeMemoized(index, value);
-                  }
-                }}
-                variant="outlined"
-                size="small"
-                type="number"
-                inputProps={{ min: 1, max: 99 }}
-                sx={{ width: "80px", textAlign: "center" }}
-              />
-              <IconButton onClick={() => handleQuantityChangeMemoized(index, item.quantity + 1)}>
-                <Add />
-              </IconButton>
-              <IconButton color="error" onClick={() => removeFromCartMemoized(item.product.id, item.size)}>
-                <DeleteIcon />
-              </IconButton>
-            </Grid>
-          </Grid>
-        ))}
-
-        <Grid container justifyContent="flex-end" sx={{ mt: 2 }}>
-          <Grid item xs={12} sm={6} md={4}>
-            <Box display="flex" justifyContent="space-between" alignItems="flex-end" flexDirection="column">
-              <TextField
-                label="Code promo"
-                value={promoCode}
-                onChange={(e) => setPromoCode(e.target.value)}
-                fullWidth
-                sx={{
-                  mb: 2,
-                  width: "50%",
-                }}
-              />
-              <Button
-                variant="outlined"
-                onClick={applyPromoCode} // Applique le code promo au clic
-                sx={{ ml: 2 }}
-              >
-                Appliquer
-              </Button>
-            </Box>
-            {errorMessage && <Typography color="error">{errorMessage}</Typography>}
-          </Grid>
-        </Grid>
-        {(totalPriceWithDelivery - deliveryFee) > 80 ? (
-            <>
-              <Typography sx={{ mt: 2 }}>🚚 Livraison offerte via Mondial Relay 🎉</Typography>
-            </>
-          ) : (
-            <>
-              <FormControlLabel
-                control={<Checkbox checked={delivery} onChange={() => setDelivery(!delivery)} />}
-                label="Souhaitez-vous une livraison ?"
-              />
-              {delivery ? (
-                <Typography sx={{ mt: 2 }}>Livraison via Mondial Relay</Typography>
-              ) : (
-                <Typography sx={{ mt: 2 }}>Commande à récupérer en main propre</Typography>
-              )}
-            </>
-          )}
-        <Typography align="right">Frais de livraison : {deliveryFee.toFixed(2)}€</Typography>
-        {/* Affichage de la réduction */}
-        {amountPromo > 0 && (
-          <Typography align="right" color="primary">
-            Réduction : -{amountPromo.toFixed(2)}€
+<Dialog open={open} onClose={handleCloseCart} fullWidth maxWidth="md">
+  <DialogTitle>Récapitulatif de votre panier</DialogTitle>
+  <DialogContent>
+    {cartItems.map((item, index) => (
+      <Grid
+        container
+        key={index}
+        spacing={2}
+        sx={{ mb: 2, pb: 2, borderBottom: "1px solid #ddd", alignItems: "center" }}
+      >
+        {/* Infos du produit */}
+        <Grid item xs={12} sm={9}>
+          <Typography variant="body2">
+            Chogan n°{item.product?.code_produit} -{" "}
+            {item.product?.nom_marque ? item.product?.nom_marque : item.product?.sous_categorie} -{" "}
+            {item.size}
+            <br />
+            <Typography variant="body2" color="textSecondary" component="span">
+              Prix :{" "}
+              {item.product?.prix
+                ? (item.product.prix * item.quantity).toFixed(2)
+                : (item.product[`prix_${item.size}`] * item.quantity).toFixed(2)}
+              €
+            </Typography>
           </Typography>
-        )}
-        <Typography variant="h5" align="right">
-          Total: {totalPriceWithDelivery.toFixed(2)}€
-        </Typography>
-      </DialogContent>
+        </Grid>
 
-      <DialogActions>
-        <Button variant="outlined" color="secondary" onClick={handleCloseCart}>
-          Annuler
-        </Button>
-        <Button variant="contained" color="primary" onClick={handleConfirmOrder}>
-          Confirmer
-        </Button>
-      </DialogActions>
-      <OrderConfirmationDialog open={openConfirmationDialog} handleClose={() => setOpenConfirmationDialog(false)} handlePayment={handleStripePayment} />
-    </Dialog>
+        {/* Actions (boutons + quantité) */}
+        <Grid
+          item
+          xs={12}
+          sm={3}
+          sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
+        >
+          <IconButton onClick={() => handleQuantityChangeMemoized(index, item.quantity - 1)}>
+            <Remove />
+          </IconButton>
+          <TextField
+            value={item.quantity}
+            onChange={(e) => {
+              const value = Number(e.target.value);
+              if (!isNaN(value)) {
+                handleQuantityChangeMemoized(index, value);
+              }
+            }}
+            variant="outlined"
+            size="small"
+            type="number"
+            inputProps={{ min: 1, max: 99 }}
+            sx={{ width: "70px", textAlign: "center" }}
+          />
+          <IconButton onClick={() => handleQuantityChangeMemoized(index, item.quantity + 1)}>
+            <Add />
+          </IconButton>
+          <IconButton color="error" onClick={() => removeFromCartMemoized(item.product.id, item.size)}>
+            <DeleteIcon />
+          </IconButton>
+        </Grid>
+      </Grid>
+    ))}
+
+    {/* Code promo */}
+    <Grid container justifyContent="flex-end" sx={{ mt: 2 }}>
+      <Grid item xs={12} sm={6} md={4}>
+        <Box
+          display="flex"
+          flexDirection={{ xs: "column", sm: "row" }}
+          alignItems="center"
+          justifyContent="space-between"
+        >
+          <TextField
+            label="Code promo"
+            value={promoCode}
+            onChange={(e) => setPromoCode(e.target.value)}
+            fullWidth
+            sx={{ mb: { xs: 2, sm: 0 }, width: { xs: "100%", sm: "60%" } }}
+          />
+          <Button variant="outlined" onClick={applyPromoCode} sx={{ ml: { sm: 2 } }}>
+            Appliquer
+          </Button>
+        </Box>
+        {errorMessage && <Typography color="error">{errorMessage}</Typography>}
+      </Grid>
+    </Grid>
+
+    {/* Options de livraison */}
+    {(totalPriceWithDelivery - deliveryFee) > 80 ? (
+      <Typography sx={{ mt: 2 }}>🚚 Livraison offerte via Mondial Relay 🎉</Typography>
+    ) : (
+      <>
+        <FormControlLabel
+          control={<Checkbox checked={delivery} onChange={() => setDelivery(!delivery)} />}
+          label="Souhaitez-vous une livraison ?"
+        />
+        <Typography sx={{ mt: 2 }}>
+          {delivery ? "Livraison via Mondial Relay" : "Commande à récupérer en main propre"}
+        </Typography>
+      </>
+    )}
+
+    <Typography align="right">Frais de livraison : {deliveryFee.toFixed(2)}€</Typography>
+
+    {/* Affichage de la réduction */}
+    {amountPromo > 0 && (
+      <Typography align="right" color="primary">
+        Réduction : -{amountPromo.toFixed(2)}€
+      </Typography>
+    )}
+
+    <Typography variant="h5" align="right">
+      Total: {totalPriceWithDelivery.toFixed(2)}€
+    </Typography>
+  </DialogContent>
+
+  {/* Actions */}
+  <DialogActions>
+    <Button variant="outlined" color="secondary" onClick={handleCloseCart}>
+      Annuler
+    </Button>
+    <Button variant="contained" color="primary" onClick={handleConfirmOrder}>
+      Confirmer
+    </Button>
+  </DialogActions>
+
+  {/* Confirmation de commande */}
+  <OrderConfirmationDialog
+    open={openConfirmationDialog}
+    handleClose={() => setOpenConfirmationDialog(false)}
+    handlePayment={handleStripePayment}
+  />
+</Dialog>
+
   );
 };
 export default CartDialog;

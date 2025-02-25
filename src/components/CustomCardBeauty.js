@@ -36,10 +36,6 @@ const CustomCardBeauty = ({ produit }) => {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        width: { xs: '90%', sm: '300px' }, // Responsive width
-        height: { xs: 'auto', sm: '450px' }, // Adjust height for mobile
-        padding: '15px',
-        margin: '10px auto', // Center on mobile
       }}
     >
       {/* Card Image Section */}
@@ -51,7 +47,15 @@ const CustomCardBeauty = ({ produit }) => {
           overflow: 'hidden',
           marginBottom: '10px',
           width: '100%',
-          height: { xs: '180px', sm: '200px' }, // Responsive image size
+          height: { xs: '200px', sm: '250px' }, // Ajustez la hauteur de l'image pour éviter le rognage
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'scale(1.05)';
+          e.currentTarget.style.boxShadow = '0 12px 25px rgba(0, 0, 0, 0.3)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'scale(1)';
+          e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.1)';
         }}
       >
         {loading ? (
@@ -68,7 +72,7 @@ const CustomCardBeauty = ({ produit }) => {
             sx={{
               width: '100%',
               height: '100%',
-              objectFit: 'contain',
+              objectFit: 'contain', // Utilisez 'contain' pour éviter le rognage
               borderRadius: '10px',
               transition: 'transform 0.3s ease',
               '&:hover': {
@@ -82,42 +86,45 @@ const CustomCardBeauty = ({ produit }) => {
       {/* Card Content Section */}
       <Box
         sx={{
+          padding: '1px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          height: 'auto',
+          height: '150px',
           textAlign: 'center',
-          gap: '8px',
-          padding: '10px 0',
         }}
       >
         <Rating
           value={produit.note || 0}
           readOnly
-          sx={{ color: '#ff9800' }}
+          sx={{
+            marginBottom: '8px',
+            color: '#ff9800',
+          }}
         />
-
         <Typography
           variant="h6"
           sx={{
             fontFamily: 'Noto Sans',
             fontWeight: '600',
-            fontSize: { xs: '0.9rem', sm: '1rem' },
+            fontSize: '0.8rem',
             textTransform: 'capitalize',
+            marginBottom: '4px',
             whiteSpace: 'normal',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
           }}
         >
-          Ref n°: {produit.code_produit}
+          Chogan n°: {produit.code_produit}
         </Typography>
 
         <Typography
           variant="body1"
           sx={{
-            fontSize: { xs: '0.8rem', sm: '0.9rem' },
+            fontSize: '0.8rem',
             opacity: 0.7,
+            marginBottom: '2px',
           }}
         >
           {produit.description}
@@ -136,9 +143,10 @@ const CustomCardBeauty = ({ produit }) => {
         <Typography
           variant="body1"
           sx={{
-            fontSize: { xs: '0.8rem', sm: '1rem' },
-            fontWeight: '500',
-            color: '#E53935',
+            fontSize: '0.8rem',
+            fontWeight: '400',
+            width: '100%',
+            textAlign: 'center',
           }}
         >
           Prix: {produit.prix.toFixed(2)}€

@@ -98,16 +98,16 @@ const BeautyPage = () => {
   return (
     <Layout>
       <Container
-        fluid
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          overflow: 'hidden',
-          padding: 0,
-        }}
-      >
+          fluid
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            overflow: 'hidden',
+            padding: 0,
+          }}
+        >
         {/* Search bar */}
         <div style={{ width: '98%', maxWidth: '600px', marginBottom: '10px', borderRadius: '20px' }}>
           <TextField
@@ -184,11 +184,11 @@ const BeautyPage = () => {
             ) : (
               filteredBeauty.map((produit) => (
                 <Card
-                  sx={{
-                    borderRadius: '15px',
-                    border: '1px solid #ddd',
-                    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-                    cursor: 'pointer',
+                sx={{
+                  borderRadius: '15px',
+                  border: '1px solid #ddd',
+                  boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
+                  cursor: 'pointer',
                     backgroundImage: `url(${produit.image_url})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
