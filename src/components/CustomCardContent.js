@@ -114,6 +114,16 @@ const CustomCardContent = ({ perfume, getLowestPrice }) => {
         >
           Parfum inspiré {perfume.nom_produit}
         </Typography>
+        <Typography
+          variant="body1"
+          sx={{
+            fontSize: '0.8rem',
+            opacity: 0.7,
+            marginBottom: '2px', // Espacement réduit
+          }}
+        >
+          {perfume.nom_marque}
+        </Typography>
         
         {/* Price */}
         <Typography

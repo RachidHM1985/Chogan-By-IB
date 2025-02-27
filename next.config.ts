@@ -1,8 +1,21 @@
-import type { NextConfig } from 'next';
-
-const nextConfig: NextConfig = {
-  /* config options here */
-  // No need to set webpack5, as it is enabled by default in Next.js 11+
+module.exports = {
+  async redirects() {
+    return [
+      {
+        source: '/perfumes/:category',
+        destination: '/perfumes?category=:category',
+        permanent: true, // Redirection 301 (SEO)
+      },
+      {
+        source: '/perfumes/:category/:id',
+        destination: '/perfume/:category/:id',
+        permanent: true, // Redirection 301 (SEO)
+      },
+      {
+        source: '/beauty/:category',
+        destination: '/beauty?category=:category',
+        permanent: true, // Redirection 301 (SEO)
+      }
+    ];
+  },
 };
-
-export default nextConfig;

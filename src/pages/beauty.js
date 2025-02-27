@@ -74,7 +74,7 @@ const BeautyPage = () => {
   };
 
   const handleCardClick = (code_produit) => {
-    router.push(`/beauty/${code_produit}`);
+    router.push(`/beauty/${category}/${code_produit}`);
   };
 
   const handleGammeClick = (gamme) => {

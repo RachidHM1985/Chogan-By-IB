@@ -3,11 +3,11 @@ import { Container, Row, Col } from 'react-bootstrap';
 import { Typography, Box, Button, TextField, IconButton, Tooltip, Accordion, AccordionSummary, AccordionDetails, Grid, Rating } from '@mui/material';
 import { Add, Remove } from '@mui/icons-material';
 import { useRouter } from 'next/router';
-import { supabase } from '../../supabaseClient';
-import { useCart } from '../../context/CartContext';
-import Footer from '../../components/Footer';
-import ReviewsSection from '../../components/ReviewsSection';
-import Layout from '../../components/Layout';
+import { supabase } from '../../../supabaseClient';
+import { useCart } from '../../../context/CartContext';
+import Footer from '../../../components/Footer';
+import ReviewsSection from '../../../components/ReviewsSection';
+import Layout from '../../../components/Layout';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const PerfumeDetailPage = () => {

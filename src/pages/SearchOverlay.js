@@ -16,6 +16,7 @@ import CustomCardContent from '../components/CustomCardContent';
 import { debounce } from 'lodash';
 import { useCart } from '../context/CartContext';
 import { useRouter } from 'next/router';
+import { Category } from '@mui/icons-material';
 
 const SearchOverlay = ({ open, onClose }) => {
   // États pour gérer la recherche
@@ -88,7 +89,7 @@ const SearchOverlay = ({ open, onClose }) => {
 
   // Gestion du clic sur une carte de parfum
   const handleCardClick = (perfumeCode) => {
-    router.push(`/perfume/${perfumeCode}`);
+    router.push(`/perfumes/All/${perfumeCode}`);
     onClose();
   };
 

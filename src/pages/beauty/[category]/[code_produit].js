@@ -3,11 +3,11 @@ import { Container, Row, Col } from 'react-bootstrap';
 import { Typography, Box, Button, IconButton, Select, MenuItem, Snackbar } from '@mui/material';
 import { Add, Remove } from '@mui/icons-material';
 import { useRouter } from 'next/router';
-import { supabase } from '../../supabaseClient';
-import { useCart } from '../../context/CartContext';
-import Layout from '../../components/Layout';
-import Footer from '../../components/Footer';
-import ReviewsSection from '../../components/ReviewsSection';
+import { supabase } from '../../../supabaseClient';
+import { useCart } from '../../../context/CartContext';
+import Layout from '../../../components/Layout';
+import Footer from '../../../components/Footer';
+import ReviewsSection from '../../../components/ReviewsSection';
 
 const ProduitDetailPage = () => {
   const router = useRouter();

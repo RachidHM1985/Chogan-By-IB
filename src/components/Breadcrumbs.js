@@ -1,68 +1,80 @@
 import React, { useEffect, useState } from 'react';
 import { Breadcrumbs, Link, Typography } from '@mui/material';
-import { Home as HomeIcon } from '@mui/icons-material'; // Import de l'icône Home
+import { Home as HomeIcon } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 
 const MyBreadcrumbs = () => {
   const router = useRouter();
   const [breadcrumbs, setBreadcrumbs] = useState([]);
 
-  // Un dictionnaire pour la traduction des catégories
+  // Dictionnaire de traduction des catégories et sous-catégories
   const labelMap = {
     homme: 'Homme',
     femme: 'Femme',
     enfants: 'Enfants',
-    parfums: 'Parfums',
+    perfumes: 'Parfums',
+    perfume: 'Parfums', // Ajout pour gérer "perfume" au singulier
     beauty: 'Beauté',
-    soinCapillaire: 'Soins Capillaires', // Gestion de la catégorie "Soins Capillaires"
+    'soins-visage': 'Soins Visage',
+    'soins-capillaires': 'Soins Capillaires',
   };
 
   useEffect(() => {
-    const { category, subCategory, id } = router.query; // Récupère la catégorie, sous-catégorie et id dans l'URL
-    const path = router.asPath.split('?')[0].split('/').filter((el) => el); // Exclure les paramètres de la requête
+    const path = router.asPath.split('?')[0].split('/').filter(Boolean);
+    const { category, subCategory } = router.query; // Récupération des paramètres d'URL
+    let crumbs = [{ label: 'Accueil', href: '/' }];
 
-    // Base des breadcrumbs
-    let crumbs = [
-      { label: 'Accueil', href: '/' }, // Toujours un lien vers la page d'accueil
-    ];
+    if (path.length > 0) {
+      // 🔹 Gestion des parfums (supporte "perfume" et "perfumes")
+      if (path[0] === 'perfume' || path[0] === 'perfumes') {
+        crumbs.push({ label: 'Parfums', href: '/perfumes' });
 
-    // Si nous sommes sur la page "Beauty"
-    if (path[0] === 'beauty') {
-      crumbs.push({ label: 'Beauté', href: '/beauty' });
+        if (category) {
+          const categoryLabel = labelMap[category.toLowerCase()] || category;
+          crumbs.push({
+            label: categoryLabel,
+            href: `/perfumes?category=${category}`,
+          });
+        }
 
-      // Si la catégorie est définie dans l'URL
-      if (category) {
-        // Traduire la catégorie si possible
-        const categoryLabel = labelMap[category.toLowerCase()] || category;
-        crumbs.push({
-          label: categoryLabel,
-          href: `/beauty?category=${category}`, // Lien vers la catégorie avec le paramètre
-        });
+        if (path.length === 3) {
+          const productId = path[2];
+          crumbs.push({ label: `Produit ${productId}`, href: '#' });
+        }
       }
 
-      // Ajouter la sous-catégorie, si elle existe
-      if (subCategory) {
-        const subCategoryLabel = labelMap[subCategory.toLowerCase()] || subCategory;
-        crumbs.push({
-          label: subCategoryLabel,
-          href: `/beauty?category=${category}&subCategory=${subCategory}`, // Lien vers la sous-catégorie avec les paramètres
-        });
+      // 🔹 Gestion de la beauté
+      if (path[0] === 'beauty') {
+        crumbs.push({ label: 'Beauté', href: '/beauty' });
+
+        if (category) {
+          const categoryLabel = labelMap[category.toLowerCase()] || category;
+          crumbs.push({
+            label: categoryLabel,
+            href: `/beauty?category=${category}`,
+          });
+        }
+
+        if (subCategory) {
+          const subCategoryLabel = labelMap[subCategory.toLowerCase()] || subCategory;
+          crumbs.push({
+            label: subCategoryLabel,
+            href: `/beauty?category=${encodeURIComponent(category)}&subCategory=${encodeURIComponent(subCategory)}`,
+          });
+        }
+        if (path.length === 3) {
+          const productId = path[2];
+          crumbs.push({ label: `Produit ${productId}`, href: '#' });
+        }
       }
     }
 
-    // Ajouter l'ID du produit dans les crumbs si présent
-    if (id) {
-      crumbs.push({ label: `Produit ${id}`, href: '#' }); // Affichage de l'ID sans lien
-    }
-
-    // Mise à jour des breadcrumbs
     setBreadcrumbs(crumbs);
-  }, [router.query, router.asPath]); // Re-calculer si la route change
+  }, [router.asPath]);
 
-  // Fonction pour gérer les clics sur les breadcrumbs
   const handleBreadcrumbClick = (href) => {
     if (href !== '#') {
-      router.push(href); // Naviguer vers la page sans rafraîchissement
+      router.push(href);
     }
   };
 
@@ -74,17 +86,15 @@ const MyBreadcrumbs = () => {
             key={index}
             color="inherit"
             onClick={(e) => {
-              e.preventDefault(); // Empêche le comportement de lien classique
-              handleBreadcrumbClick(breadcrumb.href); // Gère la navigation fluide
+              e.preventDefault();
+              handleBreadcrumbClick(breadcrumb.href);
             }}
-            sx={{ cursor: 'pointer' }}
+            sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
           >
-            {/* Ajouter l'icône Home avant "Accueil" */}
             {index === 0 && <HomeIcon sx={{ marginRight: '8px' }} />}
             {breadcrumb.label}
           </Link>
         ) : (
-          // Sinon, afficher le texte sans lien (pour l'ID)
           <Typography key={index} color="text.primary">
             {breadcrumb.label}
           </Typography>

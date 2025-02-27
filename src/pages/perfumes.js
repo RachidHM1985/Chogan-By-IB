@@ -102,8 +102,20 @@ const PerfumesPage = () => {
   };
 
   const handleCardClick = (perfumeCode) => {
-    router.push(`/perfume/${perfumeCode}`);
+    // Assurez-vous que category est bien définie et valide
+    const encodedCategory = encodeURIComponent(category); // Encode la catégorie pour l'URL
+    const encodedPerfumeCode = encodeURIComponent(perfumeCode); // Encode le code du parfum
+  
+    // Redirige vers la page produit
+    router.push(`/perfume/${encodedCategory}/${encodedPerfumeCode}`);
   };
+  
+  useEffect(() => {
+    if (router.pathname.startsWith('/perfumes/') && router.pathname.split('/').length === 3) {
+      const category = router.pathname.split('/')[2]; // Récupère "Homme"
+      router.replace(`/perfumes?category=${category}`);
+    }
+  }, [router.pathname])
 
   // Récupérer le prix le plus bas parmi les différentes tailles
   const getLowestPrice = (perfume) => {
