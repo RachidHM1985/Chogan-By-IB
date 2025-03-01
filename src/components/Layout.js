@@ -8,7 +8,7 @@ const Layout = ({ children }) => {
   return (
     <div>
       <Header />
-      <Container sx={{ position:'relative', marginTop: '10vh' }}>
+      <Container sx={{ position:'relative', marginTop: '12vh' }}>
         <MyBreadcrumbs /> {/* Affichage du fil d'Ariane ici */}
         <div>{children}</div> {/* Contenu de la page */}
       </Container>
