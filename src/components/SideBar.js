@@ -1,114 +1,88 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Paper, List, ListItem, ListItemText, Box } from '@mui/material';
-import Link from 'next/link';
-import { useRouter } from 'next/router'; 
+import { Drawer, List, ListItem, ListItemText, Accordion, AccordionSummary, AccordionDetails, Box } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { useRouter } from 'next/router';
 import axios from 'axios';
+import Link from 'next/link';
 
-const Sidebar = ({ onCategorySelect = () => {} }) => {
-  const [showSubCategories, setShowSubCategories] = useState(false);
-  const [showSubCategoriesBeauty, setShowSubCategoriesBeauty] = useState(false);
-  const [subCategoriesBeauty, setSubCategoriesBeauty] = useState([]); 
-
-  const router = useRouter(); 
-
-  const handleParfumsClick = () => {
-    setShowSubCategories(!showSubCategories);
-  };
-
-  const handleBeautyClick = () => {
-    setShowSubCategoriesBeauty(!showSubCategoriesBeauty);
-  };
-
-  const handleCategorySelect = (category) => {
-    router.push(`/perfumes?category=${category}`);
-    if (onCategorySelect) onCategorySelect(category); // Invoke callback if provided
-  };
-
-  const handleCategoryBeautySelect = (category) => {
-    router.push(`/beauty?category=${category}`);
-    if (onCategorySelect) onCategorySelect(category); // Invoke callback if provided
-  };
+const Sidebar = ({ open, onClose }) => {
+  const [subCategoriesBeauty, setSubCategoriesBeauty] = useState([]);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const response = await axios.get('/api/categories');
-        setSubCategoriesBeauty(response.data); // Set the categories data for beauty
+        setSubCategoriesBeauty(response.data);
       } catch (error) {
-        console.error('Error while fetching categories:', error);
-        // Optional: You could display a user-friendly message to the UI.
+        console.error('Erreur lors du chargement des catégories:', error);
       }
     };
 
     fetchCategories();
   }, []);
 
-  // Memoizing to avoid unnecessary rerenders of beauty categories.
-  const beautyCategories = useMemo(() => {
-    return subCategoriesBeauty.map((category, index) => (
-      <ListItem key={index} button onClick={() => handleCategoryBeautySelect(category)}>
-        <ListItemText primary={category} sx={{ textAlign: 'center', fontFamily: 'Courier New, monospace', borderBottom: '1px solid #ddd' }} />
-      </ListItem>
-    ));
-  }, [subCategoriesBeauty]);
+  const handleCategorySelect = (category, type) => {
+    router.push(`/${type}?category=${category}`);
+    onClose(); // Fermer la sidebar après sélection
+  };
 
   return (
-    <Paper sx={{ paddingTop: '50px', paddingBottom: '20px', height: '100vh', overflowX: 'auto', width: '40vh' }}>
-      <List sx={{ display: 'flex', flexDirection: 'column' }}>
-        {/* Parfums Section */}
-        <ListItem button onClick={handleParfumsClick} sx={{ borderBottom: '1px solid #ddd' }}>
-          <ListItemText primary="Parfums" />
-        </ListItem>
-        {showSubCategories && (
-          <Box sx={{ display: 'flex', flexDirection: 'row', overflowX: 'auto', width: '100%', justifyContent: 'center', borderBottom: '1px solid #ddd' }}>
-            <List sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', fontFamily: 'Arial, sans-serif' }}>
-              <ListItem button onClick={() => handleCategorySelect('Homme')}>
-                <ListItemText primary="Homme" sx={{ textAlign: 'center', fontFamily: 'Courier New, monospace', borderBottom: '1px solid #ddd' }} />
-              </ListItem>
-              <ListItem button onClick={() => handleCategorySelect('Femme')}>
-                <ListItemText primary="Femme" sx={{ textAlign: 'center', fontFamily: 'Courier New, monospace', borderBottom: '1px solid #ddd' }} />
-              </ListItem>
-              <ListItem button onClick={() => handleCategorySelect('Unisex')}>
-                <ListItemText primary="Unisexe" sx={{ textAlign: 'center', fontFamily: 'Courier New, monospace', borderBottom: '1px solid #ddd' }} />
-              </ListItem>
-              <ListItem button onClick={() => handleCategorySelect('Luxe')}>
-                <ListItemText primary="Luxe" sx={{ textAlign: 'center', fontFamily: 'Courier New, monospace', borderBottom: '1px solid #ddd' }} />
-              </ListItem>
-              <ListItem button onClick={() => handleCategorySelect('Brume cheveux')}>
-                <ListItemText primary="Brume pour cheveux" sx={{ textAlign: 'center', fontFamily: 'Courier New, monospace', borderBottom: '1px solid #ddd' }} />
-              </ListItem>
-            </List>
-          </Box>
-        )}
-        
-        {/* Beauty Products Section */}
-        <List sx={{ display: 'flex', flexDirection: 'column' }}>
-          <ListItem button onClick={handleBeautyClick} sx={{ borderBottom: '1px solid #ddd' }}>
-            <ListItemText primary="Produits de beauté" />
-          </ListItem>
-          {subCategoriesBeauty.length > 0 && showSubCategoriesBeauty && (
-            <Box sx={{ display: 'flex', flexDirection: 'row', overflowX: 'auto', width: '100%', justifyContent: 'center', borderBottom: '1px solid #ddd' }}>
-              <List sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', fontFamily: 'Arial, sans-serif' }}>
-                {beautyCategories}
+    <Drawer anchor="left" open={open} onClose={onClose}>
+      <Box sx={{ width: { xs: '70vw', md: '300px' }, backgroundColor: '#EFE7DB', color: '#fff', height: '100vh', padding: '10px' }}>
+        <List>
+          {/* Parfums */}
+          <Accordion sx={{ backgroundColor: '#E0D6C5', color: 'white', borderRadius: '8px', marginBottom: '8px' }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: 'white' }} />}>
+              <ListItemText primary="Parfums" sx={{ textAlign: 'center', fontWeight: 'bold' }} />
+            </AccordionSummary>
+            <AccordionDetails>
+              <List>
+                {['Homme', 'Femme', 'Unisexe', 'Luxe', 'Brume cheveux'].map((category) => (
+                  <ListItem button key={category} onClick={() => handleCategorySelect(category, 'perfumes')}>
+                    <ListItemText primary={category} sx={{ textAlign: 'center' }} />
+                  </ListItem>
+                ))}
               </List>
-            </Box>
-          )}
+            </AccordionDetails>
+          </Accordion>
+
+          {/* Produits de Beauté */}
+          <Accordion sx={{ backgroundColor: '#E0D6C5', color: 'white', borderRadius: '8px', marginBottom: '8px' }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: 'white' }} />}>
+              <ListItemText primary="Produits de Beauté" sx={{ textAlign: 'center', fontWeight: 'bold' }} />
+            </AccordionSummary>
+            <AccordionDetails>
+              <List>
+                {subCategoriesBeauty.length > 0 ? (
+                  subCategoriesBeauty.map((category, index) => (
+                    <ListItem button key={index} onClick={() => handleCategorySelect(category, 'beauty')}>
+                      <ListItemText primary={category} sx={{ textAlign: 'center' }} />
+                    </ListItem>
+                  ))
+                ) : (
+                  <ListItemText primary="Chargement..." sx={{ textAlign: 'center', fontStyle: 'italic' }} />
+                )}
+              </List>
+            </AccordionDetails>
+          </Accordion>
         </List>
 
-        {/* Join Us Link */}
-        <List>
-          <ListItem button component={Link} href="/BecomeConsultant">
-            <ListItemText primary="Rejoins-nous!" />
+        {/* Rejoins-nous */}
+        <List sx={{ backgroundColor: '#E0D6C5', color: 'white', borderRadius: '8px', marginTop: '10px', textAlign: 'center' }}>
+          <ListItem component={Link} href="/BecomeConsultant">
+            <ListItemText primary="Rejoins-nous!" sx={{ textAlign: 'center', fontWeight: 'bold' }} />
           </ListItem>
         </List>
-      </List>
-    </Paper>
+      </Box>
+    </Drawer>
   );
 };
 
 Sidebar.propTypes = {
-  onCategorySelect: PropTypes.func,  // Ensure this is a function
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
 };
 
 export default Sidebar;

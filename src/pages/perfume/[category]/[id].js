@@ -130,12 +130,11 @@ const PerfumeDetailPage = () => {
                       value={perfume.note || 0} 
                       readOnly 
                       sx={{ marginBottom: '10px' }} 
-                    />
-                    
+                    />                    
                     <Typography
                       variant="h6"
                       sx={{
-                        fontFamily: 'Noto Sans', 
+                        fontFamily: 'Noto Sans',
                         fontWeight: '600',
                         fontSize: '1.2rem',
                         textTransform: 'capitalize',
@@ -147,11 +146,13 @@ const PerfumeDetailPage = () => {
                         textAlign: 'center', // Centrer le texte si nécessaire
                       }}
                     >
-                      PARFUM N°{perfume.code_produit}
+                      {perfume.genre === "Brume cheveux"
+                        ? `Brume cheveux - Chogan n°${perfume.code_produit}`
+                        : `Parfum - Chogan n°${perfume.code_produit}`}
                     </Typography>
                    
                     <img
-                      src={`../../photos/products/${perfume.genre.toLowerCase()}.png`}
+                      src={`../../${perfume.photo_url}`}
                       alt={perfume.nom_produit}
                       className="img-fluid"
                       style={{

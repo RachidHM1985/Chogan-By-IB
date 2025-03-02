@@ -39,7 +39,7 @@ const MyBreadcrumbs = () => {
 
         if (path.length === 3) {
           const productId = path[2];
-          crumbs.push({ label: `Produit ${productId}`, href: '#' });
+          crumbs.push({ label: `Chogan n°${productId}`, href: '#' });
         }
       }
 
@@ -64,7 +64,7 @@ const MyBreadcrumbs = () => {
         }
         if (path.length === 3) {
           const productId = path[2];
-          crumbs.push({ label: `Produit ${productId}`, href: '#' });
+          crumbs.push({ label: `Chogan n°${productId}`, href: '#' });
         }
       }
     }

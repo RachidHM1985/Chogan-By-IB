@@ -25,7 +25,7 @@ const Header = () => {
   const [openCart, setOpenCart] = useState(false);
   const [openSearch, setOpenSearch] = useState(false);
   const router = useRouter();
-  const { getTotalQuantity, cartItems, updateCart, setCartItems, removeFromCart } = useCart();
+  const { getTotalQuantity, cartItems, updateCart, removeFromCart } = useCart();
 
   useEffect(() => {
     setShowBanner(router.pathname === '/');
@@ -39,20 +39,6 @@ const Header = () => {
       router.events.off('routeChangeComplete', handleRouteChange);
     };
   }, [router.events]);
-
-  const handleQuantityChange = (index, newQuantity) => {
-    const updatedCartItems = [...cartItems];
-    if (updatedCartItems[index]) {
-      updatedCartItems[index].quantity = newQuantity;
-      updateCart(updatedCartItems);
-    }
-  };
-  const handleSearchClick = () => {
-    setOpenSearch(true);
-  };
-  const updateCartItems = (newCartItems) => {
-    updateCart(newCartItems);
-  };
 
   return (
     <AppBar
@@ -71,17 +57,19 @@ const Header = () => {
       {showBanner && <ScrollingBanner />}
       <Toolbar>
         <Grid container alignItems="center" justifyContent="space-between">
+          {/* Menu Hamburger */}
           <Grid item xs={2} sx={{ display: 'flex', justifyContent: 'flex-start', paddingLeft: '20px' }}>
             <IconButton
               aria-label="menu"
               edge="start"
-              onClick={() => setOpenSidebar(prev => !prev)}
+              onClick={() => setOpenSidebar(true)}
               sx={{ color: 'black' }}
             >
               <MenuIcon />
             </IconButton>
           </Grid>
 
+          {/* Logo */}
           <Grid item xs={6} sm={4} md={2} sx={{ display: 'flex', justifyContent: 'center', paddingTop: '18px' }}>
             <Link href="/" passHref>
               <IconButton edge="start" color="inherit" aria-label="logo">
@@ -95,11 +83,12 @@ const Header = () => {
             </Link>
           </Grid>
 
+          {/* Recherche et Panier */}
           <Grid item xs={2} sx={{ display: 'flex', justifyContent: 'flex-end', paddingRight: '20px' }}>
             <IconButton
               color="inherit"
               sx={{ color: 'black' }}
-              onClick={handleSearchClick}
+              onClick={() => setOpenSearch(true)}
             >
               <SearchIcon />
             </IconButton>
@@ -112,21 +101,22 @@ const Header = () => {
         </Grid>
       </Toolbar>
 
-      <Drawer sx={{ width: '100%' }} anchor="left" open={openSidebar} onClose={() => setOpenSidebar(false)}>
-        <Sidebar />
+      {/* Sidebar (Drawer) - Correction avec passage de la prop onClose */}
+      <Drawer anchor="left" open={openSidebar} onClose={() => setOpenSidebar(false)}>
+        <Sidebar open={openSidebar} onClose={() => setOpenSidebar(false)} />
       </Drawer>
 
+      {/* Overlay de recherche */}
       {openSearch && <SearchOverlay open={openSearch} onClose={() => setOpenSearch(false)} />}
 
+      {/* Panier */}
       <CartDialog 
         open={openCart}
         handleCloseCart={() => setOpenCart(false)}
         cartItems={cartItems}
-        handleQuantityChange={handleQuantityChange}
         removeFromCart={removeFromCart}
-        handleConfirmOrder={() => console.log("Commande confirmée !")}
-        updateCartItems={updateCartItems} // Assurez-vous que updateCartItems est passé ici
-        />
+        updateCartItems={updateCart}
+      />
     </AppBar>
   );
 };
