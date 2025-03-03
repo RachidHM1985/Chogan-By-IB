@@ -30,7 +30,7 @@ const Sidebar = ({ open, onClose }) => {
 
   return (
     <Drawer anchor="left" open={open} onClose={onClose}>
-      <Box sx={{ width: { xs: '70vw', md: '300px' }, backgroundColor: '#EFE7DB', color: '#fff', height: '100vh', padding: '10px' }}>
+      <Box sx={{ width: { xs: '70vw', md: '300px' }, backgroundColor: '#EFE7DB', color: '#fff', height: '100%', padding: '10px' }}>
         <List>
           {/* Parfums */}
           <Accordion sx={{ backgroundColor: '#E0D6C5', color: 'white', borderRadius: '8px', marginBottom: '8px' }}>
