@@ -57,7 +57,7 @@ const ScrollingBanner = () => {
             <Link href="/BecomeConsultant" passHref>
               <span 
                 style={{ color:'black', textDecoration: 'underline' }}
-              >Deviens Consultant !💼</span>
+              > Deviens Consultant !💼</span>
             </Link>         
           </Typography>        
       </Box>

@@ -43,6 +43,10 @@ const PerfumeDetailPage = () => {
         }
 
         setPerfume(data);
+        const availableSizes = ['30ml', '50ml', '70ml'].filter((size) => data[`prix_${size}`]);
+      if (availableSizes.length === 1) {
+        setSelectedSizes({ [data.id]: { [availableSizes[0]]: true } });
+      }
       } catch (err) {
         setError('Erreur de chargement du parfum.');
       } finally {
@@ -57,6 +61,15 @@ const PerfumeDetailPage = () => {
     setShowTooltip(false);
     setTooltipMessage('');
   }, [id]);
+
+  useEffect(() => {
+    if (perfume) {
+      const availableSizes = ['30ml', '50ml', '70ml'].filter((size) => perfume[`prix_${size}`]);
+      if (availableSizes.length === 1) {
+        setSelectedSizes({ [perfume.id]: { [availableSizes[0]]: true } });
+      }
+    }
+  }, [perfume]);
 
   const handleSizeChange = (perfumeId, size) => {
     setSelectedSizes((prevSizes) => ({
@@ -100,6 +113,12 @@ const PerfumeDetailPage = () => {
       setTimeout(() => setShowTooltip(false), 2000);
     }
   };
+
+  if (loading) return <Typography variant="h6" align="center">Chargement...</Typography>;
+  if (error) return <Typography variant="h6" color="error" align="center">{error}</Typography>;
+  if (!perfume) return <Typography variant="h6" align="center">Aucun parfum trouvé.</Typography>;
+
+  const availableSizes = ['30ml', '50ml', '70ml'].filter((size) => perfume[`prix_${size}`]);
 
   return (
     <>
@@ -170,10 +189,10 @@ const PerfumeDetailPage = () => {
                     <Typography variant="body1" align="center">
                       Choisissez une contenance :
                     </Typography>
-                    <div className="size-selection" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px', width: '100%' }}>
-                      {['30ml', '50ml', '70ml'].map((size) => perfume[`prix_${size}`] && (
+                    <div className="size-selection" style={{ display: 'flex', flexDirection: 'row', gap: '10px', width: '100%' }}>
+                      {availableSizes.map((size) => (
                         <div key={size} className="d-flex flex-column align-items-center mb-2" style={{ width: '100%' }}>
-                          <div className="form-check" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                          <div className="form-check" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', gap: '10px' }}>
                             <Tooltip title={`Prix : ${perfume[`prix_${size}`].toFixed(2)}€`} placement="top">
                               <input
                                 className="form-check-input"
@@ -181,45 +200,32 @@ const PerfumeDetailPage = () => {
                                 id={`size-${size}-${perfume.id}`}
                                 value={size}
                                 onChange={() => handleSizeChange(perfume.id, size)}
-                                checked={selectedSizes[perfume.id]?.[size] || false}
+                                checked={selectedSizes[perfume.id]?.[size] || availableSizes.length === 1}
+                                disabled={availableSizes.length === 1}
                               />
                             </Tooltip>
-                            <label className="form-check-label" htmlFor={`size-${size}-${perfume.id}`} style={{ marginLeft: '10px' }}>
+                            <label className="form-check-label" htmlFor={`size-${size}-${perfume.id}`} style={{ textAlign: 'center' }}>
                               {size} - {perfume[`prix_${size}`].toFixed(2)}€
                             </label>
                           </div>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <IconButton
-                              onClick={() => updateQuantity(perfume.id, size, Math.max(quantities[perfume.id]?.[size] - 1, 1))}
-                              sx={{ padding: '0 8px' }}
-                            >
+                          <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <IconButton onClick={() => updateQuantity(perfume.id, size, Math.max((quantities[perfume.id]?.[size] || 1) - 1, 1))}>
                               <Remove />
                             </IconButton>
-  
                             <TextField
                               type="number"
                               value={quantities[perfume.id]?.[size] || 1}
                               onChange={(e) => updateQuantity(perfume.id, size, Math.max(Number(e.target.value), 1))}
                               inputProps={{ min: 1 }}
-                              sx={{
-                                marginRight: 0,
-                                marginLeft: 0,
-                                width: '60px',
-                                textAlign: 'center',
-                              }}
+                              sx={{ width: '60px', textAlign: 'center' }}
                             />
-  
-                            <IconButton
-                              onClick={() => updateQuantity(perfume.id, size, (quantities[perfume.id]?.[size] || 0) + 1)}
-                              sx={{ padding: '0 8px' }}
-                            >
+                            <IconButton onClick={() => updateQuantity(perfume.id, size, (quantities[perfume.id]?.[size] || 0) + 1)}>
                               <Add />
                             </IconButton>
                           </div>
                         </div>
                       ))}
-                    </div>
-  
+                    </div>  
                     <Button
                       variant="contained"
                       color="primary"
