@@ -32,7 +32,7 @@ export default function Home() {
     {src:'/images/hover-cooperativa.png',link: ''},
     {src:'/images/peptilux.png', link: ''},
     {src:'/images/aurodhea.png', link: '/beauty'},
-    {src:'/images/brilhome.png', link: ''},
+    {src:'/images/brilhome.png', link: '/brilhome'},
   ];
 
   // Paramètres du carrousel automatique

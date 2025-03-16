@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Box, Dialog, DialogTitle, DialogContent, DialogActions, Typography, Grid, IconButton, TextField, Button, Checkbox, FormControlLabel } from "@mui/material";
 import { Add, Remove, Delete as DeleteIcon } from "@mui/icons-material";
-import OrderConfirmationDialog from "./OrderConfirmationDialog ";
+import OrderConfirmationDialog from "../order/OrderConfirmationDialog ";
 import { loadStripe } from '@stripe/stripe-js';     
 
 // Hook de debouncing
@@ -40,11 +40,6 @@ console.log(cartItems)
   // Gestion du code promo avec debounce
   const debouncedPromoCode = useDebounce(promoCode, 500);
 
-    // Optimisation de la suppression d'article
-    const removeFromCartMemoized = useCallback((id, size) => {
-      removeFromCart(id, size);
-      setAmountPromo(0)
-    }, [removeFromCart]);
 
   const calculerFraisLivraison = (cartItems, totalPrice) => {
     const poidsProduit = {
@@ -183,7 +178,14 @@ console.log(cartItems)
       setErrorMessage("Une erreur est survenue lors de l'application du code promo.");
     }
   };
-  
+
+      // Optimisation de la suppression d'article
+    // Optimisation de la suppression d'article
+    const removeFromCartMemoized = useCallback((id, size) => {
+      removeFromCart(id, size);
+      setAmountPromo(0)
+    }, [removeFromCart]);
+ 
   // Calcul du total avec livraison et promo
 useEffect(() => {
   let newTotalPrice = cartItems.reduce(
@@ -319,7 +321,7 @@ useEffect(() => {
         <Grid item xs={12} sm={9}>
           <Typography variant="body2">
             Chogan n°{item.product?.code_produit} -{" "}
-            {item.product?.nom_marque ? item.product?.nom_marque : item.product?.sous_categorie} -{" "}
+            {item.product?.nom_marque ? item.product?.nom_marque : item.product?.sous_categorie? item.product?.sous_categorie : item.product?.nom_produit} -{" "}
             {item.size}
             <br />
             <Typography variant="body2" color="textSecondary" component="span">

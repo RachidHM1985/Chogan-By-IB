@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Rating, TextField, Button, Select, MenuItem, Pagination, Tooltip } from '@mui/material';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../../lib/supabaseClient';
 
 const ReviewsSection = ({ productId, isInsertComment }) => {
   const [reviews, setReviews] = useState([]);

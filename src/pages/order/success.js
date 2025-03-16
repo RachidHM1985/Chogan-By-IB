@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Typography, Button, CircularProgress } from '@mui/material';
-import Header from '../components/Header.js';
-import Footer from '../components/Footer';
+import Header from '../../components/Header.js';
+import Footer from '../../components/Footer.js';
 
 const Success = () => {
   const [loading, setLoading] = useState(true);

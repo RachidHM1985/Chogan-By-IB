@@ -1,5 +1,5 @@
 // /pages/api/perfumes.js (API Handler)
-import { supabase } from '../../supabaseClient';
+import { supabase } from '../../../lib/supabaseClient';
 
 export default async function handler(req, res) {
   const { query } = req.query;

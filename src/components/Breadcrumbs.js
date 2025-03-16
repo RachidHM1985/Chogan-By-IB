@@ -17,6 +17,7 @@ const MyBreadcrumbs = () => {
     beauty: 'Beauté',
     'soins-visage': 'Soins Visage',
     'soins-capillaires': 'Soins Capillaires',
+    brilhome: 'Brilhome', // Nouvelle catégorie ajoutée
   };
 
   useEffect(() => {
@@ -65,6 +66,24 @@ const MyBreadcrumbs = () => {
         if (path.length === 3) {
           const productId = path[2];
           crumbs.push({ label: `Chogan n°${productId}`, href: '#' });
+        }
+      }
+
+      // 🔹 Gestion de la nouvelle catégorie Brilhome
+      if (path[0] === 'brilhome') {
+        crumbs.push({ label: 'Brilhome', href: '/brilhome' });
+
+        if (category) {
+          const categoryLabel = labelMap[category.toLowerCase()] || category;
+          crumbs.push({
+            label: categoryLabel,
+            href: `/brilhome?category=${category}`,
+          });
+        }
+
+        if (path.length === 3) {
+          const productId = path[2];
+          crumbs.push({ label: `Produit n°${productId}`, href: '#' });
         }
       }
     }

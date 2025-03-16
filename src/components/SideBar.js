@@ -8,13 +8,19 @@ import Link from 'next/link';
 
 const Sidebar = ({ open, onClose }) => {
   const [subCategoriesBeauty, setSubCategoriesBeauty] = useState([]);
+  const [subCategoriesBrilhome, setSubCategoriesBrilhome] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get('/api/categories');
-        setSubCategoriesBeauty(response.data);
+        // Récupération des catégories beauty
+        const responseBeauty = await axios.get('/api/categoriesAurodhea');
+        setSubCategoriesBeauty(responseBeauty.data);
+        
+        // Récupération des catégories brilhome (catégories distinctes de la table brilhome_products)
+        const responseBrilhome = await axios.get('/api/categoriesBrilhome');
+        setSubCategoriesBrilhome(responseBrilhome.data);
       } catch (error) {
         console.error('Erreur lors du chargement des catégories:', error);
       }
@@ -24,9 +30,19 @@ const Sidebar = ({ open, onClose }) => {
   }, []);
 
   const handleCategorySelect = (category, type) => {
-    router.push(`/${type}?category=${category}`);
+    router.push(`/${type}?category=${encodeURIComponent(category)}`);
     onClose(); // Fermer la sidebar après sélection
   };
+
+  // Catégories prédéfinies pour Brilhome si l'API n'est pas encore implémentée
+  const brilhomeCategories = [
+    "Savons pour les mains",
+    "Lessive",
+    "Nettoyants surfaces",
+    "Produits vaisselle",
+    "Désodorisants",
+    "Nettoyants sols"
+  ];
 
   return (
     <Drawer anchor="left" open={open} onClose={onClose}>
@@ -63,6 +79,31 @@ const Sidebar = ({ open, onClose }) => {
                   ))
                 ) : (
                   <ListItemText primary="Chargement..." sx={{ textAlign: 'center', fontStyle: 'italic' }} />
+                )}
+              </List>
+            </AccordionDetails>
+          </Accordion>
+
+          {/* Produits Brilhome */}
+          <Accordion sx={{ backgroundColor: '#E0D6C5', color: 'white', borderRadius: '8px', marginBottom: '8px' }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: 'white' }} />}>
+              <ListItemText primary="Entretien de la maison" sx={{ textAlign: 'center', fontWeight: 'bold' }} />
+            </AccordionSummary>
+            <AccordionDetails>
+              <List>
+                {subCategoriesBrilhome.length > 0 ? (
+                  subCategoriesBrilhome.map((category, index) => (
+                    <ListItem button key={index} onClick={() => handleCategorySelect(category, 'brilhome')}>
+                      <ListItemText primary={category} sx={{ textAlign: 'center' }} />
+                    </ListItem>
+                  ))
+                ) : (
+                  // Utiliser les catégories prédéfinies si l'API ne retourne rien
+                  brilhomeCategories.map((category, index) => (
+                    <ListItem button key={index} onClick={() => handleCategorySelect(category, 'brilhome')}>
+                      <ListItemText primary={category} sx={{ textAlign: 'center' }} />
+                    </ListItem>
+                  ))
                 )}
               </List>
             </AccordionDetails>

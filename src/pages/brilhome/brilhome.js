@@ -1,72 +1,63 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Box, CircularProgress, Typography, Card, TextField, Button } from '@mui/material';
-import { supabase } from '../supabaseClient';
+import { supabase } from '../../../lib/supabaseClient';
 import { useRouter } from 'next/router';
-import CustomCardBeauty from '../components/CustomCardBeauty';
-import Layout from '../components/Layout';
+import CustomCardBrilhome from '../../components/CustomCardBrilhome';
+import Layout from '../../components/Layout';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const BeautyPage = () => {
+const BrilhomePage = () => {
   const [category, setCategory] = useState('All');
-  const [selectedGamme, setSelectedGamme] = useState('All');
-  const [beauty, setBeauty] = useState([]);
-  const [filteredBeauty, setFilteredBeauty] = useState([]);
+  const [Brilhome, setBrilhome] = useState([]);
+  const [filteredBrilhome, setFilteredBrilhome] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [gammes, setGammes] = useState([]);
   const router = useRouter();
 
   const cleanString = (str) => str.trim().toLowerCase().replace(/[^a-z0-9]/gi, '');
 
-  const fetchBeauty = async (category, gamme) => {
+  const fetchBrilhome = async (category) => {
     console.log(category);
     setLoading(true);
     setError(null);
-    let query = supabase.from('aurodhea').select('*').order('code_produit', { ascending: true });
+    let query = supabase.from('brilhome').select('*').order('code_produit', { ascending: true });
 
     if (category !== 'All') {
       query = query.eq('categorie', category);
     }
 
-    if (gamme !== 'All') {
-      query = query.eq('gamme', gamme);
-    }
 
     const { data, error } = await query;
 
     if (error) {
-      console.error('Error fetching beauty:', error);
+      console.error('Error fetching Brilhome:', error);
       setError(error.message);
     } else {
-      setBeauty(data);
-      setFilteredBeauty(data);  // Set initial filteredBeauty with the full dataset
-
-      // Extract unique gamme values, excluding null values
-      const uniqueGammes = [...new Set(data.map(item => item.gamme))].filter(gamme => gamme !== null);
-      setGammes(uniqueGammes);
+      setBrilhome(data);
+      setFilteredBrilhome(data);  // Set initial filteredBrilhome with the full dataset
     }
     setLoading(false);
   };
 
   // Debounced filter function
-  const filterBeauty = (query) => {
+  const filterBrilhome = (query) => {
     const queryLower = cleanString(query);
-    const filtered = beauty.filter((product) => {
+    const filtered = Brilhome.filter((product) => {
       const codeToCompare = cleanString(product.code_produit);
       return codeToCompare.includes(queryLower);
     });
-    setFilteredBeauty(filtered);
+    setFilteredBrilhome(filtered);
   };
 
   // Handle search input change with debounce
   useEffect(() => {
     const timer = setTimeout(() => {
-      filterBeauty(searchQuery);
+      filterBrilhome(searchQuery);
     }, 500);
 
     return () => clearTimeout(timer);  // Clear the timeout when searchQuery changes
-  }, [searchQuery, beauty]);
+  }, [searchQuery, Brilhome]);
 
   const handleSearchChange = (event) => {
     const query = event.target.value;
@@ -74,26 +65,22 @@ const BeautyPage = () => {
   };
 
   const handleCardClick = (code_produit) => {
-    router.push(`/beauty/${category}/${code_produit}`);
+    router.push(`/brilhome/${category}/${code_produit}`);
   };
 
-  const handleGammeClick = (gamme) => {
-    setSelectedGamme(prevGamme => (prevGamme === gamme ? 'All' : gamme));
-  };
-
-  // Effect to fetch beauty data based on category and gamme
+  // Effect to fetch Brilhome data based on category
   useEffect(() => {
     const categoryFromUrl = router.query.category || 'All';
     setCategory(categoryFromUrl);
-    fetchBeauty(categoryFromUrl, selectedGamme);
-  }, [router.query.category, selectedGamme]);
+    fetchBrilhome(categoryFromUrl);
+  }, [router.query.category]);
 
-  // Effect to reset filteredBeauty when the beauty data changes
+  // Effect to reset filteredBrilhome when the Brilhome data changes
   useEffect(() => {
-    if (beauty.length) {
-      setFilteredBeauty(beauty);
+    if (Brilhome.length) {
+      setFilteredBrilhome(Brilhome);
     }
-  }, [beauty]);
+  }, [Brilhome]);
 
   return (
     <Layout>
@@ -148,26 +135,8 @@ const BeautyPage = () => {
           />
         </div>
 
-        {/* Gamme buttons */}
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '20px' }}>
-          {gammes.map((gamme) => (
-            <Button
-              key={gamme}
-              variant={selectedGamme === gamme ? 'contained' : 'outlined'}
-              onClick={() => handleGammeClick(gamme)}
-              sx={{
-                borderRadius: '20px',
-                textTransform: 'capitalize',
-                padding: '5px 15px',
-              }}
-            >
-              Gamme {gamme}
-            </Button>
-          ))}
-        </Box>
-
         {/* Loading spinner or error */}
-        {loading && !beauty.length ? (
+        {loading && !Brilhome.length ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
             <CircularProgress />
           </Box>
@@ -177,12 +146,12 @@ const BeautyPage = () => {
           </Typography>
         ) : (
           <div className="produit-grid" style={{ display: 'grid', gap: '5px' }}>
-            {filteredBeauty.length === 0 ? (
+            {filteredBrilhome.length === 0 ? (
               <Typography variant="body1" sx={{ marginTop: '20px' }}>
                 Aucun résultat trouvé pour votre recherche.
               </Typography>
             ) : (
-              filteredBeauty.map((produit) => (
+              filteredBrilhome.map((produit) => (
                 <Card
                 sx={{
                   borderRadius: '15px',
@@ -196,7 +165,7 @@ const BeautyPage = () => {
                   onClick={() => handleCardClick(produit.code_produit)}
                   key={produit.id}
                 >
-                  <CustomCardBeauty produit={produit} />
+                  <CustomCardBrilhome produit={produit} />
                 </Card>
               ))
             )}
@@ -207,4 +176,4 @@ const BeautyPage = () => {
   );
 };
 
-export default BeautyPage;
+export default BrilhomePage;

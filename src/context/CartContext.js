@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 
 // Création du contexte du panier
 const CartContext = createContext();
@@ -11,6 +11,35 @@ export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]); // État du panier
   const [totalPrice, setTotalPrice] = useState(0); // Total du panier
   
+  // Charger le panier depuis localStorage au démarrage
+  useEffect(() => {
+    const storedCart = localStorage.getItem('cart');
+    if (storedCart) {
+      setCartItems(JSON.parse(storedCart));
+    }
+  }, []);
+
+  // Sauvegarde du panier dans localStorage à chaque mise à jour
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cartItems));
+  }, [cartItems]);
+
+  // Liste des catégories beauté et Brilhome
+  const beautyCategories = [
+    "Soins Capillaire",
+    "Hygiène bucco-dentaire",
+    "Soins Visage",
+    "Soins Des Mains",
+    "Soins Corporels"
+  ];
+  
+  const brilhomeCategories = [
+    "Produits ménagers",
+    "Liquide Vaisselle",
+    "Lessive",
+    "Nettoyants",
+    "Désinfectants"
+  ];
 
   // Ajout d'un produit au panier
   const addToCart = (product, size = null, quantity = 1) => {
@@ -29,49 +58,73 @@ export const CartProvider = ({ children }) => {
     });
   };
 
+  // Mise à jour du panier entier
   const updateCart = (newCartItems) => {
     setCartItems(newCartItems);
-  };  
+  };
 
-  // Suppression d'un produit du panier
   const removeFromCart = (productId, size = null) => {
-    setCartItems((prevCart) =>
-      prevCart.filter((item) => !(item.product.id === productId && item.size === size))
+    setCartItems((prevCart) => 
+      prevCart
+        .filter(item => !(item.product.id === productId && (item.size === size || size === null))) // Supprime l'élément avec le bon id et la bonne taille
+    );
+  };
+  
+
+  // Mise à jour directe de la quantité
+  const updateItemQuantity = (productId, size, newQuantity) => {
+    setCartItems(prevCart => 
+      prevCart.map(item =>
+        item.product.id === productId && item.size === size
+          ? { ...item, quantity: newQuantity }
+          : item
+      )
     );
   };
 
   // Calcul du total du panier
   useEffect(() => {
-    const beautyCategories = [
-      "Soins Capillaire",
-      "Hygiène bucco-dentaire",
-      "Soins Visage",
-      "Soins Des Mains",
-      "Soins Corporels"
-    ];
-
     const newTotal = cartItems.reduce((total, item) => {
       const isBeautyCategory = beautyCategories.includes(item.product.categorie);
-      const itemPrice = isBeautyCategory
-        ? item.product.prix ?? 0
-        : item.size
-        ? item.product[`prix_${item.size}`] ?? 0
-        : item.product.prix ?? 0;
-      
+      const isBrilhomeCategory = brilhomeCategories.includes(item.product.categorie);
+
+      let itemPrice = 0;
+
+      if (isBeautyCategory) {
+        itemPrice = parseFloat(item.product.prix) || 0;
+      } else if (isBrilhomeCategory) {
+        itemPrice = parseFloat(item.product.prix) || 0;
+      } else {
+        itemPrice = item.size && item.product[`prix_${item.size}`]
+          ? parseFloat(item.product[`prix_${item.size}`]) || 0
+          : parseFloat(item.product.prix) || 0;
+      }
+
       return total + itemPrice * item.quantity;
     }, 0);
 
     setTotalPrice(newTotal);
   }, [cartItems]);
 
-  // Obtention du nombre total d'articles dans le panier
-  const getTotalQuantity = () => cartItems.reduce((total, item) => total + item.quantity, 0);
+  // Optimisation du calcul du nombre total d'articles
+  const totalQuantity = useMemo(() => 
+    cartItems.reduce((total, item) => total + item.quantity, 0), 
+  [cartItems]);
 
   // Vider le panier
   const clearCart = () => setCartItems([]);
 
   return (
-    <CartContext.Provider value={{ cartItems, updateCart, addToCart, removeFromCart, totalPrice, getTotalQuantity, clearCart }}>
+    <CartContext.Provider value={{
+      cartItems,
+      updateCart,
+      addToCart,
+      removeFromCart,
+      updateItemQuantity,
+      totalPrice,
+      totalQuantity,
+      clearCart
+    }}>
       {children}
     </CartContext.Provider>
   );

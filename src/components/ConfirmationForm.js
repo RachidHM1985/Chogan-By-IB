@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useCart } from './CartProvider'; // Your cart context
+import { useCart } from '../context/CartContext'; // Your cart context
 import { Grid, TextField, Button, Typography, FormControl, InputLabel, Input, FormHelperText } from '@mui/material'; // Material-UI
 import ConfirmationPopup from './ConfirmationPopup'; // Import the ConfirmationPopup component
 

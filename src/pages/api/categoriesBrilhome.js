@@ -1,10 +1,10 @@
-import { supabase } from '../../supabaseClient';
+import { supabase } from '../../../lib/supabaseClient';
 
 export default async function handler(req, res) {
   try {
     // Interroger la table 'aurodhea' pour récupérer les catégories
     const { data, error } = await supabase
-      .from('aurodhea')
+      .from('brilhome')
       .select('categorie');
 
     if (error) throw error;

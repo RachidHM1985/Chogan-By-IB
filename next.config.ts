@@ -15,6 +15,11 @@ module.exports = {
         source: '/beauty/:category',
         destination: '/beauty?category=:category',
         permanent: true, // Redirection 301 (SEO)
+      },
+      {
+        source: '/brilhome/:category',
+        destination: '/brilhome?category=:category',
+        permanent: true, // Redirection 301 (SEO)
       }
     ];
   },

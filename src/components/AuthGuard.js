@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '../supabaseClient'; // Assurez-vous que votre client Supabase est configuré
+import { supabase } from '../../lib/supabaseClient'; 
 import { useRouter } from 'next/router';
 
 const AuthGuard = ({ children }) => {

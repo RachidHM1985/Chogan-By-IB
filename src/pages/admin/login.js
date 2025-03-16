@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '../../supabaseClient';
+import { supabase } from '../../../lib/supabaseClient';
 import { useRouter } from 'next/router';
 import { TextField, Button, Container, Typography, Box } from '@mui/material';
 

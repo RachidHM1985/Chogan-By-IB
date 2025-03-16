@@ -16,7 +16,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import Sidebar from './SideBar';
 import { useCart } from '../context/CartContext';
 import SearchOverlay from '../pages/SearchOverlay';
-import CartDialog from '../pages/CartDialog';
+import CartDialog from '../pages/panier/CartDialog';
 import ScrollingBanner from './ScrollingBanner';
 
 const Header = () => {
@@ -25,7 +25,7 @@ const Header = () => {
   const [openCart, setOpenCart] = useState(false);
   const [openSearch, setOpenSearch] = useState(false);
   const router = useRouter();
-  const { getTotalQuantity, cartItems, updateCart, removeFromCart } = useCart();
+  const { totalQuantity, cartItems, updateCart, removeFromCart } = useCart();
 
   useEffect(() => {
     setShowBanner(router.pathname === '/');
@@ -39,6 +39,16 @@ const Header = () => {
       router.events.off('routeChangeComplete', handleRouteChange);
     };
   }, [router.events]);
+
+  const handleQuantityChange = (index, newQuantity) => {
+    const updatedCart = [...cartItems];  // Clone du panier
+    if (updatedCart[index]) {
+      updatedCart[index].quantity = newQuantity;
+      updateCart(updatedCart);  // Utilisez updateCart pour mettre à jour le contexte
+    }
+  };
+  
+  
 
   return (
     <AppBar
@@ -93,7 +103,7 @@ const Header = () => {
               <SearchIcon />
             </IconButton>
             <IconButton color="inherit" sx={{ color: 'black' }} onClick={() => setOpenCart(true)}>
-              <Badge badgeContent={getTotalQuantity()} color="error">
+              <Badge badgeContent= {totalQuantity} color="error">
                 <ShoppingCartIcon />
               </Badge>
             </IconButton>
@@ -114,6 +124,7 @@ const Header = () => {
         open={openCart}
         handleCloseCart={() => setOpenCart(false)}
         cartItems={cartItems}
+        handleQuantityChange={handleQuantityChange}  // Assurez-vous qu'il est bien ici
         removeFromCart={removeFromCart}
         updateCartItems={updateCart}
       />

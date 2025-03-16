@@ -1,4 +1,4 @@
-import { supabase } from '../../supabaseClient';  // Ensure your Supabase client is correctly configured
+import { supabase } from '../../../lib/supabaseClient';  // Ensure your Supabase client is correctly configured
 import sgMail from '@sendgrid/mail';  // Corrected import
 
 // Set up SendGrid API key from the environment
