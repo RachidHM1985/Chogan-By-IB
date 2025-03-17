@@ -98,7 +98,7 @@ const BrilhomePage = () => {
         {/* Search bar */}
         <div style={{ width: '98%', maxWidth: '600px', marginBottom: '10px', borderRadius: '20px' }}>
           <TextField
-            label="Recherchez vos produits de beauté"
+            label="Recherchez vos produits de beauté'entretiens"
             variant="outlined"
             fullWidth
             value={searchQuery}
