@@ -131,7 +131,7 @@ const BrilhomePage = () => {
                 color: 'black',
               },
             }}
-            placeholder="Trouvez vos produits de soins"
+            placeholder="Trouvez vos produits d'entretiens"
           />
         </div>
 
