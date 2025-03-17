@@ -68,7 +68,7 @@ const CustomCardBrilhome = ({ produit }) => {
           <CardMedia
             component="img"
             image={`/images/products/${produit.code_produit}.jpg`}
-            alt={produit.sous_categorie}
+            alt={produit.code_produit}
             sx={{
               width: '100%',
               height: '100%',
@@ -127,7 +127,7 @@ const CustomCardBrilhome = ({ produit }) => {
             marginBottom: '2px',
           }}
         >
-          {produit.description}
+          {produit.presentation}
         </Typography>
 
         <Typography
