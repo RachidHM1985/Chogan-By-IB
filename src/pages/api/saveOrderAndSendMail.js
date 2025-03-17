@@ -78,7 +78,7 @@ export default async function handler(req, res) {
         to: 'choganbyikram.contact@gmail.com',
         from: 'hachem.rach@gmail.com',
         subject: `Nouvelle commande de ${name}`,
-        text: `Nouvelle commande reçue :\n\nNom: ${name}\nEmail: ${email}\n\nDétails de la commande:\n${filteredCart.map(item => `${item.code} - ${item.nom_produit} - ${item.size} - ${item.prix.toFixed(2)}€ x ${item.quantity}`).join('\n')}\nFrais de livraison: ${deliveryFee}€\n\n${amountPromo > 0 ? `Réduction: ${amountPromo}€\n` : ''}\n\nTotal : ${total_amount}€.\n\nMerci de traiter cette commande.`,
+        text: `Nouvelle commande reçue :\n\nNom: ${name}\nEmail: ${email}\n\nDétails de la commande:\n${filteredCart.map(item => `${item.code_produit} - ${item.nom_produit} - ${item.size} - ${item.prix.toFixed(2)}€ x ${item.quantity}`).join('\n')}\nFrais de livraison: ${deliveryFee}€\n\n${amountPromo > 0 ? `Réduction: ${amountPromo}€\n` : ''}\n\nTotal : ${total_amount}€.\n\nMerci de traiter cette commande.`,
       };
 
       try {

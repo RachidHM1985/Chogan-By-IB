@@ -65,8 +65,8 @@ export default async function handler(req, res) {
         payment_method_types: ['card'],
         line_items: finalLineItems,
         mode: 'payment',
-        success_url: `${process.env.BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}&status=succeeded`,
-        cancel_url: `${process.env.BASE_URL}/echec?status=failed`,
+        success_url: `${process.env.BASE_URL}/order/success?session_id={CHECKOUT_SESSION_ID}&status=succeeded`,
+        cancel_url: `${process.env.BASE_URL}/order/echec?status=failed`,
         metadata: {
           name: formData.name,
           email: formData.email,

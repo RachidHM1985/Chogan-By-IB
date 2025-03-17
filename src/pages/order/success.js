@@ -9,12 +9,22 @@ const Success = () => {
   const [error, setError] = useState(null);
   const router = useRouter();
 
+  const removeFromCart = () => {
+    // Logique pour vider le panier ici
+    // Par exemple, réinitialiser l'état du panier (si vous utilisez un hook ou un state global)
+    localStorage.removeItem('cart'); // Si vous stockez le panier dans le localStorage
+    // Ou utilisez un setter d'état si vous gérez le panier avec un hook global
+    // updateCartItems([]); 
+  };
+
   useEffect(() => {
 
     if (!router.isReady) {
       return; // Ne pas exécuter le code tant que le router n'est pas prêt
     }
     const { session_id, status } = router.query;
+
+    removeFromCart();
     // Ensure session_id and status are available
     if (!session_id) {
       setError('Détails de session invalides.');
