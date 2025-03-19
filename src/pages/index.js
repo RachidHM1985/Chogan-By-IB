@@ -19,12 +19,14 @@ export default function Home() {
   if (!isClient) return null; // Evite le rendu SSR
 
   // Liste des images pour le carrousel automatique
-  const promoImages = [
-    '/images/image0_promo.png',
-    '/images/image2_promo.png',
-    '/images/image3_promo.png',
-    '/images/image4_promo.jpg',
-  ];
+// Liste des images avec leurs liens respectifs
+const promoImages = [
+  { src: '/images/image0_promo.jpg', href: '/perfumes' },
+  { src: '/images/image2_promo.png', href: '/perfumes' },
+  { src: '/images/image3_promo.png', href: '/beauty' },
+  { src: '/images/image4_promo.jpg', href: '/beauty' },
+];
+
 
   // Liste des images pour le carrousel manuel
   const manualImages = [
@@ -101,12 +103,13 @@ export default function Home() {
           marginBottom: '5px',
         }}>
           <Grid container justifyContent="center">
-            <Grid item xs={12} sm={8} md={6}>
-              <Slider {...autoCarouselSettings}>
-                {promoImages.map((image, index) => (
-                  <div key={index}>
+          <Grid item xs={12} sm={8} md={6}>
+            <Slider {...autoCarouselSettings}>
+              {promoImages.map((item, index) => (
+                <div key={index}>
+                  <a href={item.href} style={{ display: 'block' }}>
                     <img
-                      src={image}
+                      src={item.src}
                       alt={`Promo ${index}`}
                       style={{
                         width: '100%',
@@ -115,13 +118,13 @@ export default function Home() {
                         borderRadius: '10px',
                       }}
                     />
-                  </div>
-                ))}
-              </Slider>
-            </Grid>
+                  </a>
+                </div>
+              ))}
+            </Slider>
           </Grid>
+        </Grid>
         </Box>
-
         {/* Carrousel manuel avec titre et phrase */}
         <Box sx={{ position: 'relative', top: '5vh' }}>
           <Grid container justifyContent="center">
