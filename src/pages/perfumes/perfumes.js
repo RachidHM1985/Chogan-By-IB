@@ -107,7 +107,7 @@ const PerfumesPage = () => {
     const encodedPerfumeCode = encodeURIComponent(perfumeCode); // Encode le code du parfum
   
     // Redirige vers la page produit
-    router.push(`/perfume/${encodedCategory}/${encodedPerfumeCode}`);
+    router.push(`/perfumes/${encodedCategory}/${encodedPerfumeCode}`);
   };
   
   useEffect(() => {

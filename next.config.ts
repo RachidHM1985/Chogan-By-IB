@@ -8,7 +8,7 @@ module.exports = {
       },
       {
         source: '/perfumes/:category/:id',
-        destination: '/perfume/:category/:id',
+        destination: '/perfumes/:category/:id',
         permanent: true, // Redirection 301 (SEO)
       },
       {
