@@ -127,7 +127,7 @@ const CustomCardBrilhome = ({ produit }) => {
             marginBottom: '2px',
           }}
         >
-          {produit.description}
+          {produit.presentation}
         </Typography>
 
         <Typography
