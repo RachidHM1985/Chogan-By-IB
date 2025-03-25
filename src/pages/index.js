@@ -88,8 +88,8 @@ const promoImages = [
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          minWidth: '60vh',
-          minHeight: '100vh', 
+          width: '100%',
+          height: '100%',
           top:'15vh', 
           position: 'relative',
         }}
