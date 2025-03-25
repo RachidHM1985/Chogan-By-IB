@@ -32,7 +32,7 @@ const promoImages = [
   const manualImages = [
     { src: '/images/olfazeta.png', link: '/perfumes' },
     {src:'/images/hover-cooperativa.png',link: ''},
-    {src:'/images/peptilux.png', link: ''},
+    {src:'/images/peptilux.png', link: '/peptilux'},
     {src:'/images/aurodhea.png', link: '/beauty'},
     {src:'/images/brilhome.png', link: '/brilhome'},
   ];
