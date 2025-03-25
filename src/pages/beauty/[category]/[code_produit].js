@@ -49,7 +49,7 @@ const ProduitDetailPage = () => {
   const handleAddToCart = () => {
     if (!produit) return;
     addToCart(produit, produit.contenance, selectedQuantity);
-    setTooltipMessage(`${produit.sous_categorie} Chogan n°${produit.code_produit} ajouté(s) au panier`);
+    setTooltipMessage(`${produit.sous_categorie} Chogan: ${produit.code_produit} ajouté(s) au panier`);
     setShowTooltip(true);
     setTimeout(() => setShowTooltip(false), 2000);
   };
@@ -77,7 +77,7 @@ const ProduitDetailPage = () => {
                     {produit.code_produit && (
                       <img src={`../../images/products/${produit.code_produit}.jpg`} alt={produit.description} className="img-fluid" style={{ maxWidth: '90%', height: 'auto', borderRadius: '10px' }} />
                     )}
-                    <Typography variant="h6" sx={{ fontWeight: '600', textAlign: 'center' }}>Chogan n°{produit.code_produit}</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: '600', textAlign: 'center' }}>Chogan: {produit.code_produit}</Typography>
                   </Col>
                   <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">
                     <Typography variant="body1" align="center">Contenance: {produit.contenance}</Typography>

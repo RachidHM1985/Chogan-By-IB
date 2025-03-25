@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
-import { Typography, Box, Button, IconButton, Select, MenuItem, Snackbar } from '@mui/material';
+import { Typography, Box, Button, IconButton, Select, MenuItem, Snackbar,Grid, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import { Add, Remove } from '@mui/icons-material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'; // Importation d'ExpandMoreIcon
 import { useRouter } from 'next/router';
 import { supabase } from '../../../../lib/supabaseClient';
 import { useCart } from '../../../context/CartContext';
@@ -29,7 +30,7 @@ const ProduitDetailPage = () => {
       setError(null);
       try {
         const { data, error } = await supabase
-          .from('brilhome')
+          .from('parfumerie_interieur')
           .select('*')
           .eq('code_produit', code_produit)
           .single();
@@ -49,7 +50,7 @@ const ProduitDetailPage = () => {
   const handleAddToCart = () => {
     if (!produit) return;
     addToCart(produit, produit.contenance, selectedQuantity);
-    setTooltipMessage(`${produit.nom_produit} Chogan: ${produit.code_produit} ajouté(s) au panier`);
+    setTooltipMessage(`${produit.categorie} Chogan: ${produit.code_produit} ajouté(s) au panier`);
     setShowTooltip(true);
     setTimeout(() => setShowTooltip(false), 2000);
   };
@@ -72,8 +73,8 @@ const ProduitDetailPage = () => {
               <>
                 <Row className="d-flex justify-content-center align-items-center">
                   <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">
-                    <Typography variant="h6" sx={{ fontWeight: '600', textAlign: 'center' }}>{produit.categorie} - {produit.nom_produit.toUpperCase()}
-                    </Typography>
+                    <Typography variant="h6" sx={{ fontWeight: '600', textAlign: 'center' }}>{produit.categorie}</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: '600', textAlign: 'center' }}>{produit.nom_produit}</Typography>
                     {produit.code_produit && (
                       <img src={`../../images/products/${produit.code_produit}.jpg`} alt={produit.description} className="img-fluid" style={{ maxWidth: '90%', height: 'auto', borderRadius: '10px' }} />
                     )}
@@ -96,14 +97,71 @@ const ProduitDetailPage = () => {
                     </Button>
                   </Col>
                 </Row>
-                <Box sx={{ width: '100%', paddingY: 2, borderBottom: '1px solid black' }}>
-                  <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 1 }}>Description:</Typography>
-                  <Typography variant="body2">{produit.description || 'Aucun ingrédient disponible pour ce produit.'}</Typography>
-                </Box> 
-                <Box sx={{ width: '100%', paddingY: 2, borderBottom: '1px solid black' }}>
-                  <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 1 }}>Ingrédients:</Typography>
-                  <Typography variant="body2">{produit.ingredients || 'Aucun ingrédient disponible pour ce produit.'}</Typography>
-                </Box>                
+                 {/* Description and Notes Olfactives */}
+                 <Box sx={{
+                        width: '100%', // Assurez-vous que le box prend toute la largeur
+                        paddingTop: '10px',
+                        paddingBottom: '10px',
+                        marginLeft: '0%',
+                        borderBottom: '1px solid black',
+                      }}
+                    >
+                      <Typography variant="body1" sx={{ fontWeight: 'bold', marginBottom: '10px' }}>
+                        Description
+                      </Typography>
+                      <Typography variant="body2">
+                        {produit.description || 'Aucune description disponible pour ce parfum.'}
+                      </Typography>
+                    </Box>
+                {/* Notes Olfactives Accordion */}
+                <Accordion
+                      sx={{
+                        width: '100%', // Assurez-vous que l'accordion prend toute la largeur
+                        boxShadow: 'none',
+                        marginLeft: '0%',
+                        borderBottom: '1px solid black',
+                        '&.Mui-expanded': { 
+                          margin: 0, 
+                        },
+                        '&:before': { display: 'none' }, 
+                      }}
+                    >
+                      <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        aria-controls="notes-content"
+                        id="notes-header"
+                      >
+                      <Typography variant="body1">Notes Olfactives</Typography>
+                      </AccordionSummary>
+                      <AccordionDetails>
+                        <Grid container spacing={2} justifyContent="center" style={{ width: '100%' }}>
+                          <Grid item xs={4}>
+                            <Typography variant="body2" color="primary" align="center">
+                              Notes de tête:
+                            </Typography>
+                            <Typography variant="body2" align="center">
+                              {produit.notes_tete}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={4}>
+                            <Typography variant="body2" color="primary" align="center">
+                              Notes de cœur:
+                            </Typography>
+                            <Typography variant="body2" align="center">
+                              {produit.notes_coeur}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={4}>
+                            <Typography variant="body2" color="primary" align="center">
+                              Notes de fond:
+                            </Typography>
+                            <Typography variant="body2" align="center">
+                              {produit.notes_fond}
+                            </Typography>
+                          </Grid>
+                        </Grid>
+                      </AccordionDetails>
+                    </Accordion>
                 <ReviewsSection productId={produit.code_produit} isInsertComment={true} />
               </>
             )

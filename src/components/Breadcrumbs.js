@@ -37,7 +37,7 @@ const MyBreadcrumbs = () => {
 
         if (path.length === 3) {
           const productId = path[2];
-          crumbs.push({ label: `Chogan n°${productId}`, href: '#' });
+          crumbs.push({ label: `Chogan: ${productId}`, href: '#' });
         }
       }
 
@@ -62,7 +62,7 @@ const MyBreadcrumbs = () => {
         }
         if (path.length === 3) {
           const productId = path[2];
-          crumbs.push({ label: `Chogan n°${productId}`, href: '#' });
+          crumbs.push({ label: `Chogan: ${productId}`, href: '#' });
         }
       }
 
@@ -80,7 +80,7 @@ const MyBreadcrumbs = () => {
 
         if (path.length === 3) {
           const productId = path[2];
-          crumbs.push({ label: `Produit n°${productId}`, href: '#' });
+          crumbs.push({ label: `Produit: ${productId}`, href: '#' });
         }
       }
       // 🔹 Gestion de la nouvelle catégorie Peptilux
@@ -97,7 +97,25 @@ const MyBreadcrumbs = () => {
 
         if (path.length === 3) {
           const productId = path[2];
-          crumbs.push({ label: `Produit n°${productId}`, href: '#' });
+          crumbs.push({ label: `Produit: ${productId}`, href: '#' });
+        }
+      }
+
+      // 🔹 Gestion de la nouvelle catégorie parfumerie intérieur
+      if (path[0] === 'parfumerieInterieur') {
+        crumbs.push({ label: 'parfumerie Interieur', href: '/parfumerieInterieur' });
+
+        if (category) {
+          const categoryLabel = labelMap[category.toLowerCase()] || category;
+          crumbs.push({
+            label: categoryLabel,
+            href: `/parfumerieInterieur?category=${category}`,
+          });
+        }
+
+        if (path.length === 3) {
+          const productId = path[2];
+          crumbs.push({ label: `Produit: ${productId}`, href: '#' });
         }
       }
     }

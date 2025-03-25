@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 
-
 // Création du contexte du panier
 const CartContext = createContext();
 
@@ -12,7 +11,9 @@ export const useCart = () => useContext(CartContext);
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]); // État du panier
   const [totalPrice, setTotalPrice] = useState(0); // Total du panier
-  
+  const [peptiluxCategories, setPeptiluxCategories] = useState([]); // Catégories Peptilux
+  const [parfumerieInterieurCategories, setParfumerieInterieurCategories] = useState([]); // Catégories Parfumerie
+
   // Charger le panier depuis localStorage au démarrage
   useEffect(() => {
     const storedCart = localStorage.getItem('cart');
@@ -35,9 +36,6 @@ export const CartProvider = ({ children }) => {
     "Soins Corporels"
   ];
 
-    // Liste des catégories beauté et Brilhome
-    const peptiluxCategories = axios.get('/api/categoriesPeptilux');;
-  
   const brilhomeCategories = [
     "Produits ménagers",
     "Liquide Vaisselle",
@@ -45,6 +43,23 @@ export const CartProvider = ({ children }) => {
     "Nettoyants",
     "Désinfectants"
   ];
+
+  // Fetch des catégories Peptilux et Parfumerie Interieur
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const peptiluxResponse = await axios.get('/api/categoriesPeptilux');
+        setPeptiluxCategories(peptiluxResponse.data); // Assurez-vous que la réponse contient un tableau de catégories
+        
+        const parfumerieResponse = await axios.get('/api/categoriesParfumerieInterieur');
+        setParfumerieInterieurCategories(parfumerieResponse.data); // Idem pour Parfumerie
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   // Ajout d'un produit au panier
   const addToCart = (product, size = null, quantity = 1) => {
@@ -93,9 +108,11 @@ export const CartProvider = ({ children }) => {
       const isBeautyCategory = beautyCategories.includes(item.product.categorie);
       const isBrilhomeCategory = brilhomeCategories.includes(item.product.categorie);
       const isPeptiluxCategory = peptiluxCategories.includes(item.product.categorie);
+      const isParfumerieInterieurCategory = parfumerieInterieurCategories.includes(item.product.categorie);
+
       let itemPrice = 0;
 
-      if (isBeautyCategory || isPeptiluxCategory || isBrilhomeCategory) {
+      if (isBeautyCategory || isPeptiluxCategory || isBrilhomeCategory || isParfumerieInterieurCategory) {
         itemPrice = parseFloat(item.product.prix) || 0;
       } else {
         itemPrice = item.size && item.product[`prix_${item.size}`]
@@ -107,7 +124,7 @@ export const CartProvider = ({ children }) => {
     }, 0);
 
     setTotalPrice(newTotal);
-  }, [cartItems]);
+  }, [cartItems, peptiluxCategories, parfumerieInterieurCategories]);
 
   // Optimisation du calcul du nombre total d'articles
   const totalQuantity = useMemo(() => 

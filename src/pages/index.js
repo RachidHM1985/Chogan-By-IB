@@ -31,7 +31,7 @@ const promoImages = [
   // Liste des images pour le carrousel manuel
   const manualImages = [
     { src: '/images/olfazeta.png', link: '/perfumes' },
-    {src:'/images/hover-cooperativa.png',link: ''},
+    {src:'/images/hover-cooperativa.png',link: '/parfumerieInterieur'},
     {src:'/images/peptilux.png', link: '/peptilux'},
     {src:'/images/aurodhea.png', link: '/beauty'},
     {src:'/images/brilhome.png', link: '/brilhome'},

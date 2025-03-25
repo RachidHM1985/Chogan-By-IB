@@ -176,7 +176,7 @@ const ReviewsSection = ({ productId, isInsertComment }) => {
             currentReviews.map((review) => (
               <Box key={review.id} sx={{ marginBottom: '20px', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
                 <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{review.user_name}</Typography>
-                <Typography variant="h6">Chogan n°{review.product_id}</Typography>
+                <Typography variant="h6">Chogan: {review.product_id}</Typography>
                 <Rating name="read-only" value={review.rating} readOnly sx={{ marginBottom: '10px' }} />
                 <Typography variant="body2" sx={{ color: '#555' }}>"{review.review}"</Typography>
               </Box>

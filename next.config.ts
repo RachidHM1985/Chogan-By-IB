@@ -25,6 +25,10 @@ module.exports = {
         source: '/peptilux/:category',
         destination: '/brilhome?category=:category',
         permanent: true, // Redirection 301 (SEO)
+      },{
+        source: '/parfumerieInterieur/:category',
+        destination: '/parfumerieInterieur?category=:category',
+        permanent: true, // Redirection 301 (SEO)
       }
     ];
   },

@@ -10,6 +10,7 @@ const Sidebar = ({ open, onClose }) => {
   const [subCategoriesBeauty, setSubCategoriesBeauty] = useState([]);
   const [subCategoriesPeptilux, setSubCategoriesPeptilux] = useState([]);
   const [subCategoriesBrilhome, setSubCategoriesBrilhome] = useState([]);
+  const [subCategoriesParfumerieInterieur, setSubCategoriesParfumerieInterieur] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -26,6 +27,10 @@ const Sidebar = ({ open, onClose }) => {
         // Récupération des catégories brilhome (catégories distinctes de la table brilhome_products)
         const responseBrilhome = await axios.get('/api/categoriesBrilhome');
         setSubCategoriesBrilhome(responseBrilhome.data);
+
+         // Récupération des catégories parfumerieInterieur 
+         const responseParfumerieInterieur = await axios.get('/api/categoriesParfumerieInterieur');
+         setSubCategoriesParfumerieInterieur(responseParfumerieInterieur.data);
       } catch (error) {
         console.error('Erreur lors du chargement des catégories:', error);
       }
@@ -65,6 +70,26 @@ const Sidebar = ({ open, onClose }) => {
                     <ListItemText primary={category} sx={{ textAlign: 'center' }} />
                   </ListItem>
                 ))}
+              </List>
+            </AccordionDetails>
+          </Accordion>
+
+          {/* Parfums d'intérieur */}
+          <Accordion sx={{ backgroundColor: '#E0D6C5', color: 'white', borderRadius: '8px', marginBottom: '8px' }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: 'white' }} />}>
+              <ListItemText primary="Parfums d'intérieur" sx={{ textAlign: 'center', fontWeight: 'bold' }} />
+            </AccordionSummary>
+            <AccordionDetails>
+              <List>
+                {subCategoriesParfumerieInterieur.length > 0 ? (
+                  subCategoriesParfumerieInterieur.map((category, index) => (
+                    <ListItem button key={index} onClick={() => handleCategorySelect(category, 'parfumerieInterieur')}>
+                      <ListItemText primary={category} sx={{ textAlign: 'center' }} />
+                    </ListItem>
+                  ))
+                ) : (
+                  <ListItemText primary="Chargement..." sx={{ textAlign: 'center', fontStyle: 'italic' }} />
+                )}
               </List>
             </AccordionDetails>
           </Accordion>

@@ -328,7 +328,7 @@ const CartDialog = ({
             price_data: {
               currency: "eur",
               product_data: {
-                name: `Chogan n°${item.product?.code_produit} (Promo -50%)`,
+                name: `Chogan: ${item.product?.code_produit} (Promo -50%)`,
                 size: `${item.size}`,
               },
               unit_amount: Math.round(basePrice * 0.5 * 100),
@@ -343,7 +343,7 @@ const CartDialog = ({
               price_data: {
                 currency: "eur",
                 product_data: {
-                  name: `Chogan n°${item.product?.code_produit}`,
+                  name: `Chogan: ${item.product?.code_produit}`,
                   size: `${item.size}`,
                 },
                 unit_amount: Math.round(basePrice * 100),
@@ -357,7 +357,7 @@ const CartDialog = ({
             price_data: {
               currency: "eur",
               product_data: {
-                name: `Chogan n°${item.product?.code_produit}`,
+                name: `Chogan: ${item.product?.code_produit}`,
                 size: `${item.size}`,
               },
               unit_amount: Math.round(basePrice * 100),
@@ -432,9 +432,8 @@ return (
       {/* Infos du produit */}
       <Grid item xs={12} sm={9}>
         <Typography variant="body2">
-          Chogan n°{item.product?.code_produit} -{" "}
-          {item.product?.nom_marque ? item.product?.nom_marque : item.product?.sous_categorie? item.product?.sous_categorie : item.product?.nom_produit} -{" "}
-          {item.size}
+          Chogan: {item.product?.code_produit} -{" "}
+          {item.product?.nom_produit?.startsWith("Diffuseur") ? item.product?.categorie : item.product?.nom_marque ? item.product?.nom_marque : item.product?.sous_categorie ? item.product?.sous_categorie : item.product?.nom_produit} -{" "}          {item.size}
           <br />
           <Typography variant="body2" color="textSecondary" component="span">
             Prix :{" "}

@@ -166,8 +166,8 @@ const PerfumeDetailPage = () => {
                       }}
                     >
                       {perfume.genre === "Brume cheveux"
-                        ? `Brume cheveux - Chogan n°${perfume.code_produit}`
-                        : `Parfum - Chogan n°${perfume.code_produit}`}
+                        ? `Brume cheveux - Chogan: ${perfume.code_produit}`
+                        : `Parfum - Chogan: ${perfume.code_produit}`}
                     </Typography>
                    
                     <img
@@ -273,7 +273,7 @@ const PerfumeDetailPage = () => {
                         aria-controls="notes-content"
                         id="notes-header"
                       >
-                        <Typography variant="body1">Notes Olfactives</Typography>
+                      <Typography variant="body1">Notes Olfactives</Typography>
                       </AccordionSummary>
                       <AccordionDetails>
                         <Grid container spacing={2} justifyContent="center" style={{ width: '100%' }}>

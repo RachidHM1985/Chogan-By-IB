@@ -116,7 +116,7 @@ const CustomCardPeptilux = ({ produit }) => {
             textOverflow: 'ellipsis',
           }}
         >
-          Chogan n°: {produit.code_produit}
+          Chogan: {produit.code_produit}
         </Typography>
 
         <Typography
