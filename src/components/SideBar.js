@@ -8,6 +8,7 @@ import Link from 'next/link';
 
 const Sidebar = ({ open, onClose }) => {
   const [subCategoriesBeauty, setSubCategoriesBeauty] = useState([]);
+  const [subCategoriesPeptilux, setSubCategoriesPeptilux] = useState([]);
   const [subCategoriesBrilhome, setSubCategoriesBrilhome] = useState([]);
   const router = useRouter();
 
@@ -17,6 +18,10 @@ const Sidebar = ({ open, onClose }) => {
         // Récupération des catégories beauty
         const responseBeauty = await axios.get('/api/categoriesAurodhea');
         setSubCategoriesBeauty(responseBeauty.data);
+
+         // Récupération des catégories peptilux
+         const responsePeptilux = await axios.get('/api/categoriesPeptilux');
+         setSubCategoriesPeptilux(responsePeptilux.data);
         
         // Récupération des catégories brilhome (catégories distinctes de la table brilhome_products)
         const responseBrilhome = await axios.get('/api/categoriesBrilhome');
@@ -74,6 +79,26 @@ const Sidebar = ({ open, onClose }) => {
                 {subCategoriesBeauty.length > 0 ? (
                   subCategoriesBeauty.map((category, index) => (
                     <ListItem button key={index} onClick={() => handleCategorySelect(category, 'beauty')}>
+                      <ListItemText primary={category} sx={{ textAlign: 'center' }} />
+                    </ListItem>
+                  ))
+                ) : (
+                  <ListItemText primary="Chargement..." sx={{ textAlign: 'center', fontStyle: 'italic' }} />
+                )}
+              </List>
+            </AccordionDetails>
+          </Accordion>
+
+          {/* Produits de Peptilux */}
+          <Accordion sx={{ backgroundColor: '#E0D6C5', color: 'white', borderRadius: '8px', marginBottom: '8px' }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: 'white' }} />}>
+              <ListItemText primary="Produits de Cosmétique de luxe" sx={{ textAlign: 'center', fontWeight: 'bold' }} />
+            </AccordionSummary>
+            <AccordionDetails>
+              <List>
+                {subCategoriesPeptilux.length > 0 ? (
+                  subCategoriesPeptilux.map((category, index) => (
+                    <ListItem button key={index} onClick={() => handleCategorySelect(category, 'peptilux')}>
                       <ListItemText primary={category} sx={{ textAlign: 'center' }} />
                     </ListItem>
                   ))

@@ -13,13 +13,10 @@ const MyBreadcrumbs = () => {
     femme: 'Femme',
     enfants: 'Enfants',
     perfumes: 'Parfums',
-    perfume: 'Parfums', // Ajout pour gérer "perfume" au singulier
     beauty: 'Beauté',
-    'soins-visage': 'Soins Visage',
-    'soins-capillaires': 'Soins Capillaires',
-    brilhome: 'Brilhome', // Nouvelle catégorie ajoutée
+    brilhome: 'Brilhome',
+    peptilux: 'Peptilux', // Nouvelle catégorie ajoutée
   };
-
   useEffect(() => {
     const path = router.asPath.split('?')[0].split('/').filter(Boolean);
     const { category, subCategory } = router.query; // Récupération des paramètres d'URL
@@ -78,6 +75,23 @@ const MyBreadcrumbs = () => {
           crumbs.push({
             label: categoryLabel,
             href: `/brilhome?category=${category}`,
+          });
+        }
+
+        if (path.length === 3) {
+          const productId = path[2];
+          crumbs.push({ label: `Produit n°${productId}`, href: '#' });
+        }
+      }
+      // 🔹 Gestion de la nouvelle catégorie Peptilux
+      if (path[0] === 'peptilux') {
+        crumbs.push({ label: 'Peptilux', href: '/peptilux' });
+
+        if (category) {
+          const categoryLabel = labelMap[category.toLowerCase()] || category;
+          crumbs.push({
+            label: categoryLabel,
+            href: `/peptilux?category=${category}`,
           });
         }
 

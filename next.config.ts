@@ -20,6 +20,11 @@ module.exports = {
         source: '/brilhome/:category',
         destination: '/brilhome?category=:category',
         permanent: true, // Redirection 301 (SEO)
+      },
+      {
+        source: '/peptilux/:category',
+        destination: '/brilhome?category=:category',
+        permanent: true, // Redirection 301 (SEO)
       }
     ];
   },

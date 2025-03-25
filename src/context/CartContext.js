@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import axios from 'axios';
+
 
 // Création du contexte du panier
 const CartContext = createContext();
@@ -32,6 +34,9 @@ export const CartProvider = ({ children }) => {
     "Soins Des Mains",
     "Soins Corporels"
   ];
+
+    // Liste des catégories beauté et Brilhome
+    const peptiluxCategories = axios.get('/api/categoriesPeptilux');;
   
   const brilhomeCategories = [
     "Produits ménagers",
@@ -87,12 +92,10 @@ export const CartProvider = ({ children }) => {
     const newTotal = cartItems.reduce((total, item) => {
       const isBeautyCategory = beautyCategories.includes(item.product.categorie);
       const isBrilhomeCategory = brilhomeCategories.includes(item.product.categorie);
-
+      const isPeptiluxCategory = peptiluxCategories.includes(item.product.categorie);
       let itemPrice = 0;
 
-      if (isBeautyCategory) {
-        itemPrice = parseFloat(item.product.prix) || 0;
-      } else if (isBrilhomeCategory) {
+      if (isBeautyCategory || isPeptiluxCategory || isBrilhomeCategory) {
         itemPrice = parseFloat(item.product.prix) || 0;
       } else {
         itemPrice = item.size && item.product[`prix_${item.size}`]
