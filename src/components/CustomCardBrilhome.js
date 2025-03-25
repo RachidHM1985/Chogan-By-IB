@@ -116,8 +116,8 @@ const CustomCardBrilhome = ({ produit }) => {
             textOverflow: 'ellipsis',
           }}
         >
-          Chogan n°: {produit.code_produit}
-        </Typography>
+          {produit.nom_produit.toUpperCase()}
+           </Typography>
 
         <Typography
           variant="body1"

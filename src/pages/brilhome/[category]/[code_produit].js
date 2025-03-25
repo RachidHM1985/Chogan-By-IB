@@ -72,7 +72,8 @@ const ProduitDetailPage = () => {
               <>
                 <Row className="d-flex justify-content-center align-items-center">
                   <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">
-                    <Typography variant="h6" sx={{ fontWeight: '600', textAlign: 'center' }}>{produit.categorie}</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: '600', textAlign: 'center' }}>{produit.categorie} - {produit.nom_produit.toUpperCase()}
+                    </Typography>
                     {produit.code_produit && (
                       <img src={`../../images/products/${produit.code_produit}.jpg`} alt={produit.description} className="img-fluid" style={{ maxWidth: '90%', height: 'auto', borderRadius: '10px' }} />
                     )}
