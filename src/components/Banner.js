@@ -5,19 +5,23 @@ export default function Banner() {
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
-    // Vérification si l'utilisateur vient d'un site extérieur en comparant les hôtes
-    const referrer = document.referrer;
-    const currentHost = window.location.hostname;
+    // Si le localStorage a une clé spécifique (indiquant un autre site d'origine)
+    const isExternalVisit = localStorage.getItem('externalVisit');
 
-    if (referrer && !referrer.includes(currentHost)) {
+    // Si un visiteur arrive d'un autre site et que nous n'avons pas déjà enregistré cette information
+    if (isExternalVisit) {
       console.log('Affichage de la bannière car l\'utilisateur vient d\'un site extérieur.');
       setShowBanner(true);
 
       // Cacher la bannière après 5 secondes
       const timer = setTimeout(() => setShowBanner(false), 5000);
       return () => clearTimeout(timer);
-    } else if (!referrer) {
-      console.log('Referrer vide, probablement un accès direct.');
+    }
+
+    // Sinon, on marque l'entrée comme venant d'un autre site en utilisant localStorage
+    if (document.referrer && !document.referrer.includes(window.location.hostname)) {
+      localStorage.setItem('externalVisit', 'true'); // Marque l'origine externe
+      console.log('L\'utilisateur vient d\'un autre site. Marquage effectué.');
     } else {
       console.log('L\'utilisateur ne vient pas d\'un site extérieur.');
     }
@@ -39,7 +43,7 @@ export default function Banner() {
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 9999,
-        animation: 'fadeIn 1s ease-in-out', // Ajout d'animation d'apparition
+        animation: 'fadeIn 1s ease-in-out', // Animation d'apparition
       }}
       onClick={() => setShowBanner(false)} // Fermer la bannière au clic
     >
