@@ -3,29 +3,34 @@ import { Box } from '@mui/material';
 
 export default function Banner() {
   const [showBanner, setShowBanner] = useState(false);
-
+  
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const source = urlParams.get('source'); // Vérifie si ?source=external est dans l'URL
     const referrer = document.referrer;
     const currentHost = window.location.hostname;
-
+    
     console.log('Referrer:', referrer);
     console.log('Current Host:', currentHost);
-
+    
+    // Option: Utiliser sessionStorage pour montrer la bannière une fois par session
+    // ou utiliser une date d'expiration pour montrer une fois par jour
+    const hasSeenBanner = sessionStorage.getItem('bannerShown'); // Change to sessionStorage
+    
     // Vérifie si l'utilisateur vient d'un site externe ou si l'URL contient ?source=external
     if ((referrer && !referrer.includes(currentHost)) || source === 'external') {
-      if (!localStorage.getItem('externalVisit')) {
-        localStorage.setItem('externalVisit', 'true');
+      if (!hasSeenBanner) {
+        // Marquer comme vu pour cette session
+        sessionStorage.setItem('bannerShown', 'true');
         console.log('Affichage de la bannière car visite externe détectée');
         setShowBanner(true);
         setTimeout(() => setShowBanner(false), 5000);
       }
     }
   }, []);
-
+  
   if (!showBanner) return null;
-
+  
   return (
     <Box
       className="banner"
