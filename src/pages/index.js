@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import Header from '../components/Header';
 import ReviewsSection from '../components/ReviewsSection';
 import Link from 'next/link';
+import Banner from '../components/Banner';
 
 export default function Home() {
   const [isClient, setIsClient] = useState(false);
@@ -84,6 +85,7 @@ const promoImages = [
   return (
     <>
       <Header />
+      <Banner />
       <Box
         sx={{
           display: 'flex',

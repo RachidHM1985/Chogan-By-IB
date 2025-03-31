@@ -37,3 +37,77 @@ html {
     width: 500px;
   }
 }
+
+@keyframes slideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glitterEffect {
+  0% {
+    opacity: 1;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.7), 0 0 20px rgba(255, 255, 255, 0.5);  /* Effet d'étincelles */
+  }
+  25% {
+    opacity: 0.9;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.3);  /* Effet d'étincelles */
+  }
+  50% {
+    opacity: 1;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.7), 0 0 40px rgba(255, 255, 255, 0.5);  /* Effet d'étincelles */
+  }
+  75% {
+    opacity: 0.9;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.3);  /* Effet d'étincelles */
+  }
+  100% {
+    opacity: 1;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.7), 0 0 20px rgba(255, 255, 255, 0.5);  /* Effet d'étincelles */
+  }
+}
+
+@keyframes slideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    display: none;
+  }
+}
+
+.banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #1a73e8; /* couleur de fond de la bannière */
+  color: white;
+  text-align: center;
+  padding: 20px 0;
+  font-size: 18px;
+  z-index: 1000;
+  animation: slideIn 1s ease-out forwards, glitterEffect 2s linear infinite; /* Animation de scintillement plus lente */
+}
+
+.banner.hide {
+  animation: fadeOut 1s forwards;
+}
+
