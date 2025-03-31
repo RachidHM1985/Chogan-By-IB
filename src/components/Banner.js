@@ -5,17 +5,19 @@ export default function Banner() {
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
+    // Vérification si l'utilisateur vient d'un site extérieur en comparant les hôtes
     const referrer = document.referrer;
-        console.log('Referrer:', referrer);
+    const currentHost = window.location.hostname;
 
-    // Vérification si l'utilisateur vient d'un site extérieur
-    if (referrer && !referrer.includes(window.location.hostname)) {
+    if (referrer && !referrer.includes(currentHost)) {
       console.log('Affichage de la bannière car l\'utilisateur vient d\'un site extérieur.');
       setShowBanner(true);
 
       // Cacher la bannière après 5 secondes
       const timer = setTimeout(() => setShowBanner(false), 5000);
       return () => clearTimeout(timer);
+    } else if (!referrer) {
+      console.log('Referrer vide, probablement un accès direct.');
     } else {
       console.log('L\'utilisateur ne vient pas d\'un site extérieur.');
     }
@@ -24,7 +26,8 @@ export default function Banner() {
   if (!showBanner) return null;
 
   return (
-    <Box className="banner"
+    <Box
+      className="banner"
       sx={{
         position: 'fixed',
         top: 0,
@@ -36,6 +39,7 @@ export default function Banner() {
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 9999,
+        animation: 'fadeIn 1s ease-in-out', // Ajout d'animation d'apparition
       }}
       onClick={() => setShowBanner(false)} // Fermer la bannière au clic
     >
