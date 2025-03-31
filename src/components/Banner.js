@@ -5,26 +5,33 @@ export default function Banner() {
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
-    // Si le localStorage a une clé spécifique (indiquant un autre site d'origine)
-    const isExternalVisit = localStorage.getItem('externalVisit');
+    const checkExternalVisit = () => {
+      const referrer = document.referrer; // Document referrer
+      const currentHost = window.location.hostname; // Le domaine actuel
 
-    // Si un visiteur arrive d'un autre site et que nous n'avons pas déjà enregistré cette information
-    if (isExternalVisit) {
-      console.log('Affichage de la bannière car l\'utilisateur vient d\'un site extérieur.');
-      setShowBanner(true);
+      // Log du referrer pour débogage
+      console.log('Referrer:', referrer);
+      console.log('Current Host:', currentHost);
 
-      // Cacher la bannière après 5 secondes
-      const timer = setTimeout(() => setShowBanner(false), 5000);
-      return () => clearTimeout(timer);
-    }
+      // Si le referrer existe et n'est pas vide, et qu'il ne correspond pas à votre domaine
+      if (referrer && !referrer.includes(currentHost)) {
+        // Vérifier si l'utilisateur est un visiteur extérieur
+        if (!localStorage.getItem('externalVisit')) {
+          // Marquer la visite comme extérieure dans le localStorage
+          localStorage.setItem('externalVisit', 'true');
+          console.log('Utilisateur vient d\'un autre site, affichage de la bannière');
+          setShowBanner(true);
 
-    // Sinon, on marque l'entrée comme venant d'un autre site en utilisant localStorage
-    if (document.referrer && !document.referrer.includes(window.location.hostname)) {
-      localStorage.setItem('externalVisit', 'true'); // Marque l'origine externe
-      console.log('L\'utilisateur vient d\'un autre site. Marquage effectué.');
-    } else {
-      console.log('L\'utilisateur ne vient pas d\'un site extérieur.');
-    }
+          // Cacher la bannière après 5 secondes
+          setTimeout(() => setShowBanner(false), 5000);
+        }
+      } else {
+        console.log('L\'utilisateur ne vient pas d\'un site extérieur.');
+      }
+    };
+
+    // Exécuter la vérification lors du chargement du composant
+    checkExternalVisit();
   }, []);
 
   if (!showBanner) return null;
