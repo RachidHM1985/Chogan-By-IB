@@ -5,9 +5,8 @@ export default function Banner() {
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
-    // Test simulé du referrer en localhost
-    const referrer = 'https://www.example.com'; // Simule un referrer externe pour tester
-    console.log('Referrer:', referrer);
+    const referrer = document.referrer;
+        console.log('Referrer:', referrer);
 
     // Vérification si l'utilisateur vient d'un site extérieur
     if (referrer && !referrer.includes(window.location.hostname)) {
