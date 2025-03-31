@@ -5,33 +5,23 @@ export default function Banner() {
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
-    const checkExternalVisit = () => {
-      const referrer = document.referrer; // Document referrer
-      const currentHost = window.location.hostname; // Le domaine actuel
+    const urlParams = new URLSearchParams(window.location.search);
+    const source = urlParams.get('source'); // Vérifie si ?source=external est dans l'URL
+    const referrer = document.referrer;
+    const currentHost = window.location.hostname;
 
-      // Log du referrer pour débogage
-      console.log('Referrer:', referrer);
-      console.log('Current Host:', currentHost);
+    console.log('Referrer:', referrer);
+    console.log('Current Host:', currentHost);
 
-      // Si le referrer existe et n'est pas vide, et qu'il ne correspond pas à votre domaine
-      if (referrer && !referrer.includes(currentHost)) {
-        // Vérifier si l'utilisateur est un visiteur extérieur
-        if (!localStorage.getItem('externalVisit')) {
-          // Marquer la visite comme extérieure dans le localStorage
-          localStorage.setItem('externalVisit', 'true');
-          console.log('Utilisateur vient d\'un autre site, affichage de la bannière');
-          setShowBanner(true);
-
-          // Cacher la bannière après 5 secondes
-          setTimeout(() => setShowBanner(false), 5000);
-        }
-      } else {
-        console.log('L\'utilisateur ne vient pas d\'un site extérieur.');
+    // Vérifie si l'utilisateur vient d'un site externe ou si l'URL contient ?source=external
+    if ((referrer && !referrer.includes(currentHost)) || source === 'external') {
+      if (!localStorage.getItem('externalVisit')) {
+        localStorage.setItem('externalVisit', 'true');
+        console.log('Affichage de la bannière car visite externe détectée');
+        setShowBanner(true);
+        setTimeout(() => setShowBanner(false), 5000);
       }
-    };
-
-    // Exécuter la vérification lors du chargement du composant
-    checkExternalVisit();
+    }
   }, []);
 
   if (!showBanner) return null;
@@ -50,7 +40,7 @@ export default function Banner() {
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 9999,
-        animation: 'fadeIn 1s ease-in-out', // Animation d'apparition
+        animation: 'fadeIn 1s ease-in-out',
       }}
       onClick={() => setShowBanner(false)} // Fermer la bannière au clic
     >
