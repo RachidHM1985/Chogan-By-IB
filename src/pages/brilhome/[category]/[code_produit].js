@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
-import { Typography, Box, Button, IconButton, Select, MenuItem, Snackbar } from '@mui/material';
+import { Typography, Box, Button, IconButton, Select, MenuItem, Snackbar, Rating } from '@mui/material';
 import { Add, Remove } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import { supabase } from '../../../../lib/supabaseClient';
@@ -72,6 +72,12 @@ const ProduitDetailPage = () => {
               <>
                 <Row className="d-flex justify-content-center align-items-center">
                   <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">
+                    {/* Star Rating above the title */}
+                      <Rating 
+                          value={produit.note || 0} 
+                          readOnly 
+                          sx={{ marginBottom: '10px' }} 
+                      />  
                     <Typography variant="h6" sx={{ fontWeight: '600', textAlign: 'center' }}>{produit.categorie} - {produit.nom_produit.toUpperCase()}
                     </Typography>
                     {produit.code_produit && (
@@ -104,7 +110,7 @@ const ProduitDetailPage = () => {
                   <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 1 }}>Ingrédients:</Typography>
                   <Typography variant="body2">{produit.ingredients || 'Aucun ingrédient disponible pour ce produit.'}</Typography>
                 </Box>                
-                <ReviewsSection productId={produit.code_produit} isInsertComment={true} />
+                <ReviewsSection  tableName='brilhome' productId={produit.code_produit} isInsertComment={true} />
               </>
             )
           )}

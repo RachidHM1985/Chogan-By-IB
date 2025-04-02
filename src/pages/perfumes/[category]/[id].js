@@ -304,7 +304,7 @@ const PerfumeDetailPage = () => {
                         </Grid>
                       </AccordionDetails>
                     </Accordion>
-                <ReviewsSection productId={perfume.code_produit} isInsertComment={true} />
+                <ReviewsSection  tableName='parfums' productId={perfume.code_produit} isInsertComment={true} />
               </>
             )
           )}

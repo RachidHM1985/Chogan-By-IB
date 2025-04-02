@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
-import { Typography, Box, Button, IconButton, Select, MenuItem, Snackbar,Grid, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import { Typography, Box, Button, IconButton, Select, MenuItem, Snackbar,Grid, Accordion, AccordionSummary, AccordionDetails, Rating } from '@mui/material';
 import { Add, Remove } from '@mui/icons-material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'; // Importation d'ExpandMoreIcon
 import { useRouter } from 'next/router';
@@ -73,6 +73,12 @@ const ProduitDetailPage = () => {
               <>
                 <Row className="d-flex justify-content-center align-items-center">
                   <Col xs={12} md={6} className="text-left d-flex flex-column align-items-center">
+                  {/* Star Rating above the title */}
+                        <Rating 
+                            value={produit.note || 0} 
+                            readOnly 
+                            sx={{ marginBottom: '10px' }} 
+                        />  
                     <Typography variant="h6" sx={{ fontWeight: '600', textAlign: 'center' }}>{produit.nom_produit}</Typography>
                     {produit.code_produit && (
                       <img src={`../../images/products/${produit.code_produit}.jpg`} alt={produit.description} className="img-fluid" style={{ maxWidth: '90%', height: 'auto', borderRadius: '10px' }} />
@@ -161,7 +167,7 @@ const ProduitDetailPage = () => {
                         </Grid>
                       </AccordionDetails>
                     </Accordion>
-                <ReviewsSection productId={produit.code_produit} isInsertComment={true} />
+                <ReviewsSection  tableName='parfumerie_interieur' productId={produit.code_produit} isInsertComment={true} />
               </>
             )
           )}

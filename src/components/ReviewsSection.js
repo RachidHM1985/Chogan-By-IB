@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography, Rating, TextField, Button, Select, MenuItem, Pagination, Tooltip } from '@mui/material';
 import { supabase } from '../../lib/supabaseClient';
 
-const ReviewsSection = ({ productId, isInsertComment }) => {
+const ReviewsSection = ({ tableName, productId, isInsertComment }) => {
   const [reviews, setReviews] = useState([]);
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
@@ -63,11 +63,11 @@ const ReviewsSection = ({ productId, isInsertComment }) => {
     const totalRating = allReviews.reduce((sum, review) => sum + review.rating, 0);
     const averageRating = totalRating / allReviews.length;
 
-    // Update the perfume record with the new average rating
+
     const { error: updateError } = await supabase
-      .from('parfums')
+      .from(tableName)
       .update({ note: averageRating })
-      .eq('code', productId);
+      .eq('code_produit', productId);
 
     if (updateError) {
       console.error('Error updating perfume average rating:', updateError);
