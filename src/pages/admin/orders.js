@@ -3,7 +3,7 @@ import { supabase } from '../../../lib/supabaseClient';
 import { 
   Container, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Paper, 
   Button, FormControl, Select, MenuItem, InputLabel, Grid, Typography, CircularProgress, 
-  TextField, useMediaQuery 
+  TextField, useMediaQuery, Snackbar 
 } from '@mui/material'; 
 import { Box } from '@mui/system';
 import Link from 'next/link';
@@ -17,6 +17,8 @@ const AdminOrders = () => {
   const [comment, setComment] = useState('');
   const [error, setError] = useState('');
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
   const isMobile = useMediaQuery('(max-width: 768px)'); // Détecte si l'écran est mobile
 
@@ -41,16 +43,26 @@ const AdminOrders = () => {
     fetchOrders();
   }, []);
 
-  const sendEmail = async (order, comment) => {
+  const sendNewsletter = async () => {
     try {
-      const response = await axios.post('/api/send-email', { order, comment });
+      setLoadingUpdate(true);
+
+      // Appel à l'API pour envoyer la newsletter à tous les prospects
+      const response = await axios.post('/api/sendNewsLetterProspect');
+
       if (response.status === 200) {
-        setSelectedOrder(null);
-        console.log('Email envoyé avec succès');
+        setSnackbarMessage('Newsletter envoyée avec succès à tous les prospects !');
+        setSnackbarSeverity('success');
+      } else {
+        setSnackbarMessage('Erreur lors de l\'envoi de la newsletter.');
+        setSnackbarSeverity('error');
       }
     } catch (error) {
-      console.error('Erreur lors de l\'envoi de l\'email', error);
-      setError('Erreur lors de l\'envoi de l\'email');
+      console.error('Erreur lors de l\'envoi de la newsletter', error);
+      setSnackbarMessage('Erreur lors de l\'envoi de la newsletter.');
+      setSnackbarSeverity('error');
+    } finally {
+      setLoadingUpdate(false);
     }
   };
 
@@ -148,6 +160,18 @@ const AdminOrders = () => {
             )}
 
             <Grid item xs={12}>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={sendNewsletter}
+                sx={{ mt: 2 }}
+                disabled={loadingUpdate}
+              >
+                {loadingUpdate ? 'Envoi en cours...' : 'Envoyer la newsletter'}
+              </Button>
+            </Grid>
+
+            <Grid item xs={12}>
               <TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
                 <Table>
                   <TableHead>
@@ -202,6 +226,15 @@ const AdminOrders = () => {
           </Grid>
         </Box>
       </Container>
+
+      {/* Snackbar pour afficher le message de succès ou d'échec */}
+      <Snackbar
+        open={snackbarMessage !== ''}
+        autoHideDuration={6000}
+        onClose={() => setSnackbarMessage('')}
+        message={snackbarMessage}
+        severity={snackbarSeverity}
+      />
     </AuthGuard>
   );
 };
