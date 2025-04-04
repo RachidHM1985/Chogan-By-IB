@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { supabase } from '../../lib/supabaseClient';
+import { supabase } from '../../../lib/supabaseClient';  // Ensure your Supabase client is correctly configured
 
 const BATCH_SIZE = 2500; // Limite par jour avec la version gratuite
 const DELAY = 24 * 60 * 60 * 1000;
