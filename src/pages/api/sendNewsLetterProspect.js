@@ -1,24 +1,173 @@
 import axios from 'axios';
-import { supabase } from '../../../lib/supabaseClient';  // Ensure your Supabase client is correctly configured
+import { supabase } from '../../../lib/supabaseClient';
+import sendgrid from '@sendgrid/mail';
+import mailgun from 'mailgun-js';
 
-const BATCH_SIZE = 2500; // Limite par jour avec la version gratuite
-const DELAY = 24 * 60 * 60 * 1000;
+// Initialiser les services API
+sendgrid.setApiKey(process.env.SENDGRID_API_KEY_MAIL);
 
-export default async function handler(req, res) {
-  if (req.method === 'POST') {
+// Pour les tests, réduire à une valeur plus petite
+const BATCH_SIZE = 100; // Taille réduite pour les tests
+const DELAY = 24 * 60 * 60 * 1000; // Délai de 24 heures entre les lots (en millisecondes)
+
+// Fonction pour envoyer des emails à un lot de prospects
+const sendEmailsToBatch = async (batch) => {
+  const results = {
+    success: 0,
+    failed: 0,
+    errors: []
+  };
+  
+  // Traitement pour chaque prospect dans le lot
+  for (const prospect of batch) {
     try {
-      // Récupérer tous les prospects
-      const { data: prospects, error } = await supabase
-        .from('prospect')
-        .select('prenom, nom, email')
-
-      if (error) {
-        throw error;
+      console.log(`Envoi d'email à ${prospect.email}`);
+      
+      // Vérifier que l'email est valide
+      if (!prospect.email || !validateEmail(prospect.email)) {
+        throw new Error(`Email invalide: ${prospect.email}`);
       }
+      
+      const message = {
+        subject: 'Votre Newsletter - Nouveaux parfums disponibles',
+        html: generateEmailHTML(prospect)
+      };
+      
+      // Tenter d'envoyer l'email via différents services
+      await sendEmailWithFallback(prospect.email, message);
+      results.success++;
+      console.log(`✓ Email envoyé avec succès à ${prospect.email}`);
+    } catch (error) {
+      results.failed++;
+      results.errors.push({ email: prospect.email, error: error.message });
+      console.error(`✗ Échec d'envoi à ${prospect.email}:`, error.message);
+      // Continue with next prospect if one fails
+    }
+  }
+  
+  return results;
+};
 
-      // Construire le contenu de l'email
-      const subject = 'Votre Newsletter - Nouveaux parfums disponibles';
-      const htmlContent = `<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office">
+// Fonction pour envoyer des e-mails à un lot de prospects avec un délai entre chaque lot
+const sendEmailsInBatches = async (prospects) => {
+  const totalBatches = Math.ceil(prospects.length / BATCH_SIZE);
+
+  // Traitement des lots
+  for (let i = 0; i < totalBatches; i++) {
+    const batch = prospects.slice(i * BATCH_SIZE, (i + 1) * BATCH_SIZE);
+    console.log(`Envoi du lot ${i + 1} de ${batch.length} e-mails`);
+
+    const results = await sendEmailsToBatch(batch);
+    console.log(`Résultats du lot ${i + 1}:`, results);
+
+    // Attendre le délai de 24h avant de passer au lot suivant
+    if (i < totalBatches - 1) {
+      console.log(`Attente de ${DELAY / 1000} secondes avant le prochain lot...`);
+      await new Promise(resolve => setTimeout(resolve, DELAY));  // Attente avant le prochain lot
+    }
+  }
+};
+
+// Fonction pour envoyer l'e-mail avec repli sur différents services
+const sendEmailWithFallback = async (recipientEmail, message) => {
+  const services = ['sendgrid', 'mailgun', 'brevo', 'sender'];
+  const errors = [];
+  
+  for (const service of services) {
+    try {
+      console.log(`Tentative d'envoi via ${service}...`);
+      
+      switch (service) {
+        case 'sendgrid':
+          await sendWithSendGrid(recipientEmail, message);
+          console.log(`Email envoyé à ${recipientEmail} via SendGrid`);
+          return; // Success - exit function
+          
+        case 'mailgun':
+          await sendWithMailgun(recipientEmail, message);
+          console.log(`Email envoyé à ${recipientEmail} via Mailgun`);
+          return; // Success - exit function
+          
+        case 'brevo':
+          await sendWithBrevo(recipientEmail, message);
+          console.log(`Email envoyé à ${recipientEmail} via Brevo`);
+          return; // Success - exit function
+          
+        case 'sender':
+          await sendWithSender(recipientEmail, message);
+          console.log(`Email envoyé à ${recipientEmail} via Sender`);
+          return; // Success - exit function
+      }
+    } catch (error) {
+      errors.push(`${service}: ${error.message}`);
+      console.error(`Échec avec ${service} pour ${recipientEmail}:`, error.message);
+      // Continue with next service
+    }
+  }
+  
+  // Si nous arrivons ici, tous les services ont échoué
+  throw new Error(`Impossible d'envoyer l'email à ${recipientEmail}. Erreurs: ${errors.join('; ')}`);
+};
+
+// Les fonctions d'envoi individuelles
+const sendWithSendGrid = async (email, message) => {
+  const msg = {
+    to: email,
+    from: 'choganbyikram.contact@gmail.com',
+    subject: message.subject,
+    html: message.html,
+  };
+  await sendgrid.send(msg);
+};
+
+const sendWithMailgun = async (email, message) => {
+  const mg = mailgun({ apiKey: process.env.MAILGUN_API_KEY, domain: process.env.MAILGUN_DOMAIN });
+  const data = {
+    from: 'choganbyikram.contact@gmail.com',
+    to: email,
+    subject: message.subject,
+    html: message.html,
+  };
+  await mg.messages().send(data);
+};
+
+const sendWithBrevo = async (email, message) => {
+  await axios.post('https://api.brevo.com/v3/smtp/email', {
+    sender: { email: 'choganbyikram.contact@gmail.com' },
+    to: [{ email }],
+    subject: message.subject,
+    htmlContent: message.html,
+  }, {
+    headers: {
+      'api-key': process.env.BREVO_API_KEY,
+      'Content-Type': 'application/json',
+    },
+  });
+};
+
+const sendWithSender = async (email, message) => {
+  await axios.post('https://api.sender.net/v2/emails', {
+    from: 'choganbyikram.contact@gmail.com',
+    to: email,
+    subject: message.subject,
+    html_body: message.html,
+  }, {
+    headers: {
+      'Authorization': `Bearer ${process.env.SENDER_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+  });
+};
+
+// Fonction simple de validation d'email
+function validateEmail(email) {
+  const re = /\S+@\S+\.\S+/;
+  return re.test(email);
+}
+
+// Fonction pour générer le contenu HTML de l'email (exemple basique)
+const generateEmailHTML = (prospect) => {
+  return `<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office">
   <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1" name="viewport">
@@ -179,7 +328,7 @@ export default async function handler(req, res) {
                                           <tr>
                                             <td align="center" class="esd-block-text es-p5t es-p10b">
                                               <h2 style="color:#ff809c;font-size:18px">
-                                                <strong>Bienvenue ${contact.prenom} ${contact.nom}!</strong>
+                                                <strong>Bienvenue ${prospect.prenom || ''} ${prospect.nom || ''}!</strong>
                                               </h2>
                                             </td>
                                           </tr>
@@ -374,7 +523,7 @@ On est présents partout, mais pour ne rien rater – actus, coulisses et exclus
                                           <tr>
                                             <td align="center" bgcolor="transparent" esd-links-color="#333333" class="esd-block-text es-p15b">
                                               <p style="font-size:12px">
-                                                <u><b><a target="_blank" href="https://chogan-by-ikram.vercel.app//api/unsubscribe?email=${contact.email}" style="color:#333333">Désabonner&nbsp;</a></b></u>
+                                                <u><b><a target="_blank" href="https://chogan-by-ikram.vercel.app/api/unsubscribe?email=${prospect.email}" style="color:#333333">Désabonner&nbsp;</a></b></u>
                                               </p>
                                             </td>
                                           </tr>
@@ -405,46 +554,45 @@ On est présents partout, mais pour ne rien rater – actus, coulisses et exclus
     <div style="position:absolute;left:-9999px;top:-9999px;margin:0px;padding:0px;border:0px none;width:1px"></div>
   </body>
 </html>`;
+};
 
-// Calculer le nombre de lots nécessaires
-const totalProspects = prospects.length;
-const batches = Math.ceil(totalProspects / BATCH_SIZE);  // Diviser en lots
+export default async function handler(req, res) {
+  if (req.method === 'POST') {
+    try {
+      console.log('Début du traitement de la requête');
+      
+      // Vérification des clés API
+      if (!process.env.SENDGRID_API_KEY_MAIL) console.warn('SENDGRID_API_KEY_MAIL manquante');
+      if (!process.env.MAILGUN_API_KEY) console.warn('MAILGUN_API_KEY manquante');
+      if (!process.env.MAILGUN_DOMAIN) console.warn('MAILGUN_DOMAIN manquant');
+      if (!process.env.BREVO_API_KEY) console.warn('BREVO_API_KEY manquante');
+      
+      // Récupérer les prospects depuis Supabase
+      console.log('Récupération des prospects depuis Supabase...');
+      const { data: prospects, error } = await supabase
+        .from('prospect')
+        .select('prenom, nom, email');
 
-// Envoyer les emails par lots
-for (let i = 0; i < batches; i++) {
-  const batch = prospects.slice(i * BATCH_SIZE, (i + 1) * BATCH_SIZE);
+      if (error) {
+        console.error('Erreur Supabase:', error);
+        throw error;
+      }
 
-  // Envoyer les emails à ce lot de prospects
-  for (const prospect of batch) {
-    const message = {
-      to: prospect.email,
-      from: 'choganbyikram.contact@gmail.com',  // Remplacez par votre email d'expéditeur
-      subject: subject,
-      html: htmlContent,
-    };
+      console.log(`${prospects.length} prospects récupérés`);
+      
+      // Pour les tests, limiter à quelques prospects
+      const testProspects = prospects.slice(0, 100);  // Limite à 100 prospects pour le test
+      console.log(`Utilisation de ${testProspects.length} prospects pour le test`);
 
-    // Envoi de l'email via l'API de Sender
-    await axios.post('https://api.sender.net/v3/email', message, {
-      headers: {
-        'Authorization': `Bearer ${process.env.SENDER_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-    });
+      // Envoi progressif des e-mails par lots avec délai
+      await sendEmailsInBatches(testProspects);
+
+      res.status(200).json({ message: 'Newsletter envoyée à tous les prospects de test.' });
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi de la newsletter:', error);
+      res.status(500).json({ error: `Erreur lors de l'envoi de la newsletter: ${error.message}` });
+    }
+  } else {
+    res.status(405).json({ message: 'Méthode non autorisée' });
   }
-
-  // Attendre 24 heures avant d'envoyer le prochain lot
-  if (i < batches - 1) {
-    console.log(`Attente de 24 heures avant le prochain lot...`);
-    await new Promise(resolve => setTimeout(resolve, DELAY)); // Attendre 24 heures
-  }
-}
-
-res.status(200).json({ message: 'Newsletter envoyée à tous les prospects en plusieurs vagues.' });
-} catch (error) {
-console.error('Erreur lors de l\'envoi de la newsletter:', error);
-res.status(500).json({ error: 'Erreur lors de l\'envoi de la newsletter.' });
-}
-} else {
-res.status(405).json({ message: 'Méthode non autorisée' });
-}
 }
