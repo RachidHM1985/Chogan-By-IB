@@ -3,7 +3,7 @@ import { supabase } from '../../../lib/supabaseClient';
 import { 
   Container, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Paper, 
   Button, FormControl, Select, MenuItem, InputLabel, Grid, Typography, CircularProgress, 
-  TextField, useMediaQuery, Snackbar 
+  TextField, useMediaQuery, Snackbar, Alert
 } from '@mui/material'; 
 import { Box } from '@mui/system';
 import Link from 'next/link';
@@ -19,8 +19,10 @@ const AdminOrders = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const [isBatchStopped, setIsBatchStopped] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
-  const isMobile = useMediaQuery('(max-width: 768px)'); // Détecte si l'écran est mobile
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -51,16 +53,13 @@ const AdminOrders = () => {
       const response = await axios.post('/api/sendNewsLetterProspect');
 
       if (response.status === 200) {
-        setSnackbarMessage('Newsletter envoyée avec succès à tous les prospects !');
-        setSnackbarSeverity('success');
+        showSnackbar('Newsletter envoyée avec succès à tous les prospects !', 'success');
       } else {
-        setSnackbarMessage('Erreur lors de l\'envoi de la newsletter.');
-        setSnackbarSeverity('error');
+        showSnackbar('Erreur lors de l\'envoi de la newsletter.', 'error');
       }
     } catch (error) {
       console.error('Erreur lors de l\'envoi de la newsletter', error);
-      setSnackbarMessage('Erreur lors de l\'envoi de la newsletter.');
-      setSnackbarSeverity('error');
+      showSnackbar('Erreur lors de l\'envoi de la newsletter.', 'error');
     } finally {
       setLoadingUpdate(false);
     }
@@ -83,9 +82,12 @@ const AdminOrders = () => {
           order.id === orderId ? { ...order, order_status: newStatus } : order
         )
       );
+      
+      showSnackbar(`Statut de la commande ${orderId} mis à jour avec succès`, 'success');
     } catch (error) {
       console.error('Erreur lors de la mise à jour du statut', error);
       setError('Erreur lors de la mise à jour du statut de la commande');
+      showSnackbar('Erreur lors de la mise à jour du statut', 'error');
     } finally {
       setLoadingUpdate(false);
     }
@@ -100,10 +102,102 @@ const AdminOrders = () => {
     setComment('');
   };
 
+  // Implementation of the missing sendEmail function
+  const sendEmail = async (order, commentText) => {
+    try {
+      setLoadingUpdate(true);
+      // API call to send email to the customer
+      const response = await axios.post('/api/sendEmailToCustomer', {
+        orderId: order.id,
+        email: order.user_email,
+        name: order.user_name,
+        comment: commentText
+      });
+      
+      if (response.status === 200) {
+        showSnackbar(`Email envoyé avec succès à ${order.user_name}`, 'success');
+      } else {
+        showSnackbar('Erreur lors de l\'envoi de l\'email', 'error');
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi de l\'email', error);
+      showSnackbar('Erreur lors de l\'envoi de l\'email', 'error');
+    } finally {
+      setLoadingUpdate(false);
+      setComment('');
+    }
+  };
+
   const handleSendComment = () => {
     if (selectedOrder && comment.trim()) {
       sendEmail(selectedOrder, comment);
+    } else {
+      showSnackbar('Veuillez saisir un commentaire', 'warning');
     }
+  };
+
+  const handleStopBatch = async () => {
+    try {
+      setLoadingUpdate(true);
+      const res = await fetch('/api/toggleSend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled: false }),
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok) {
+        setIsBatchStopped(true);
+        showSnackbar(data.message || 'Envoi arrêté avec succès', 'success');
+      } else {
+        showSnackbar(data.message || 'Erreur lors de l\'arrêt de l\'envoi', 'error');
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'arrêt du batch', error);
+      showSnackbar('Erreur lors de l\'arrêt de l\'envoi', 'error');
+    } finally {
+      setLoadingUpdate(false);
+    }
+  };
+
+  const handleResumeNewsletter = async () => {
+    try {
+      setLoadingUpdate(true);
+      const res = await fetch('/api/toggleSend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled: true }),
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok) {
+        setIsBatchStopped(false);
+        showSnackbar(data.message || 'Envoi repris avec succès', 'success');
+      } else {
+        showSnackbar(data.message || 'Erreur lors de la reprise de l\'envoi', 'error');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la reprise du batch', error);
+      showSnackbar('Erreur lors de la reprise de l\'envoi', 'error');
+    } finally {
+      setLoadingUpdate(false);
+    }
+  };
+
+  // Helper function for showing snackbar messages
+  const showSnackbar = (message, severity) => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
   };
 
   if (loading) {
@@ -152,7 +246,7 @@ const AdminOrders = () => {
                   color="primary"
                   onClick={handleSendComment}
                   sx={{ mt: 2 }}
-                  disabled={loadingUpdate}
+                  disabled={loadingUpdate || !comment.trim()}
                 >
                   Envoyer l'email au client
                 </Button>
@@ -164,11 +258,32 @@ const AdminOrders = () => {
                 variant="contained"
                 color="secondary"
                 onClick={sendNewsletter}
-                sx={{ mt: 2 }}
-                disabled={loadingUpdate}
+                sx={{ mt: 2, mr: 2 }}
+                disabled={loadingUpdate || isBatchStopped}
               >
                 {loadingUpdate ? 'Envoi en cours...' : 'Envoyer la newsletter'}
               </Button>
+
+              {isBatchStopped ? (
+                <Button
+                  variant="outlined"
+                  color="success"
+                  onClick={handleResumeNewsletter}
+                  sx={{ mt: 2 }}
+                  disabled={loadingUpdate}
+                >
+                  Reprendre l'envoi
+                </Button>
+              ) : (
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={handleStopBatch}
+                  sx={{ mt: 2 }}
+                >
+                  Arrêter l'envoi
+                </Button>
+              )}
             </Grid>
 
             <Grid item xs={12}>
@@ -191,7 +306,11 @@ const AdminOrders = () => {
                   </TableHead>
                   <TableBody>
                     {orders.map((order) => (
-                      <TableRow key={order.id} onClick={() => handleRowClick(order)}>
+                      <TableRow 
+                        key={order.id} 
+                        onClick={() => handleRowClick(order)}
+                        sx={{ cursor: 'pointer' }}
+                      >
                         <TableCell>{order.id}</TableCell>
                         <TableCell>{order.user_name}</TableCell>
                         {!isMobile && <TableCell>{order.user_email}</TableCell>}
@@ -207,6 +326,7 @@ const AdminOrders = () => {
                               value={order.order_status}
                               onChange={(e) => handleStatusChange(e, order.id)}
                               disabled={loadingUpdate}
+                              onClick={(e) => e.stopPropagation()} // Prevents row click when interacting with Select
                             >
                               <MenuItem value="En attente">En attente</MenuItem>
                               <MenuItem value="Expédié">Expédié</MenuItem>
@@ -227,14 +347,15 @@ const AdminOrders = () => {
         </Box>
       </Container>
 
-      {/* Snackbar pour afficher le message de succès ou d'échec */}
-      <Snackbar
-        open={snackbarMessage !== ''}
-        autoHideDuration={6000}
-        onClose={() => setSnackbarMessage('')}
-        message={snackbarMessage}
-        severity={snackbarSeverity}
-      />
+      <Snackbar 
+        open={snackbarOpen} 
+        autoHideDuration={6000} 
+        onClose={handleCloseSnackbar}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </AuthGuard>
   );
 };

@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { supabase } from '../../../lib/supabaseClient';
+import path from 'path';
+import fs from 'fs'; // si tu ne l’as pas déjà
 import sendgrid from '@sendgrid/mail';
 import { addHours, isBefore } from 'date-fns';
 
@@ -292,8 +294,12 @@ const validateEmail = (email) => {
 const deduplicateProspects = (prospects) => {
   const seen = new Set();
   return prospects.filter(p => {
-    const email = p.email.toLowerCase().trim();
-    if (seen.has(email)) return false;
+    // Vérifier si l'email existe et n'est pas vide
+    const email = p.email ? p.email.toLowerCase().trim() : null;
+    
+    // Si l'email est null ou déjà vu, on l'exclut
+    if (!email || seen.has(email)) return false;
+    
     seen.add(email);
     return true;
   });
@@ -346,7 +352,7 @@ const sendEmailsToBatch = async (batch) => {
       };
       
       // Send email with next provider in rotation
-      const { provider, keyId } = await sendEmailWithNextProvider(prospect.email, message);
+      const { provider, keyId, success } = await sendEmailWithNextProvider(prospect.email, message);
       
       // Update counters and results
       counters.hourly++;
@@ -359,7 +365,22 @@ const sendEmailsToBatch = async (batch) => {
       }
       results.byKey[provider][keyId]++;
       
+      // Log success
       console.log(`✓ Email successfully sent to ${prospect.email} via ${provider} (key: ${keyId})`);
+      
+      // Update the prospect status in the database
+      if (success) {
+        await supabase
+          .from('prospect')
+          .update({
+            status: 'sent',
+            last_sent: new Date().toISOString(),
+            provider: provider
+          })
+          .eq('email', prospect.email);
+      } else {
+        throw new Error(`Failed to send email to ${prospect.email}`);
+      }
       
       // Add small delay between emails to avoid bursts
       await new Promise(resolve => setTimeout(resolve, CONFIG.EMAIL_INTERVAL));
@@ -369,6 +390,16 @@ const sendEmailsToBatch = async (batch) => {
       results.errors.push({ email: prospect.email, error: error.message });
       console.error(`✗ Failed to send to ${prospect.email}:`, error.message);
       
+      // Update the prospect status in case of failure
+      await supabase
+        .from('prospect')
+        .update({
+          status: 'failed',
+          last_error: error.message,
+          last_attempt: new Date().toISOString()
+        })
+        .eq('email', prospect.email);
+      
       // Add slightly longer delay after failures
       await new Promise(resolve => setTimeout(resolve, CONFIG.EMAIL_INTERVAL * 3));
     }
@@ -376,6 +407,7 @@ const sendEmailsToBatch = async (batch) => {
   
   return results;
 };
+
 
 // Send email using the next provider in rotation
 const sendEmailWithNextProvider = async (recipientEmail, message, retryCount = 0) => {
@@ -879,121 +911,77 @@ On est présents partout, mais pour ne rien rater – actus, coulisses et exclus
 };
 
 export default async function handler(req, res) {
-  if (req.method === 'POST') {
-    try {
-      console.log('Starting email campaign process');
-      
-      // Count available keys for each provider
-      Object.keys(API_KEYS).forEach(provider => {
-        console.log(`${provider}: ${API_KEYS[provider].length} API keys available`);
-        
-        // Update provider enabled status
-        if (CONFIG.PROVIDERS[provider]) {
-          CONFIG.PROVIDERS[provider].enabled = API_KEYS[provider].length > 0;
-        }
-      });
-      
-      // Initialize the first provider to use
-      const availableProviders = Object.entries(CONFIG.PROVIDERS)
-        .filter(([_, config]) => config.enabled)
-        .map(([name]) => name);
-        
-      if (availableProviders.length === 0) {
-        throw new Error('No email providers available. Check API keys.');
-      }
-      
-      currentProvider = availableProviders[0];
-      console.log(`Available providers: ${availableProviders.join(', ')}`);
-      console.log(`Starting with provider: ${currentProvider}`);
-      
-      // Check if we need to resume a previous campaign
-      const { data: campaign } = await supabase
-        .from('email_campaigns')
-        .select('*')
-        .eq('id', 'current_campaign')
-        .single();
-        
-      let startIndex = 0;
-      if (campaign && campaign.progress < campaign.total) {
-        startIndex = campaign.progress;
-        console.log(`Resuming campaign from index ${startIndex}`);
-      }
-      
-      // Create a new campaign if requested or if first run
-      if (!campaign || req.body.newCampaign) {
-        // Reset the campaign in the database
-        await supabase
-          .from('email_campaigns')
-          .upsert({
-            id: 'current_campaign',
-            progress: 0,
-            total: 0,
-            last_run: new Date().toISOString(),
-            status: 'starting'
-          });
-          
-        startIndex = 0;
-        console.log('Starting new campaign');
-      }
-      
-      // Fetch prospects from Supabase with pagination
-      console.log('Fetching prospects from Supabase...');
-      const fetchSize = 10000;
-      const { data: allProspects, error } = await supabase
-        .from('prospect')
-        .select('prenom, nom, email')
-        .range(startIndex, startIndex + fetchSize - 1); // Fetch in chunks to avoid memory issues
-        
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
-      }
-      
-      console.log(`${allProspects.length} prospects retrieved`);
-      
-      // For testing, limit number of prospects
-      const prospects = CONFIG.TEST_MODE 
-        ? allProspects.slice(0, 20)  // Just 20 for testing
-        : allProspects;
-        
-      if (CONFIG.TEST_MODE) {
-        console.log('Running in TEST MODE with limited prospects');
-      }
-      
-      // Calculate and log theoretical sending capacity
-      const totalApiKeys = Object.values(API_KEYS).flat().length;
-      const totalDailyCapacity = Object.values(CONFIG.PROVIDERS)
-        .filter(p => p.enabled)
-        .reduce((sum, p) => sum + p.dailyQuota, 0);
-        
-      console.log(`Total API keys available: ${totalApiKeys}`);
-      console.log(`Theoretical daily sending capacity: ${totalDailyCapacity} emails`);
-      
-      // Process email sending
-      const results = await sendEmailsInBatches(prospects);
-  
-      
-      // Log final results
-      console.log('Campaign completed!');
-      console.log(`Total sent: ${results.totalSent}`);
-      console.log(`Total failed: ${results.totalFailed}`);
-      console.log(`Total skipped: ${results.totalSkipped}`);
-      console.log('By provider:', results.byProvider);
-      console.log('By API key:', results.byKey);
-      
-      res.status(200).json({ 
-        message: 'Email campaign completed.',
-        results
-      });
-      
-    } catch (error) {
-      console.error('Error sending newsletter:', error);      
-      res.status(500).json({ 
-        error: `Error sending newsletter: ${error.message}`,
-        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-      });
+  const fetchSize = 10000;
+  try {
+    const configDir = path.join(process.cwd(), 'config');
+    const controlFile = path.join(configDir, 'sendControl.json');
+    const control = JSON.parse(fs.readFileSync(controlFile, 'utf8'));
+
+    if (!control.enabled) {
+      return res.status(403).json({ message: 'Envoi désactivé par l\'administrateur.' });
     }
-  } else {
-    res.status(405).json({ message: 'Method not allowed' });
+
+    if (req.method === 'POST') {
+      try {
+        console.log('Starting email campaign process');
+
+        // Initialisation de la liste des fournisseurs actifs
+        const availableProviders = Object.entries(CONFIG.PROVIDERS)
+          .filter(([_, config]) => config.enabled)
+          .map(([name]) => name);
+
+        if (availableProviders.length === 0) {
+          throw new Error('Aucun fournisseur disponible. Vérifiez les clés API.');
+        }
+
+        console.log(`Fournisseurs disponibles : ${availableProviders.join(', ')}`);
+        
+        // Pagination automatique pour récupérer tous les prospects
+        let allProspects = []; // Utiliser 'let' au lieu de 'const'
+        let hasMore = true;
+        let startIndex = 0;
+
+        while (hasMore) {
+          const { data, error } = await supabase
+            .from('prospect')
+            .select('prenom, nom, email')            
+            .range(startIndex, startIndex + fetchSize - 1);
+
+          if (error) {
+            console.error('Erreur Supabase:', error);
+            throw error;
+          }
+
+          if (data.length > 0) {
+            allProspects = [...allProspects, ...data]; // Ajouter les nouveaux prospects récupérés
+            startIndex += fetchSize; // Incrémenter le startIndex pour la prochaine itération
+          } else {
+            hasMore = false; // Si aucun prospect n'est trouvé, arrêter la boucle
+          }
+        }
+
+        // Envoi d'e-mails par lots
+        const results = await sendEmailsInBatches(allProspects);
+        
+        // Logs finaux
+        console.log('Campagne terminée !');
+        console.log(`Total envoyés : ${results.totalSent}`);
+        console.log(`Total échoués : ${results.totalFailed}`);
+
+        return res.status(200).json({ message: 'Campagne d\'emails terminée.', results });
+        
+      } catch (error) {
+        console.error('Erreur en envoyant la newsletter:', error);
+        return res.status(500).json({
+          error: `Erreur lors de l'envoi de la newsletter : ${error.message}`,
+          stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
+      }
+    } else {
+      return res.status(405).json({ message: 'Méthode non autorisée' });
+    }
+  } catch (err) {
+    console.error('Erreur serveur :', err);
+    return res.status(500).json({ message: 'Erreur interne' });
   }
 }
