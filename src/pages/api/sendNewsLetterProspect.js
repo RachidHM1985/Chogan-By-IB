@@ -1,171 +1,493 @@
 import axios from 'axios';
 import { supabase } from '../../../lib/supabaseClient';
 import sendgrid from '@sendgrid/mail';
-import mailgun from 'mailgun-js';
+import { addHours, isBefore } from 'date-fns';
 
-// Initialiser les services API
+// Initialize API services
 sendgrid.setApiKey(process.env.SENDGRID_API_KEY_MAIL);
 
-// Pour les tests, réduire à une valeur plus petite
-const BATCH_SIZE = 100; // Taille réduite pour les tests
-const DELAY = 24 * 60 * 60 * 1000; // Délai de 24 heures entre les lots (en millisecondes)
+// API Keys Configuration - Multiple keys for each provider
+const API_KEYS = {
+  sendgrid: [
+    process.env.SENDGRID_API_KEY_MAIL,
+    process.env.SENDGRID_API_KEY_CAMPAGN_NEWSLETTER
+  ].filter(Boolean), // Filter out undefined keys
+  
+  brevo: [
+    process.env.BREVO_API_KEY,
+    process.env.BREVO_API_KEY_CHOGANBYIKRAM,
+    process.env.BREVO_API_KEY_YAHOO
+  ].filter(Boolean),
+  
+  sender: [
+    process.env.SENDER_API_KEY,
+    process.env.SENDER_API_KEY_YAHOO
+  ].filter(Boolean)
+};
 
-// Fonction pour envoyer des emails à un lot de prospects
+// Sender emails for each provider (rotating to avoid reputation issues)
+const SENDER_EMAILS = [
+  'choganbyikram.contact@gmail.com',]; 
+
+// Rotation indices for API keys and sender emails
+const rotation = {
+  apiKeys: {
+    sendgrid: 0,
+    brevo: 0,
+    sender: 0
+  },
+  senderEmail: 0
+};
+
+// Get the next API key for a provider using round-robin rotation
+const getNextApiKey = (provider) => {
+  const keys = API_KEYS[provider];
+  if (!keys || keys.length === 0) return null;
+  
+  const key = keys[rotation.apiKeys[provider]];
+  rotation.apiKeys[provider] = (rotation.apiKeys[provider] + 1) % keys.length;
+  return key;
+};
+
+// Get the next sender email using round-robin rotation
+const getNextSenderEmail = () => {
+  const email = SENDER_EMAILS[rotation.senderEmail];
+  rotation.senderEmail = (rotation.senderEmail + 1) % SENDER_EMAILS.length;
+  return email;
+};
+
+// Individual sending functions with proper error handling and API key rotation
+const sendWithSendGrid = async (email, message, apiKey) => {
+  // Set the API key for this specific send
+  sendgrid.setApiKey(apiKey);
+
+  const msg = {
+    to: email,
+    from: message.senderEmail || CONFIG.SENDER_EMAIL,
+    subject: message.subject,
+    html: message.html,
+    trackingSettings: {
+      clickTracking: { enable: true },
+      openTracking: { enable: true },
+    },
+  };
+
+  try {
+    await sendgrid.send(msg);
+  } catch (error) {
+    const statusCode = error.response?.statusCode;
+    // Handle specific error codes
+    if (statusCode === 429) {
+      throw new Error('SendGrid rate limit exceeded. Try again later.');
+    } else if (statusCode === 403) {
+      throw new Error('SendGrid authentication error or sending restriction.');
+    }
+    throw error;
+  }
+};
+
+const sendWithBrevo = async (email, message, apiKey) => {
+  try {
+    const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
+      sender: { email: message.senderEmail || CONFIG.SENDER_EMAIL },
+      to: [{ email }],
+      subject: message.subject,
+      htmlContent: message.html,
+      headers: {
+        'X-Mailin-trackclicks': 'on',
+        'X-Mailin-trackopens': 'on'
+      }
+    }, {
+      headers: {
+        'api-key': apiKey,
+        'Content-Type': 'application/json',
+      },
+      timeout: 10000 // 10 second timeout
+    });
+    
+    if (response.status !== 201) {
+      throw new Error(`Brevo error: ${response.status} ${JSON.stringify(response.data)}`);
+    }
+  } catch (error) {
+    if (error.response) {
+      if (error.response.status === 429) {
+        throw new Error('Brevo rate limit exceeded. Try again later.');
+      }
+    }
+    throw error;
+  }
+};
+
+const sendWithSender = async (email, message, apiKey) => {
+  try {
+    const response = await axios.post('https://api.sender.net/v2/emails', {
+      from: message.senderEmail || CONFIG.SENDER_EMAIL,
+      to: email,
+      subject: message.subject,
+      html_body: message.html,
+      track_clicks: true,
+      track_opens: true
+    }, {
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      timeout: 10000 // 10 second timeout
+    });
+    
+    if (response.status !== 200) {
+      throw new Error(`Sender error: ${response.status} ${JSON.stringify(response.data)}`);
+    }
+  } catch (error) {
+    if (error.response) {
+      if (error.response.status === 429) {
+        throw new Error('Sender rate limit exceeded. Try again later.');
+      }
+    }
+    throw error;
+  }
+};
+
+// Configuration
+const CONFIG = {
+  BATCH_SIZE: 95,                  // Slightly under 100 to avoid exact quota limits
+  BATCH_INTERVAL: 1.5 * 60 * 60 * 1000, // 1.5 hours between batches (in ms)
+  HOURLY_LIMIT: 450,               // Max emails per hour (slightly under provider limits)
+  EMAIL_INTERVAL: 100,             // 100ms between emails (10 emails per second)
+  MAX_RETRIES: 3,                  // Max retries for failed emails
+  PROVIDER_ROTATION_INTERVAL: 35,  // Rotate provider every 35 emails
+  TEST_MODE:false,
+  PROVIDERS: {
+    // Order based on cost-effectiveness (cheapest first)
+    sendgrid: {
+      enabled: API_KEYS.sendgrid.length > 0,
+      dailyQuotaPerKey: 100,       // Adjust based on your free tier limits
+      send: sendWithSendGrid,
+    },
+    brevo: {
+      enabled: API_KEYS.brevo.length > 0,
+      dailyQuotaPerKey: 300,       // Adjust based on your free tier limits
+      send: sendWithBrevo,
+    },
+    sender: {
+      enabled: API_KEYS.sender.length > 0,
+      dailyQuotaPerKey: 200,       // Adjust based on your free tier limits
+      send: sendWithSender,
+    }
+  },
+  DEFAULT_SUBJECT: 'Votre Newsletter - Nouveaux parfums disponibles',
+};
+
+// Calculate total daily quotas based on number of API keys
+Object.keys(CONFIG.PROVIDERS).forEach(provider => {
+  if (CONFIG.PROVIDERS[provider].enabled) {
+    CONFIG.PROVIDERS[provider].dailyQuota = 
+      CONFIG.PROVIDERS[provider].dailyQuotaPerKey * API_KEYS[provider].length;
+  }
+});
+
+// Counters for rate limiting
+const counters = {
+  daily: {},
+  keys: {},  // Track usage per API key
+  hourly: 0,
+  lastReset: new Date(),
+  emailsSentSinceProviderRotation: 0
+};
+
+// Reset counters if needed
+const checkAndResetCounters = () => {
+  const now = new Date();
+  
+  // Reset hourly counter if an hour has passed
+  if (isBefore(addHours(counters.lastReset, 1), now)) {
+    counters.hourly = 0;
+    counters.lastReset = now;
+  }
+  
+  // Reset daily counters if needed (at midnight)
+  const today = now.toISOString().split('T')[0];
+  Object.keys(CONFIG.PROVIDERS).forEach(provider => {
+    // Initialize or reset the daily counter for this provider
+    if (!counters.daily[provider] || counters.daily[provider].date !== today) {
+      counters.daily[provider] = { count: 0, date: today };
+    }
+    
+    // Initialize counters for each API key
+    if (!counters.keys[provider]) {
+      counters.keys[provider] = {};
+    }
+    
+    // Reset API key counters if date changed
+    API_KEYS[provider].forEach(key => {
+      const keyId = key.substring(0, 8); // Use first 8 chars as ID
+      if (!counters.keys[provider][keyId] || counters.keys[provider][keyId].date !== today) {
+        counters.keys[provider][keyId] = { count: 0, date: today };
+      }
+    });
+  });
+};
+
+// Choose the next provider in rotation or best available
+const selectNextProvider = () => {
+  checkAndResetCounters();
+  
+  // If we've sent enough emails, rotate to next provider regardless of quota
+  if (counters.emailsSentSinceProviderRotation >= CONFIG.PROVIDER_ROTATION_INTERVAL) {
+    counters.emailsSentSinceProviderRotation = 0;
+    
+    // Get all enabled providers
+    const enabledProviders = Object.entries(CONFIG.PROVIDERS)
+      .filter(([_, config]) => config.enabled)
+      .map(([name]) => name);
+    
+    if (enabledProviders.length > 0) {
+      // Simple round-robin rotation between providers
+      const currentProviderIndex = enabledProviders.indexOf(currentProvider);
+      const nextProviderIndex = (currentProviderIndex + 1) % enabledProviders.length;
+      currentProvider = enabledProviders[nextProviderIndex];
+      return currentProvider;
+    }
+  }
+  
+  // Otherwise, find first available provider that hasn't reached daily quota
+  for (const [name, config] of Object.entries(CONFIG.PROVIDERS)) {
+    if (!config.enabled) continue;
+    
+    const dailyUsage = counters.daily[name]?.count || 0;
+    if (dailyUsage < config.dailyQuota) {
+      counters.emailsSentSinceProviderRotation++;
+      return name;
+    }
+  }
+  
+  // If all quotas exceeded, return null
+  return null;
+};
+
+// Track current provider for rotation
+let currentProvider = null;
+
+// Enhanced email validation
+const validateEmail = (email) => {
+  if (!email || typeof email !== 'string') return false;
+  
+  // Basic format validation
+  const formatRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!formatRegex.test(email)) return false;
+  
+  // More comprehensive RFC 5322 compliant regex
+  const detailedRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  if (!detailedRegex.test(email.toLowerCase())) return false;
+  
+  // Check for disposable email domains
+  const disposableDomains = ['temp-mail.org', 'guerrillamail.com', 'mailinator.com'];
+  const domain = email.split('@')[1].toLowerCase();
+  if (disposableDomains.some(d => domain.includes(d))) return false;
+  
+  return true;
+};
+
+// Deduplicate emails in the prospect list
+const deduplicateProspects = (prospects) => {
+  const seen = new Set();
+  return prospects.filter(p => {
+    const email = p.email.toLowerCase().trim();
+    if (seen.has(email)) return false;
+    seen.add(email);
+    return true;
+  });
+};
+
+// Function to send emails to a batch of prospects
 const sendEmailsToBatch = async (batch) => {
   const results = {
     success: 0,
     failed: 0,
+    skipped: 0,
+    byProvider: {},
+    byKey: {},
     errors: []
   };
   
-  // Traitement pour chaque prospect dans le lot
+  // Initialize provider and key counters
+  Object.keys(CONFIG.PROVIDERS).forEach(provider => {
+    results.byProvider[provider] = 0;
+    results.byKey[provider] = {};
+  });
+  
+  // Process each prospect in the batch
   for (const prospect of batch) {
     try {
-      console.log(`Envoi d'email à ${prospect.email}`);
-      
-      // Vérifier que l'email est valide
-      if (!prospect.email || !validateEmail(prospect.email)) {
-        throw new Error(`Email invalide: ${prospect.email}`);
+      // Skip if hourly limit reached
+      if (counters.hourly >= CONFIG.HOURLY_LIMIT) {
+        console.log(`Hourly limit reached (${CONFIG.HOURLY_LIMIT}). Pausing...`);
+        results.skipped++;
+        await new Promise(resolve => setTimeout(resolve, 60 * 1000)); // Wait a minute before continuing
+        counters.hourly = 0; // Reset counter after waiting
+        continue;
       }
       
+      // Validate email
+      if (!prospect.email || !validateEmail(prospect.email)) {
+        results.skipped++;
+        console.log(`Skipping invalid email: ${prospect.email}`);
+        continue;
+      }
+      
+      console.log(`Sending email to ${prospect.email}`);
+      
+      // Prepare email content with a rotating sender
+      const senderEmail = getNextSenderEmail();
       const message = {
-        subject: 'Votre Newsletter - Nouveaux parfums disponibles',
-        html: generateEmailHTML(prospect)
+        subject: CONFIG.DEFAULT_SUBJECT,
+        html: generateEmailHTML(prospect),
+        senderEmail: senderEmail
       };
       
-      // Tenter d'envoyer l'email via différents services
-      await sendEmailWithFallback(prospect.email, message);
+      // Send email with next provider in rotation
+      const { provider, keyId } = await sendEmailWithNextProvider(prospect.email, message);
+      
+      // Update counters and results
+      counters.hourly++;
       results.success++;
-      console.log(`✓ Email envoyé avec succès à ${prospect.email}`);
+      results.byProvider[provider]++;
+      
+      // Track by key
+      if (!results.byKey[provider][keyId]) {
+        results.byKey[provider][keyId] = 0;
+      }
+      results.byKey[provider][keyId]++;
+      
+      console.log(`✓ Email successfully sent to ${prospect.email} via ${provider} (key: ${keyId})`);
+      
+      // Add small delay between emails to avoid bursts
+      await new Promise(resolve => setTimeout(resolve, CONFIG.EMAIL_INTERVAL));
+      
     } catch (error) {
       results.failed++;
       results.errors.push({ email: prospect.email, error: error.message });
-      console.error(`✗ Échec d'envoi à ${prospect.email}:`, error.message);
-      // Continue with next prospect if one fails
+      console.error(`✗ Failed to send to ${prospect.email}:`, error.message);
+      
+      // Add slightly longer delay after failures
+      await new Promise(resolve => setTimeout(resolve, CONFIG.EMAIL_INTERVAL * 3));
     }
   }
   
   return results;
 };
 
-// Fonction pour envoyer des e-mails à un lot de prospects avec un délai entre chaque lot
+// Send email using the next provider in rotation
+const sendEmailWithNextProvider = async (recipientEmail, message, retryCount = 0) => {
+  const provider = selectNextProvider();
+  
+  if (!provider) {
+    throw new Error('Daily quotas exceeded for all providers');
+  }
+  
+  try {
+    // Get next API key for this provider
+    const apiKey = getNextApiKey(provider);
+    if (!apiKey) {
+      throw new Error(`No valid API key available for ${provider}`);
+    }
+    
+    const keyId = apiKey.substring(0, 8); // Use first 8 chars as ID
+    
+    // Check if this key has reached its daily quota
+    if (counters.keys[provider][keyId].count >= CONFIG.PROVIDERS[provider].dailyQuotaPerKey) {
+      console.log(`API key ${keyId} for ${provider} has reached its daily quota. Trying another provider.`);
+      return sendEmailWithNextProvider(recipientEmail, message, retryCount);
+    }
+    
+    // Send using selected provider and key
+    await CONFIG.PROVIDERS[provider].send(recipientEmail, message, apiKey);
+    
+    // Update daily counters
+    counters.daily[provider].count++;
+    counters.keys[provider][keyId].count++;
+    
+    // Return the provider and key used
+    return { provider, keyId };
+    
+  } catch (error) {
+    console.error(`Error with provider ${provider}:`, error.message);
+    
+    // Retry with next provider if available
+    if (retryCount < CONFIG.MAX_RETRIES) {
+      console.log(`Retrying with different provider for ${recipientEmail} (attempt ${retryCount + 1})`);
+      // Force rotation to next provider on error
+      counters.emailsSentSinceProviderRotation = CONFIG.PROVIDER_ROTATION_INTERVAL;
+      return sendEmailWithNextProvider(recipientEmail, message, retryCount + 1);
+    } else {
+      throw new Error(`Failed to send after ${CONFIG.MAX_RETRIES} attempts: ${error.message}`);
+    }
+  }
+};
+
+// Function to send emails in batches with delay between
 const sendEmailsInBatches = async (prospects) => {
-  const totalBatches = Math.ceil(prospects.length / BATCH_SIZE);
+  // Filter out duplicates and invalid emails
+  const deduplicatedProspects = deduplicateProspects(prospects);
+  const validProspects = deduplicatedProspects.filter(p => validateEmail(p.email));
+  
+  console.log(`${validProspects.length} valid prospects out of ${prospects.length} (${prospects.length - validProspects.length} invalid/duplicate emails removed)`);
+  
+  const totalBatches = Math.ceil(validProspects.length / CONFIG.BATCH_SIZE);
+  const results = {
+    totalSent: 0,
+    totalFailed: 0,
+    totalSkipped: 0,
+    byProvider: {},
+    byKey: {},
+    batches: []
+  };
+  
+  // Initialize provider counters
+  Object.keys(CONFIG.PROVIDERS).forEach(provider => {
+    results.byProvider[provider] = 0;
+    results.byKey[provider] = {};
+  });
 
-  // Traitement des lots
+  // Process each batch
   for (let i = 0; i < totalBatches; i++) {
-    const batch = prospects.slice(i * BATCH_SIZE, (i + 1) * BATCH_SIZE);
-    console.log(`Envoi du lot ${i + 1} de ${batch.length} e-mails`);
+    const batch = validProspects.slice(i * CONFIG.BATCH_SIZE, (i + 1) * CONFIG.BATCH_SIZE);
+    console.log(`Sending batch ${i + 1} of ${totalBatches} (${batch.length} emails)`);
 
-    const results = await sendEmailsToBatch(batch);
-    console.log(`Résultats du lot ${i + 1}:`, results);
-
-    // Attendre le délai de 24h avant de passer au lot suivant
-    if (i < totalBatches - 1) {
-      console.log(`Attente de ${DELAY / 1000} secondes avant le prochain lot...`);
-      await new Promise(resolve => setTimeout(resolve, DELAY));  // Attente avant le prochain lot
-    }
-  }
-};
-
-// Fonction pour envoyer l'e-mail avec repli sur différents services
-const sendEmailWithFallback = async (recipientEmail, message) => {
-  const services = ['sendgrid', 'mailgun', 'brevo', 'sender'];
-  const errors = [];
-  
-  for (const service of services) {
-    try {
-      console.log(`Tentative d'envoi via ${service}...`);
+    const batchResults = await sendEmailsToBatch(batch);
+    
+    // Update overall results
+    results.totalSent += batchResults.success;
+    results.totalFailed += batchResults.failed;
+    results.totalSkipped += batchResults.skipped;
+    results.batches.push(batchResults);
+    
+    // Update provider counters
+    Object.keys(batchResults.byProvider).forEach(provider => {
+      results.byProvider[provider] = (results.byProvider[provider] || 0) + batchResults.byProvider[provider];
       
-      switch (service) {
-        case 'sendgrid':
-          await sendWithSendGrid(recipientEmail, message);
-          console.log(`Email envoyé à ${recipientEmail} via SendGrid`);
-          return; // Success - exit function
-          
-        case 'mailgun':
-          await sendWithMailgun(recipientEmail, message);
-          console.log(`Email envoyé à ${recipientEmail} via Mailgun`);
-          return; // Success - exit function
-          
-        case 'brevo':
-          await sendWithBrevo(recipientEmail, message);
-          console.log(`Email envoyé à ${recipientEmail} via Brevo`);
-          return; // Success - exit function
-          
-        case 'sender':
-          await sendWithSender(recipientEmail, message);
-          console.log(`Email envoyé à ${recipientEmail} via Sender`);
-          return; // Success - exit function
-      }
-    } catch (error) {
-      errors.push(`${service}: ${error.message}`);
-      console.error(`Échec avec ${service} pour ${recipientEmail}:`, error.message);
-      // Continue with next service
+      // Track by key
+      Object.keys(batchResults.byKey[provider] || {}).forEach(keyId => {
+        if (!results.byKey[provider][keyId]) {
+          results.byKey[provider][keyId] = 0;
+        }
+        results.byKey[provider][keyId] += batchResults.byKey[provider][keyId];
+      });
+    });
+    
+    console.log(`Batch ${i + 1} results:`, batchResults);
+
+    // Wait before sending next batch - only if not the last batch
+    if (i < totalBatches - 1) {
+      console.log(`Waiting ${CONFIG.BATCH_INTERVAL / 1000 / 60} minutes before next batch...`);
+      await new Promise(resolve => setTimeout(resolve, CONFIG.BATCH_INTERVAL));
     }
   }
   
-  // Si nous arrivons ici, tous les services ont échoué
-  throw new Error(`Impossible d'envoyer l'email à ${recipientEmail}. Erreurs: ${errors.join('; ')}`);
+  return results;
 };
 
-// Les fonctions d'envoi individuelles
-const sendWithSendGrid = async (email, message) => {
-  const msg = {
-    to: email,
-    from: 'choganbyikram.contact@gmail.com',
-    subject: message.subject,
-    html: message.html,
-  };
-  await sendgrid.send(msg);
-};
-
-const sendWithMailgun = async (email, message) => {
-  const mg = mailgun({ apiKey: process.env.MAILGUN_API_KEY, domain: process.env.MAILGUN_DOMAIN });
-  const data = {
-    from: 'choganbyikram.contact@gmail.com',
-    to: email,
-    subject: message.subject,
-    html: message.html,
-  };
-  await mg.messages().send(data);
-};
-
-const sendWithBrevo = async (email, message) => {
-  await axios.post('https://api.brevo.com/v3/smtp/email', {
-    sender: { email: 'choganbyikram.contact@gmail.com' },
-    to: [{ email }],
-    subject: message.subject,
-    htmlContent: message.html,
-  }, {
-    headers: {
-      'api-key': process.env.BREVO_API_KEY,
-      'Content-Type': 'application/json',
-    },
-  });
-};
-
-const sendWithSender = async (email, message) => {
-  await axios.post('https://api.sender.net/v2/emails', {
-    from: 'choganbyikram.contact@gmail.com',
-    to: email,
-    subject: message.subject,
-    html_body: message.html,
-  }, {
-    headers: {
-      'Authorization': `Bearer ${process.env.SENDER_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-  });
-};
-
-// Fonction simple de validation d'email
-function validateEmail(email) {
-  const re = /\S+@\S+\.\S+/;
-  return re.test(email);
-}
-
-// Fonction pour générer le contenu HTML de l'email (exemple basique)
+// Function to generate HTML email content
 const generateEmailHTML = (prospect) => {
   return `<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office">
   <head>
@@ -559,40 +881,119 @@ On est présents partout, mais pour ne rien rater – actus, coulisses et exclus
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
-      console.log('Début du traitement de la requête');
+      console.log('Starting email campaign process');
       
-      // Vérification des clés API
-      if (!process.env.SENDGRID_API_KEY_MAIL) console.warn('SENDGRID_API_KEY_MAIL manquante');
-      if (!process.env.MAILGUN_API_KEY) console.warn('MAILGUN_API_KEY manquante');
-      if (!process.env.MAILGUN_DOMAIN) console.warn('MAILGUN_DOMAIN manquant');
-      if (!process.env.BREVO_API_KEY) console.warn('BREVO_API_KEY manquante');
+      // Count available keys for each provider
+      Object.keys(API_KEYS).forEach(provider => {
+        console.log(`${provider}: ${API_KEYS[provider].length} API keys available`);
+        
+        // Update provider enabled status
+        if (CONFIG.PROVIDERS[provider]) {
+          CONFIG.PROVIDERS[provider].enabled = API_KEYS[provider].length > 0;
+        }
+      });
       
-      // Récupérer les prospects depuis Supabase
-      console.log('Récupération des prospects depuis Supabase...');
-      const { data: prospects, error } = await supabase
+      // Initialize the first provider to use
+      const availableProviders = Object.entries(CONFIG.PROVIDERS)
+        .filter(([_, config]) => config.enabled)
+        .map(([name]) => name);
+        
+      if (availableProviders.length === 0) {
+        throw new Error('No email providers available. Check API keys.');
+      }
+      
+      currentProvider = availableProviders[0];
+      console.log(`Available providers: ${availableProviders.join(', ')}`);
+      console.log(`Starting with provider: ${currentProvider}`);
+      
+      // Check if we need to resume a previous campaign
+      const { data: campaign } = await supabase
+        .from('email_campaigns')
+        .select('*')
+        .eq('id', 'current_campaign')
+        .single();
+        
+      let startIndex = 0;
+      if (campaign && campaign.progress < campaign.total) {
+        startIndex = campaign.progress;
+        console.log(`Resuming campaign from index ${startIndex}`);
+      }
+      
+      // Create a new campaign if requested or if first run
+      if (!campaign || req.body.newCampaign) {
+        // Reset the campaign in the database
+        await supabase
+          .from('email_campaigns')
+          .upsert({
+            id: 'current_campaign',
+            progress: 0,
+            total: 0,
+            last_run: new Date().toISOString(),
+            status: 'starting'
+          });
+          
+        startIndex = 0;
+        console.log('Starting new campaign');
+      }
+      
+      // Fetch prospects from Supabase with pagination
+      console.log('Fetching prospects from Supabase...');
+      const fetchSize = 10000;
+      const { data: allProspects, error } = await supabase
         .from('prospect')
-        .select('prenom, nom, email');
-
+        .select('prenom, nom, email')
+        .range(startIndex, startIndex + fetchSize - 1); // Fetch in chunks to avoid memory issues
+        
       if (error) {
-        console.error('Erreur Supabase:', error);
+        console.error('Supabase error:', error);
         throw error;
       }
-
-      console.log(`${prospects.length} prospects récupérés`);
       
-      // Pour les tests, limiter à quelques prospects
-      const testProspects = prospects.slice(0, 100);  // Limite à 100 prospects pour le test
-      console.log(`Utilisation de ${testProspects.length} prospects pour le test`);
-
-      // Envoi progressif des e-mails par lots avec délai
-      await sendEmailsInBatches(testProspects);
-
-      res.status(200).json({ message: 'Newsletter envoyée à tous les prospects de test.' });
+      console.log(`${allProspects.length} prospects retrieved`);
+      
+      // For testing, limit number of prospects
+      const prospects = CONFIG.TEST_MODE 
+        ? allProspects.slice(0, 20)  // Just 20 for testing
+        : allProspects;
+        
+      if (CONFIG.TEST_MODE) {
+        console.log('Running in TEST MODE with limited prospects');
+      }
+      
+      // Calculate and log theoretical sending capacity
+      const totalApiKeys = Object.values(API_KEYS).flat().length;
+      const totalDailyCapacity = Object.values(CONFIG.PROVIDERS)
+        .filter(p => p.enabled)
+        .reduce((sum, p) => sum + p.dailyQuota, 0);
+        
+      console.log(`Total API keys available: ${totalApiKeys}`);
+      console.log(`Theoretical daily sending capacity: ${totalDailyCapacity} emails`);
+      
+      // Process email sending
+      const results = await sendEmailsInBatches(prospects);
+  
+      
+      // Log final results
+      console.log('Campaign completed!');
+      console.log(`Total sent: ${results.totalSent}`);
+      console.log(`Total failed: ${results.totalFailed}`);
+      console.log(`Total skipped: ${results.totalSkipped}`);
+      console.log('By provider:', results.byProvider);
+      console.log('By API key:', results.byKey);
+      
+      res.status(200).json({ 
+        message: 'Email campaign completed.',
+        results
+      });
+      
     } catch (error) {
-      console.error('Erreur lors de l\'envoi de la newsletter:', error);
-      res.status(500).json({ error: `Erreur lors de l'envoi de la newsletter: ${error.message}` });
+      console.error('Error sending newsletter:', error);      
+      res.status(500).json({ 
+        error: `Error sending newsletter: ${error.message}`,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
     }
   } else {
-    res.status(405).json({ message: 'Méthode non autorisée' });
+    res.status(405).json({ message: 'Method not allowed' });
   }
 }
