@@ -8,35 +8,6 @@ import { addHours, isBefore } from 'date-fns';
 // Initialize API services
 sendgrid.setApiKey(process.env.SENDGRID_API_KEY_MAIL);
 
-// API Keys Configuration - Multiple keys for each provider
-const API_KEYS = {
-  sendgrid: [
-    process.env.SENDGRID_API_KEY_MAIL,
-    process.env.SENDGRID_API_KEY_CAMPAGN_NEWSLETTER
-  ].filter(Boolean), // Filter out undefined keys
-  
-  brevo: [
-    process.env.BREVO_API_KEY,
-    process.env.BREVO_API_KEY_CHOGANBYIKRAM,
-    process.env.BREVO_API_KEY_YAHOO
-  ].filter(Boolean),
-  
-  mailjet: [
-    {
-      apiKey: process.env.MAILJET_API_KEY_HACHEM_RACH,
-      secretKey: process.env.MAILJET_SECRET_KEY_HACHEM_RACH
-    },
-    {
-      apiKey: process.env.MAILJET_API_KEY_CHOGAN,
-      secretKey: process.env.MAILJET_SECRET_KEY_CHOGAN
-    },
-    {
-      apiKey: process.env.MAILJET_API_KEY_YAHOO,
-      secretKey: process.env.MAILJET_SECRET_KEY_YAHOO
-    }
-  ].filter(pair => pair.apiKey && pair.secretKey)
-};
-
 // Sender emails for each provider (rotating to avoid reputation issues)
 const SENDER_EMAILS = [
   'choganbyikram.contact@gmail.com',
@@ -197,6 +168,34 @@ const sendWithMailjet = async (email, message, credentials) => {
   }
 };
 
+const API_KEYS = {
+  sendgrid: [
+    process.env.SENDGRID_API_KEY_MAIL,
+    process.env.SENDGRID_API_KEY_CAMPAGN_NEWSLETTER
+  ].filter(Boolean), // Filter out undefined keys
+  
+  brevo: [
+    process.env.BREVO_API_KEY,
+    process.env.BREVO_API_KEY_CHOGANBYIKRAM,
+    process.env.BREVO_API_KEY_YAHOO
+  ].filter(Boolean),
+  
+  mailjet: [
+    {
+      apiKey: process.env.MAILJET_API_KEY_HACHEM_RACH,
+      secretKey: process.env.MAILJET_SECRET_KEY_HACHEM_RACH
+    },
+    {
+      apiKey: process.env.MAILJET_API_KEY_CHOGAN,
+      secretKey: process.env.MAILJET_SECRET_KEY_CHOGAN
+    },
+    {
+      apiKey: process.env.MAILJET_API_KEY_YAHOO,
+      secretKey: process.env.MAILJET_SECRET_KEY_YAHOO
+    }
+  ].filter(pair => pair.apiKey && pair.secretKey)
+};
+
 // Configuration
 const CONFIG = {
   BATCH_SIZE: 95,                  // Slightly under 100 to avoid exact quota limits
@@ -209,6 +208,7 @@ const CONFIG = {
   SENDER_EMAIL: SENDER_EMAILS[0],  // Default sender email
   SENDER_NAME: "Chogan by Ikram",  // Added missing SENDER_NAME
   DEFAULT_SUBJECT: 'Votre Newsletter - Nouveaux parfums disponibles',
+  ACTIVE_PROVIDERS: ['sendgrid', 'brevo', 'sender'],
   PROVIDERS: {
     // Order based on cost-effectiveness (cheapest first)
     sendgrid: {
@@ -342,66 +342,31 @@ const checkAndResetCounters = () => {
 };
 
 // Choose the next provider in rotation or best available
-const selectNextProvider = () => {
-  checkAndResetCounters();
-  
-  // If we've sent enough emails, rotate to next provider regardless of quota
-  if (counters.emailsSentSinceProviderRotation >= CONFIG.PROVIDER_ROTATION_INTERVAL) {
-    counters.emailsSentSinceProviderRotation = 0;
+const selectNextProvider = (triedProviders = []) => {
+  // Get active providers from configuration
+  const activeProviders = Array.isArray(CONFIG.ACTIVE_PROVIDERS) ? CONFIG.ACTIVE_PROVIDERS : [];
+
+  // Filter providers that haven't been tried yet and have API keys available
+  const availableProviders = activeProviders.filter(p => {
+    // Skip if already tried
+    if (triedProviders.includes(p)) return false;
     
-    // Get all enabled providers
-    const enabledProviders = Object.entries(CONFIG.PROVIDERS)
-      .filter(([_, config]) => config.enabled)
-      .map(([name]) => name);
+    // Check if provider is enabled in config
+    if (!CONFIG.PROVIDERS[p]?.enabled) return false;
     
-    if (enabledProviders.length > 0) {
-      // Simple round-robin rotation between providers
-      if (currentProvider === null) {
-        currentProvider = enabledProviders[0];
-      } else {
-        const currentProviderIndex = enabledProviders.indexOf(currentProvider);
-        const nextProviderIndex = (currentProviderIndex + 1) % enabledProviders.length;
-        currentProvider = enabledProviders[nextProviderIndex];
-      }
-      return currentProvider;
-    }
-  }
+    // Check if the provider has any API keys left
+    return API_KEYS[p] && (
+      // For arrays of API keys (SendGrid, Brevo)
+      (Array.isArray(API_KEYS[p]) && API_KEYS[p].length > 0) ||
+      // For object arrays (Mailjet)
+      (!Array.isArray(API_KEYS[p]) && Object.keys(API_KEYS[p]).length > 0)
+    );
+  });
+
+  // Log available providers for debugging
+  console.log(`Available providers: ${JSON.stringify(availableProviders)}`);
   
-  // If no current provider or we need to initialize, set to first available
-  if (currentProvider === null) {
-    const enabledProviders = Object.entries(CONFIG.PROVIDERS)
-      .filter(([_, config]) => config.enabled)
-      .map(([name]) => name);
-    
-    if (enabledProviders.length > 0) {
-      currentProvider = enabledProviders[0];
-      counters.emailsSentSinceProviderRotation++;
-      return currentProvider;
-    }
-    return null;
-  }
-  
-  // Otherwise, use current provider if not reached quota, or find next available
-  const dailyUsage = counters.daily[currentProvider]?.count || 0;
-  if (dailyUsage < CONFIG.PROVIDERS[currentProvider].dailyQuota) {
-    counters.emailsSentSinceProviderRotation++;
-    return currentProvider;
-  }
-  
-  // Current provider reached quota, find another
-  for (const [name, config] of Object.entries(CONFIG.PROVIDERS)) {
-    if (!config.enabled || name === currentProvider) continue;
-    
-    const dailyUsage = counters.daily[name]?.count || 0;
-    if (dailyUsage < config.dailyQuota) {
-      currentProvider = name;
-      counters.emailsSentSinceProviderRotation++;
-      return name;
-    }
-  }
-  
-  // If all quotas exceeded, return null
-  return null;
+  return availableProviders.length > 0 ? availableProviders[0] : null;
 };
 
 // Enhanced email validation
@@ -830,14 +795,66 @@ On est présents partout, mais pour ne rien rater – actus, coulisses et exclus
 </html>`;
 };
 
+const monitorProviderStatus = () => {
+  console.log("\n--- EMAIL PROVIDER STATUS ---");
+  
+  // Check each provider
+  Object.keys(CONFIG.PROVIDERS).forEach(provider => {
+    if (!CONFIG.PROVIDERS[provider].enabled) {
+      console.log(`${provider}: DISABLED`);
+      return;
+    }
+    
+    // Check available API keys
+    const keys = API_KEYS[provider];
+    if (!keys || (Array.isArray(keys) && keys.length === 0) || 
+        (!Array.isArray(keys) && Object.keys(keys).length === 0)) {
+      console.log(`${provider}: NO VALID KEYS`);
+      return;
+    }
+    
+    // Show key count and daily usage
+    const keyCount = Array.isArray(keys) ? keys.length : Object.keys(keys).length;
+    const dailyCount = counters.daily[provider]?.count || 0;
+    const quotaPerKey = CONFIG.PROVIDERS[provider].dailyQuotaPerKey;
+    const totalQuota = quotaPerKey * keyCount;
+    
+    console.log(`${provider}: ${keyCount} keys, ${dailyCount}/${totalQuota} emails sent today`);
+    
+    // Detail per key
+    if (counters.keys[provider]) {
+      Object.entries(counters.keys[provider]).forEach(([keyId, data]) => {
+        if (data.date === new Date().toISOString().split('T')[0]) {
+          console.log(`  - Key ${keyId}: ${data.count}/${quotaPerKey} emails sent today`);
+        }
+      });
+    }
+  });
+  
+  console.log(`Hourly usage: ${counters.hourly}/${CONFIG.HOURLY_LIMIT}`);
+  console.log("-----------------------------\n");
+  
+  // Return true if at least one provider is available
+  return Object.keys(CONFIG.PROVIDERS).some(provider => {
+    return CONFIG.PROVIDERS[provider].enabled && 
+           API_KEYS[provider] && 
+           ((Array.isArray(API_KEYS[provider]) && API_KEYS[provider].length > 0) ||
+            (!Array.isArray(API_KEYS[provider]) && Object.keys(API_KEYS[provider]).length > 0));
+  });
+};
 
 // Send email using the next provider in rotation
-const sendEmailWithNextProvider = async (recipientEmail, message, retryCount = 0) => {
-  const provider = selectNextProvider();
+const sendEmailWithNextProvider = async (recipientEmail, message, retryCount = 0, triedProviders = []) => {
+  // Select next available provider
+  const provider = selectNextProvider(triedProviders);
 
   if (!provider) {
-    throw new Error('Tous les fournisseurs ont dépassé leurs quotas quotidiens');
+    console.error(`No available providers left to try for ${recipientEmail} after trying: ${triedProviders.join(', ')}`);
+    throw new Error('Tous les fournisseurs ont dépassé leurs quotas ou sont invalides');
   }
+
+  // Add the provider to the tried list before attempting to use it
+  triedProviders.push(provider);
 
   try {
     let result = { provider, success: false };
@@ -845,7 +862,9 @@ const sendEmailWithNextProvider = async (recipientEmail, message, retryCount = 0
     if (provider === 'brevo') {
       const apiKey = getNextBrevoApiKey();
       if (!apiKey) {
-        throw new Error('No valid Brevo API key available');
+        console.warn(`No valid Brevo API key available for ${recipientEmail}`);
+        // Try another provider
+        return sendEmailWithNextProvider(recipientEmail, message, retryCount, triedProviders);
       }
       result.success = await CONFIG.PROVIDERS[provider].send(recipientEmail, message, apiKey);
       result.keyId = apiKey.substring(0, 8);
@@ -853,7 +872,9 @@ const sendEmailWithNextProvider = async (recipientEmail, message, retryCount = 0
     else if (provider === 'mailjet') {
       const credentials = getNextApiKey(provider);
       if (!credentials || !credentials.apiKey) {
-        throw new Error('No valid Mailjet credentials available');
+        console.warn(`No valid Mailjet credentials available for ${recipientEmail}`);
+        // Try another provider
+        return sendEmailWithNextProvider(recipientEmail, message, retryCount, triedProviders);
       }
       result.success = await CONFIG.PROVIDERS[provider].send(recipientEmail, message, credentials);
       result.keyId = credentials.apiKey.substring(0, 8);
@@ -861,58 +882,58 @@ const sendEmailWithNextProvider = async (recipientEmail, message, retryCount = 0
     else if (provider === 'sendgrid') {
       const apiKey = getNextApiKey(provider);
       if (!apiKey) {
-        throw new Error('No valid SendGrid API key available');
+        console.warn(`No valid SendGrid API key available for ${recipientEmail}`);
+        // Try another provider
+        return sendEmailWithNextProvider(recipientEmail, message, retryCount, triedProviders);
       }
-      
-      // Try sending the email with SendGrid
       result.success = await CONFIG.PROVIDERS[provider].send(recipientEmail, message, apiKey);
-      
-      // Check if the error is an Unauthorized error (HTTP 401)
-      if (!result.success) {
-        throw new Error('Unauthorized: Invalid API key or insufficient permissions');
-      }
-
       result.keyId = apiKey.substring(0, 8);
-    }
+    } 
     else {
-      throw new Error(`Unknown provider: ${provider}`);
+      console.warn(`Unknown provider: ${provider}, trying next...`);
+      // Try another provider instead of throwing an error
+      return sendEmailWithNextProvider(recipientEmail, message, retryCount, triedProviders);
     }
 
-    // Mise à jour des compteurs après l'envoi
+    // Update counters for successful sends
     if (!counters.daily[provider]) {
       counters.daily[provider] = { count: 0, date: new Date().toISOString().split('T')[0] };
     }
     counters.daily[provider].count++;
-    counters.hourly++; // Incrémenter le compteur horaire global
+    counters.hourly++;
 
-    // Track usage by key
     if (result.keyId) {
-      if (!counters.keys[provider]) {
-        counters.keys[provider] = {};
-      }
+      if (!counters.keys[provider]) counters.keys[provider] = {};
       if (!counters.keys[provider][result.keyId]) {
-        counters.keys[provider][result.keyId] = { 
-          count: 0, 
-          date: new Date().toISOString().split('T')[0] 
-        };
+        counters.keys[provider][result.keyId] = { count: 0, date: new Date().toISOString().split('T')[0] };
       }
       counters.keys[provider][result.keyId].count++;
     }
 
     return result;
   } catch (error) {
-    console.error(`Error with provider ${provider}:`, error.message);
-
-    // Si l'erreur est liée à l'autorisation pour SendGrid, passer directement au fournisseur suivant
-    if (provider === 'sendgrid' && error.message.includes('Unauthorized')) {
-      console.log(`Unauthorized with SendGrid. Switching to the next provider.`);
-      return sendEmailWithNextProvider(recipientEmail, message, retryCount + 1);
+    const status = error?.response?.status;
+  
+    // Fix: Changed CONFIG.API_KEYS to API_KEYS when removing faulty keys
+    if (status === 401) {
+      console.warn(`❌ Unauthorized with ${provider}. Skipping this provider.`);
+  
+      const faultyKey = provider === 'brevo' ? getNextBrevoApiKey() : getNextApiKey(provider);
+      if (faultyKey) {
+        // Here's the fixed line - using API_KEYS instead of CONFIG.API_KEYS
+        const index = API_KEYS[provider].indexOf(faultyKey);
+        if (index > -1) {
+          // And here too - using API_KEYS instead of CONFIG.API_KEYS
+          API_KEYS[provider].splice(index, 1);
+          console.warn(`🗑️ Removed invalid ${provider} key: ${faultyKey.substring(0, 8)}`);
+        }
+      }
     }
-
-    // Réessayer avec un autre fournisseur si disponible
+  
+    // Réessayer avec un autre provider
     if (retryCount < CONFIG.MAX_RETRIES) {
-      console.log(`Retrying with different provider for ${recipientEmail} (attempt ${retryCount + 1})`);
-      return sendEmailWithNextProvider(recipientEmail, message, retryCount + 1);
+      console.log(`↪ Retrying with different provider for ${recipientEmail} (attempt ${retryCount + 1})`);
+      return sendEmailWithNextProvider(recipientEmail, message, retryCount + 1, triedProviders);
     } else {
       throw new Error(`Failed to send after ${CONFIG.MAX_RETRIES} attempts: ${error.message}`);
     }
@@ -921,6 +942,7 @@ const sendEmailWithNextProvider = async (recipientEmail, message, retryCount = 0
 
 // Function to send emails to a batch of prospects
 const sendEmailsToBatch = async (batch) => {
+
   const results = {
     success: 0,
     failed: 0,
@@ -928,13 +950,23 @@ const sendEmailsToBatch = async (batch) => {
     byProvider: {},
     byKey: {},
     errors: []
-  };
+  }
 
   // Initialisation des compteurs des fournisseurs
   Object.keys(CONFIG.PROVIDERS).forEach(provider => {
     results.byProvider[provider] = 0;
     results.byKey[provider] = {};
   });
+
+  // Check provider status before starting
+  const providersAvailable = monitorProviderStatus(); 
+
+  if (!providersAvailable) {
+    console.error("No email providers available! Cannot send emails.");
+    results.failed = batch.length;
+    results.errors.push({ email: 'all', error: 'No email providers available' });
+    return results;
+  }
 
   // Traitement de chaque prospect dans le lot
   for (const prospect of batch) {
@@ -967,7 +999,12 @@ const sendEmailsToBatch = async (batch) => {
       };
 
       // Envoyer l'email avec le prochain fournisseur dans la rotation
-      const { provider, success, keyId } = await sendEmailWithNextProvider(prospect.email, message);
+      let provider, success, keyId;
+      try {
+        ({ provider, success, keyId } = await sendEmailWithNextProvider(prospect.email, message));
+      } catch (err) {
+        throw new Error(`Provider failed for ${prospect.email}: ${err.message}`);
+      }
 
       // Mise à jour des résultats et des compteurs
       if (success) {
@@ -985,7 +1022,7 @@ const sendEmailsToBatch = async (batch) => {
           .from('prospects')
           .update({
             status: 'sent',
-            last_sent: new Date().toISOString(),
+            last_attempt: new Date().toISOString(),
             provider: provider
           })
           .eq('email', prospect.email);
