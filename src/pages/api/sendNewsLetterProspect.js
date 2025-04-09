@@ -1132,12 +1132,14 @@ const sendEmailsInBatches = async (prospects) => {
 export default async function handler(req, res) {
   const fetchSize = 10000;
   try {
-    const configDir = path.join(process.cwd(), 'config');
-    const controlFile = path.join(configDir, 'sendControl.json');
+    // Utilise le répertoire temporaire de Vercel
+        const tempDir = '/tmp/config';
+        const controlFile = path.join(tempDir, 'sendControl.json');
+    
     
     // Check if control file exists, create it if not
-    if (!fs.existsSync(configDir)) {
-      fs.mkdirSync(configDir, { recursive: true });
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir, { recursive: true });
     }
     
     let control = { enabled: true };

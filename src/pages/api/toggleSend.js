@@ -13,11 +13,12 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: 'Le champ "enabled" est requis et doit être un booléen.' });
     }
 
-    const configDir = path.join(process.cwd(), 'config');
-    const controlFile = path.join(configDir, 'sendControl.json');
+    // Utilise le répertoire temporaire de Vercel
+    const tempDir = '/tmp/config';
+    const controlFile = path.join(tempDir, 'sendControl.json');
 
-    // Crée le dossier config s’il n’existe pas
-    await fs.mkdir(configDir, { recursive: true });
+    // Crée le dossier tempDir s’il n’existe pas
+    await fs.mkdir(tempDir, { recursive: true });
 
     // Écrit le fichier avec le flag
     const newData = JSON.stringify({ enabled }, null, 2);
