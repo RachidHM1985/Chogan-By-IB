@@ -208,7 +208,7 @@ const CONFIG = {
   SENDER_EMAIL: SENDER_EMAILS[0],  // Default sender email
   SENDER_NAME: "Chogan by Ikram",  // Added missing SENDER_NAME
   DEFAULT_SUBJECT: 'Votre Newsletter - Nouveaux parfums disponibles',
-  ACTIVE_PROVIDERS: ['sendgrid', 'brevo', 'sender'],
+  ACTIVE_PROVIDERS: ['sendgrid', 'brevo', 'mailjet'],
   PROVIDERS: {
     // Order based on cost-effectiveness (cheapest first)
     sendgrid: {
@@ -273,9 +273,21 @@ const getNextApiKey = (provider) => {
   if (provider === 'mailjet') {
     if (API_KEYS.mailjet.length === 0) return null;
     
+    // Assurez-vous que rotation.apiKeys.mailjet est initialisé
+    if (rotation.apiKeys.mailjet === undefined) {
+      rotation.apiKeys.mailjet = 0;
+    }
+    
     const index = rotation.apiKeys.mailjet;
     const credentials = API_KEYS.mailjet[index];
     rotation.apiKeys.mailjet = (index + 1) % API_KEYS.mailjet.length;
+    
+    // Vérifier si les credentials sont valides
+    if (!credentials || !credentials.apiKey || !credentials.secretKey) {
+      console.error('Invalid Mailjet credentials:', credentials);
+      return null;
+    }
+    
     return credentials;
   }
   
@@ -355,12 +367,15 @@ const selectNextProvider = (triedProviders = []) => {
     if (!CONFIG.PROVIDERS[p]?.enabled) return false;
     
     // Check if the provider has any API keys left
-    return API_KEYS[p] && (
-      // For arrays of API keys (SendGrid, Brevo)
-      (Array.isArray(API_KEYS[p]) && API_KEYS[p].length > 0) ||
-      // For object arrays (Mailjet)
-      (!Array.isArray(API_KEYS[p]) && Object.keys(API_KEYS[p]).length > 0)
-    );
+    if (!API_KEYS[p]) return false;
+    
+    // Pour Mailjet, vérifier que le tableau d'objets n'est pas vide
+    if (p === 'mailjet') {
+      return API_KEYS[p].length > 0;
+    }
+    
+    // Pour les autres fournisseurs (tableaux de chaînes)
+    return Array.isArray(API_KEYS[p]) && API_KEYS[p].length > 0;
   });
 
   // Log available providers for debugging
@@ -871,11 +886,12 @@ const sendEmailWithNextProvider = async (recipientEmail, message, retryCount = 0
     } 
     else if (provider === 'mailjet') {
       const credentials = getNextApiKey(provider);
-      if (!credentials || !credentials.apiKey) {
+      if (!credentials || !credentials.apiKey || !credentials.secretKey) {
         console.warn(`No valid Mailjet credentials available for ${recipientEmail}`);
         // Try another provider
         return sendEmailWithNextProvider(recipientEmail, message, retryCount, triedProviders);
       }
+      console.log(`Sending with Mailjet using key: ${credentials.apiKey.substring(0, 8)}`);
       result.success = await CONFIG.PROVIDERS[provider].send(recipientEmail, message, credentials);
       result.keyId = credentials.apiKey.substring(0, 8);
     }
@@ -1130,6 +1146,11 @@ const sendEmailsInBatches = async (prospects) => {
 };
 
 export default async function handler(req, res) {
+  // Au début du handler API
+console.log("Mailjet API keys configured:", API_KEYS.mailjet.map(cred => ({ 
+  apiKey: cred.apiKey?.substring(0, 8) || 'missing', 
+  secretKey: cred.secretKey ? 'present' : 'missing' 
+})));
   const fetchSize = 10000;
   try {
     // Utilise le répertoire temporaire de Vercel
