@@ -1,5 +1,4 @@
 // src/inngest/state/counters.js
-// En mémoire — à remplacer par Redis ou DB si nécessaire
 const counters = {
   daily: {
     sendgrid: { count: 0 },

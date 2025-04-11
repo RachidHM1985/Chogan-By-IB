@@ -1,10 +1,11 @@
-// pages/api/inngest.js
 import { serve } from 'inngest/next';
 import { inngest } from '../../inngest/client';
+// Importez toutes vos fonctions Inngest ici
 import { sendNewsletter } from '../../inngest/fonctions/sendNewsletter';
 
-// Regrouper toutes les fonctions Inngest
-const functions = [sendNewsletter];
-
-// Servir le point d'entrée Inngest
-export default serve(inngest, functions);
+// Cette fonction crée un handler qui reçoit les webhooks d'Inngest
+// et exécute les fonctions correspondantes
+export default serve({
+  client: inngest,
+  functions: [sendNewsletter], // Ajoutez toutes vos fonctions dans ce tableau
+});

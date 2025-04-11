@@ -10,22 +10,23 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Fonction pour récupérer les abonnés d'un segment spécifique avec pagination
-export const getSubscribersInSegment = async (segmentId) => {
-  const fetchSize = 10000;  // Nombre d'abonnés à récupérer par page
-  let startIndex = 0;  // Point de départ pour chaque page
+// Fonction pour récupérer les abonnés avec pagination optimisée
+export const getSubscribersInSegment = async () => {
+  const fetchSize = 1000;  // Nombre d'abonnés à récupérer par page
+  let lastId = 0;  // Utilisation du dernier ID pour la pagination par curseur
   let subscribers = [];  // Tableau pour stocker tous les abonnés récupérés
   let hasMoreData = true;  // Flag pour savoir s'il reste encore des données à récupérer
 
   try {
     while (hasMoreData) {
-      // Effectuer la requête avec pagination
+      // Effectuer la requête en utilisant la pagination par curseur (basée sur 'id')
       const { data, error, count } = await supabase
         .from('prospects')
-        .select('prenom, nom, email, status', { count: 'exact' })  // Récupère le nombre exact de résultats
+        .select('prenom, nom, email, status, id', { count: 'exact' })  // Récupérer l'ID pour pagination
         .is('status', null)  // Filtrer par statut null
-        .order('created_at', { ascending: false })  // Trier par date de création
-        .range(startIndex, startIndex + fetchSize - 1);  // Limiter les résultats à la page actuelle
+        .gt('id', lastId)  // Utiliser l'ID pour la pagination (plus efficace)
+        .order('id', { ascending: true })  // Trier par ID croissant pour un ordre logique
+        .limit(fetchSize);  // Limiter les résultats à la taille de la page
 
       // Si une erreur survient lors de la récupération des données
       if (error) {
@@ -35,12 +36,12 @@ export const getSubscribersInSegment = async (segmentId) => {
       // Ajouter les abonnés récupérés à la liste totale
       subscribers = [...subscribers, ...data];
 
-      // Si le nombre total de données récupérées atteint la limite, arrêter la boucle
-      if (subscribers.length >= count) {
-        hasMoreData = false;  // Aucune donnée supplémentaire à récupérer
+      // Si moins de résultats sont récupérés que le fetchSize, on a atteint la fin
+      if (data.length < fetchSize) {
+        hasMoreData = false;
       } else {
-        // Mettre à jour le point de départ pour la prochaine page
-        startIndex += fetchSize;
+        // Mettre à jour le dernier ID pour la pagination
+        lastId = data[data.length - 1].id;
       }
     }
 

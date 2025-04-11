@@ -14,11 +14,10 @@ export function validateEmail(email) {
  * @returns {string|null} - Message d'erreur ou null si valide
  */
 export function validateNewsletterPayload(payload) {
-  const { newsletterId, segmentId, templateId } = payload;
+  const { newsletterId, segmentId } = payload;
  
   if (!newsletterId) return 'newsletterId est requis';
   if (!segmentId) return 'segmentId est requis';
-  if (!templateId) return 'templateId est requis';
  
   return null;
 }

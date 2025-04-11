@@ -9,14 +9,16 @@ export default async function handler(req, res) {
   try {
     console.log('Déclenchement de l\'événement Inngest pour l\'envoi de la newsletter...');
     
-    // Déclencher l'événement Inngest avec les données nécessaires
+    // Déclencher l'événement Inngest pour l'envoi de newsletter
     await inngest.send({
-      name: EVENTS.NEWSLETTER_TRIGGER, // Utiliser la constante définie dans client.js
+      name: EVENTS.NEWSLETTER_TRIGGER,
       data: {
         triggered: new Date().toISOString(),
         source: 'admin-panel',
+        // Ajouter ici d'autres données nécessaires pour votre fonction
         segmentId: req.body.segmentId || 1,
-        newsletterId: req.body.newsletterId || 'default',
+        newsletterId: req.body.newsletterId
+    
       },
     });
 

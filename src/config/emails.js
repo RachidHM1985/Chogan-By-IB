@@ -13,13 +13,13 @@ export const emailConfig = {
           id: 'sendgrid1',
           apiKey: process.env.SENDGRID_API_KEY_1,
           dailyLimit: 100, // Limite quotidienne typique pour compte gratuit
-          hourlyLimit: 30  // Estimation de la limite horaire
+          hourlyLimit: 20  // Estimation de la limite horaire
         },
         { 
           id: 'sendgrid2',
           apiKey: process.env.SENDGRID_API_KEY_2,
           dailyLimit: 100,
-          hourlyLimit: 30
+          hourlyLimit: 20
         }
       ],
       defaultFromEmail: 'newsletter@example.com',
@@ -30,13 +30,13 @@ export const emailConfig = {
           id: 'brevo1',
           apiKey: process.env.BREVO_API_KEY_1,
           dailyLimit: 300, // Limite quotidienne typique pour compte gratuit
-          hourlyLimit: 100 // Estimation de la limite horaire
+          hourlyLimit: 50 // Estimation de la limite horaire
         },
         { 
           id: 'brevo2',
           apiKey: process.env.BREVO_API_KEY_2,
           dailyLimit: 300,
-          hourlyLimit: 100
+          hourlyLimit: 50
         }
       ],
       defaultFromEmail: 'newsletter@exemple.fr',

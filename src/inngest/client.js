@@ -3,14 +3,13 @@ import { Inngest } from 'inngest';
 
 // Initialiser le client Inngest
 export const inngest = new Inngest({ 
-  id: 'newsletter-batch-sending',
+  id: 'send-newsletter',
   eventKey: process.env.INNGEST_EVENT_KEY 
 });
 
 // Constantes pour les événements
 export const EVENTS = {
-  NEWSLETTER_TRIGGER: 'newsletter/send',
-  BATCH_PROCESSED: 'newsletter/batch.processed',
-  EMAIL_SENT: 'newsletter/email.sent',
-  EMAIL_FAILED: 'newsletter/email.failed'
+  EMAIL_SENT: 'email_sent',
+  EMAIL_FAILED: 'email_failed',
+  NEWSLETTER_TRIGGER: 'newsletter/send'
 };
