@@ -9,7 +9,7 @@ export const inngest = new Inngest({
 
 // Constantes pour les événements
 export const EVENTS = {
-  NEWSLETTER_TRIGGER: 'newsletter/trigger',
+  NEWSLETTER_TRIGGER: 'newsletter/send',
   BATCH_PROCESSED: 'newsletter/batch.processed',
   EMAIL_SENT: 'newsletter/email.sent',
   EMAIL_FAILED: 'newsletter/email.failed'
