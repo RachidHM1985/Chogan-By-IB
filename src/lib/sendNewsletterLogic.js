@@ -480,7 +480,7 @@ export async function sendNewsletterBatch({ subscribers, newsletterId, templateI
     }
 
     if (!sent) {
-      console.error("❌ Aucun fournisseur disponible pour ce lot.");
+      console.warn("❌ Aucun fournisseur disponible pour ce lot.");
       batch.forEach(() => results.failedCount++);
     }
   }
@@ -516,7 +516,7 @@ async function processSubscriber({ subscriber, emailProvider, newsletterId, temp
 
     return { success: true, subscriberId: subscriber.id };
   } catch (error) {
-    console.error(`Erreur lors de l'envoi à ${subscriber.email}:`, error);
+    console.warn(`Erreur lors de l'envoi à ${subscriber.email}:`, error);
 
     await inngest.send({
       name: EVENTS.EMAIL_FAILED,
