@@ -4,7 +4,7 @@ import { Typography, Box, Button, IconButton, Select, MenuItem, Snackbar,Grid, A
 import { Add, Remove } from '@mui/icons-material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'; // Importation d'ExpandMoreIcon
 import { useRouter } from 'next/router';
-import { supabase } from '../../../../lib/supabaseClient';
+import { supabase } from '../../../lib/supabaseClient';
 import { useCart } from '../../../context/CartContext';
 import Layout from '../../../components/Layout';
 import Footer from '../../../components/Footer';

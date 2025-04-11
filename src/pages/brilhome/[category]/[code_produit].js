@@ -3,7 +3,7 @@ import { Container, Row, Col } from 'react-bootstrap';
 import { Typography, Box, Button, IconButton, Select, MenuItem, Snackbar, Rating } from '@mui/material';
 import { Add, Remove } from '@mui/icons-material';
 import { useRouter } from 'next/router';
-import { supabase } from '../../../../lib/supabaseClient';
+import { supabase } from '../../../lib/supabaseClient';
 import { useCart } from '../../../context/CartContext';
 import Layout from '../../../components/Layout';
 import Footer from '../../../components/Footer';

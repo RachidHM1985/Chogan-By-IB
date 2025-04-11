@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Box, CircularProgress, Typography, Card, TextField, Button } from '@mui/material';
-import { supabase } from '../../../lib/supabaseClient';
+import { supabase } from '../../lib/supabaseClient';
 import { useRouter } from 'next/router';
 import CustomCardPeptilux from '../../components/CustomCardPeptilux';
 import Layout from '../../components/Layout';
