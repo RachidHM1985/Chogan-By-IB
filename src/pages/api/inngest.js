@@ -1,7 +1,7 @@
 // pages/api/inngest.js
 import { serve } from 'inngest/next';
 import { inngest } from '../../inngest/client';
-import { sendNewsletter } from '../../inngest/functions/sendNewsletter';
+import { sendNewsletter } from '../../inngest/fonctions/sendNewsletter';
 
 // Regrouper toutes les fonctions Inngest
 const functions = [sendNewsletter];
