@@ -426,10 +426,12 @@ export async function sendNewsletterBatch({ subscribers, newsletterId, templateI
 
   for (let i = 0; i < subscribers.length; i += MAX_CONCURRENCY) {
     const batch = subscribers.slice(i, i + MAX_CONCURRENCY);
-
     let providerTried = 0;
     let sent = false;
 
+    console.log(`Traitement du lot de ${batch.length} abonnés (indices ${i} à ${i + MAX_CONCURRENCY - 1})`);
+
+    // Attendre que le lot soit entièrement traité avant de passer au suivant
     while (providerTried < emailProviders.length && !sent) {
       const currentProviderName = emailProviders[currentProviderIndex];
       const emailProvider = await getEmailProviderClient(currentProviderName);
@@ -444,6 +446,7 @@ export async function sendNewsletterBatch({ subscribers, newsletterId, templateI
           return processSubscriber({ subscriber, emailProvider, newsletterId, templateId });
         });
 
+        // Attendre que toutes les promesses du lot soient terminées
         const batchResults = await Promise.allSettled(sendPromises);
 
         let sentInBatch = 0;
@@ -460,12 +463,14 @@ export async function sendNewsletterBatch({ subscribers, newsletterId, templateI
 
         baseLogProviderUsage(currentProviderName, sentInBatch);
 
+        // Vérifier si le fournisseur a atteint sa limite avant de passer au suivant
         if (sentByCurrentProvider >= providerQuotas[currentProviderName]) {
           currentProviderIndex = (currentProviderIndex + 1) % emailProviders.length;
           sentByCurrentProvider = 0;
         }
 
         sent = true;
+        console.log(`Lot traité. ${sentInBatch} envoyés par ${currentProviderName}, ${results.failedCount} échoués.`);
       } catch (error) {
         if (error.message.includes('429')) {
           console.warn(`⚠️ ${currentProviderName} a atteint sa limite (429). Passage au suivant.`);
@@ -484,6 +489,9 @@ export async function sendNewsletterBatch({ subscribers, newsletterId, templateI
       batch.forEach(() => results.failedCount++);
     }
   }
+
+  // Log final après traitement de tous les abonnés
+  console.log(`Envoi terminé. Total envoyés: ${results.sentCount}, Total échoués: ${results.failedCount}`);
 
   await updateNewsletterStats(newsletterId, results.sentCount, results.failedCount);
   return results;
@@ -514,6 +522,7 @@ async function processSubscriber({ subscriber, emailProvider, newsletterId, temp
       }
     });
 
+    console.log(`Email envoyé à ${subscriber.email} avec succès.`);
     return { success: true, subscriberId: subscriber.id };
   } catch (error) {
     console.warn(`Erreur lors de l'envoi à ${subscriber.email}:`, error);
@@ -540,3 +549,4 @@ async function updateNewsletterStats(newsletterId, sentCount, failedCount) {
   console.log(`Nombre d'emails envoyés : ${sentCount}`);
   console.log(`Nombre d'emails échoués : ${failedCount}`);
 }
+

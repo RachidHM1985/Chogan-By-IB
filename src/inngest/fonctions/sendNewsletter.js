@@ -9,9 +9,11 @@ export const sendNewsletter = inngest.createFunction(
   { event: EVENTS.NEWSLETTER_TRIGGER },
   async ({ event, step, logger }) => {
     logger.info('💡 Fonction `sendNewsletter` déclenchée !');
-    console.log('💡 Fonction `sendNewsletter` déclenchée (console.log)');
-    
+
     const segmentId = event.data.segmentId || 1;
+    const newsletterId = event.data.newsletterId;
+    const batchSize = event.data.batchSize || 100;
+
     const subscribers = await getSubscribersInSegment(segmentId);
 
     if (!subscribers?.length) {
@@ -19,50 +21,72 @@ export const sendNewsletter = inngest.createFunction(
       return;
     }
 
+    // Limiter à batchSize
+    const batch = subscribers.slice(0, batchSize);
+
     // Diviser les prospects par fournisseur d’envoi
     const providers = ['sendgrid', 'brevo', 'mailjet'];
     const totalStats = [];
 
     // Préparer les envois par fournisseur
-    for (const provider of providers) {
-      const client = getEmailProviderClient(provider);
-      const prospectsForProvider = subscribers.filter((_, idx) => idx % providers.length === providers.indexOf(provider));
+    for (const [index, provider] of providers.entries()) {
+      const client = await getEmailProviderClient();
+      const maskedKey = client.apiKey
+        ? client.apiKey.slice(0, 4) + '...' + client.apiKey.slice(-4)
+        : 'Non disponible';
+      logger.info(`[${provider}] Clé API utilisée : ${maskedKey}`);
+
+      const prospectsForProvider = batch.filter((_, idx) => idx % providers.length === providers.indexOf(provider));
       const stats = { provider, success: 0, failed: 0 };
 
       try {
-        // Envoyer les newsletters par lots
-        const sendBatchResults = await sendNewsletterBatch({
-          subscribers: prospectsForProvider,
-          newsletterId: event.data.newsletterId,
-          provider
-        });
+        // Découper les prospects en lots de 10
+        for (let i = 0; i < prospectsForProvider.length; i += 10) {
+          const lot = prospectsForProvider.slice(i, i + 10);
 
-        // Mettre à jour les statistiques pour le fournisseur
-        stats.success = sendBatchResults.sentCount;
-        stats.failed = sendBatchResults.failedCount;
+          const sendBatchResults = await sendNewsletterBatch({
+            subscribers: lot,
+            newsletterId,
+            provider
+          });
 
-        logger.info(`[${provider}] : ${stats.success} envoyés, ${stats.failed} échoués.`);
+          stats.success += sendBatchResults.sentCount;
+          stats.failed += sendBatchResults.failedCount;
+
+          const status = sendBatchResults.failedCount > 0 ? 'failed' : 'success';
+
+          const updates = lot.map((prospect) => ({
+            email: prospect.email,
+            status,
+            last_sent: new Date().toISOString(),
+            provider,
+          }));
+
+          const { error } = await supabase
+            .from('prospects')
+            .upsert(updates, { onConflict: ['email'] });
+
+          if (error) {
+            logger.error('Erreur lors de la mise à jour des prospects:', error.message);
+          }
+
+          logger.info(`[${provider}] Lot de ${lot.length} : ${sendBatchResults.sentCount} envoyés, ${sendBatchResults.failedCount} échoués.`);
+
+          // Attendre 10 minutes entre chaque lot
+          if (i + 10 < prospectsForProvider.length) {
+            logger.info(`⏳ Attente de 10 minutes avant le prochain lot pour ${provider}...`);
+            await new Promise(resolve => setTimeout(resolve, 10 * 60 * 1000));
+          }
+        }
 
         totalStats.push(stats);
 
-        // Mise à jour de l'état global de l'envoi pour chaque abonné
-        const status = sendBatchResults.failedCount > 0 ? 'failed' : 'success';
-
-        // Regrouper les mises à jour dans un seul appel pour plus d'efficacité
-        const updates = prospectsForProvider.map((prospect) => ({
-          email: prospect.email,
-          status,
-          last_sent: new Date().toISOString(),
-          provider,
-        }));
-
-        const { error } = await supabase
-          .from('prospects')
-          .upsert(updates, { onConflict: ['email'] });
-
-        if (error) {
-          logger.error('Erreur lors de la mise à jour des prospects:', error.message);
+        // Attendre 10 minutes avant de passer au fournisseur suivant
+        if (index < providers.length - 1) {
+          logger.info(`⏳ Attente de 10 minutes avant de passer au fournisseur suivant...`);
+          await new Promise(resolve => setTimeout(resolve, 10 * 60 * 1000));
         }
+
       } catch (err) {
         logger.error(`[${provider}] Erreur lors de l'envoi de la newsletter :`, err.message);
       }
