@@ -72,8 +72,8 @@ export const emailConfig = {
   // Configuration de rotation des clés API
   rotation: {
     enabled: true,
-    strategy: 'smart-balance', // 'round-robin', 'priority', ou 'smart-balance'
-    resetCountersAtMidnight: true, // Réinitialise les compteurs à minuit
+    strategy: 'smart-balance', 
+    resetCountersAtMidnight: true,
   },
   
   // Limites globales d'envoi
