@@ -50,9 +50,16 @@ const Orders = () => {
   const sendNewsletter = async () => {
     try {
       setLoadingUpdate(true);
-      // Appel à l'API pour envoyer la newsletter à tous les prospects
-      const response = await axios.post('/api/newsletter');
-      
+  
+      // Remplace ces valeurs par celles que tu veux vraiment utiliser
+      const data = {
+        segmentId: 1,
+        newsletterId: 1,
+        batchSize: 100, // facultatif
+      };
+  
+      const response = await axios.post('/api/triggerNewsletter', data);
+  
       if (response.status === 200) {
         showSnackbar('Newsletter envoyée avec succès à tous les prospects !', 'success');
       } else {
@@ -65,6 +72,7 @@ const Orders = () => {
       setLoadingUpdate(false);
     }
   };
+  
 
   const handleStatusChange = async (event, orderId) => {
     const newStatus = event.target.value;
