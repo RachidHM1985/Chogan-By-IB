@@ -422,7 +422,7 @@ export async function sendNewsletterBatch({ subscribers, newsletterId, templateI
   const emailProviders = ['sendgrid', 'brevo', 'mailjet'];
   let currentProviderIndex = 0;
   let sentByCurrentProvider = 0;
-  const MAX_CONCURRENCY = 10;
+  const MAX_CONCURRENCY = 50;
 
   for (let i = 0; i < subscribers.length; i += MAX_CONCURRENCY) {
     const batch = subscribers.slice(i, i + MAX_CONCURRENCY);

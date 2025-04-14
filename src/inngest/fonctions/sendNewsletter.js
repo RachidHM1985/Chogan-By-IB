@@ -86,8 +86,8 @@ export const processNewsletterBatch = inngest.createFunction(
       if (subscribersForProvider.length === 0) continue;
 
       // Diviser par mini-lots pour un envoi plus rapide
-      for (let i = 0; i < subscribersForProvider.length; i += 5) {
-        const miniLot = subscribersForProvider.slice(i, i + 5);
+      for (let i = 0; i < subscribersForProvider.length; i += 30) {
+        const miniLot = subscribersForProvider.slice(i, i + 30);
 
         try {
           // Envoyer les emails
