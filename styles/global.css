@@ -111,3 +111,24 @@ html {
   animation: fadeOut 1s forwards;
 }
 
+.reassurances-container {
+  padding-left: 0;
+  width: fit-content;
+  margin: auto;
+  padding-bottom: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, 130px);
+  column-gap: 15px;
+}
+
+@media (min-width: 640px) {
+  .reassurances-container {
+    grid-template-columns: repeat(2, 130px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .reassurances-container {
+    grid-template-columns: repeat(4, 130px);
+  }
+}

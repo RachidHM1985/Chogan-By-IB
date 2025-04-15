@@ -8,6 +8,7 @@ import Header from '../components/Header';
 import ReviewsSection from '../components/ReviewsSection';
 import Link from 'next/link';
 import Banner from '../components/Banner';
+import ReassurancesComponent from '../components/ReassurancesComponent';
 
 export default function Home() {
   const [isClient, setIsClient] = useState(false);
@@ -176,7 +177,9 @@ const promoImages = [
             </Grid>
           </Grid>
         </Box>
-
+        <Box sx={{marginTop: '50px'}}>                    
+          <ReassurancesComponent />
+        </Box>
         {/* Section des Avis Clients */}
         <Box sx={{ marginTop: '40px', backgroundColor: '#f8f8f8', padding: '5px 5px' }}>
           <ReviewsSection productId={'*'} isInsertComment={false} />
