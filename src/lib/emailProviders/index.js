@@ -10,11 +10,15 @@ import { emailConfig } from '../../config/emails';
  * @param {number} emailCount - Nombre d'emails à envoyer
  * @returns {Promise<Object>} - Instance du fournisseur configuré
  */
-export async function getEmailProviderClient(emailCount = 1) {
+export async function getEmailProviderClient(emailCount = 1, logger) {
   try {
     // Sélectionner le meilleur fournisseur en fonction des limites et disponibilités
     const provider = await selectBestProvider(emailCount);
-    
+
+    if (!provider) {
+      logger?.warn?.('❌ Aucun fournisseur disponible. Envoi stoppé.');
+      return null;
+    }    
     // Configurer le fournisseur sélectionné
     switch (provider.providerName) {
       case 'sendgrid':

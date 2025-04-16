@@ -11,15 +11,15 @@ export const sendNewsletter = inngest.createFunction(
   async ({ event, step, logger }) => {
     const segmentId = event.data.segmentId || 1;
     const newsletterId = event.data.newsletterId;
-    const batchSize = event.data.batchSize || 50;
+    const batchSize = event.data.batchSize || 100;
 
     // Créer un ID de tâche unique pour cette exécution
     const taskId = `newsletter-${newsletterId}-${Date.now()}`;
-    
+
     // Récupérer le compte des abonnés
     const subscriberCount = await step.run('count-subscribers', async () => {
       const subscribers = await getSubscribersInSegment(segmentId);
-      
+
       return subscribers?.length || 0;
     });
 
@@ -58,7 +58,7 @@ export const processNewsletterBatch = inngest.createFunction(
   { event: 'newsletter.process.batch' },
   async ({ event, step, logger }) => {
     const { taskId, newsletterId, segmentId, batchIndex, batchSize, totalBatches } = event.data;
-    
+
     // Récupérer uniquement les abonnés pour ce lot
     const batch = await step.run('get-batch', async () => {
       const allSubscribers = await getSubscribersInSegment(segmentId);
@@ -92,7 +92,25 @@ export const processNewsletterBatch = inngest.createFunction(
         try {
           // Envoyer les emails
           const result = await step.run(`send-${provider}-${i}`, async () => {
-            const client = await getEmailProviderClient(provider);
+            const client = await getEmailProviderClient(provider, logger);
+
+            if (!client) {
+              logger.warn('⛔ Envoi du batch arrêté : aucun client email disponible.');
+              await inngest.send({
+                name: EVENTS.EMAIL_LIMIT_REACHED,
+                data: {
+                  message: `Limite atteinte pour tous les fournisseurs. Mini-lot annulé : ${provider}`,
+                  provider,
+                  batchIndex,
+                  timestamp: new Date().toISOString(),
+                },
+              });
+              return {
+                status: 'batch_stopped',
+                reason: 'no_provider_available'
+              };
+            }
+
             const sendResult = await sendNewsletterBatch({
               subscribers: miniLot,
               newsletterId,

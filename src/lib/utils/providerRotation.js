@@ -1,10 +1,16 @@
 // lib/utils/providerRotation.js
 import { emailConfig } from '../../config/emails';
-
+import { inngest, EVENTS } from '../../inngest/client';
 // Compteurs d'utilisation des fournisseurs
 const usageCounters = {
   lastReset: Date.now(),
   providers: {}
+};
+
+const providerQuotas = {
+  sendgrid: { remainingQuota: 100 },
+  brevo: { remainingQuota: 300 },
+  mailjet: { remainingQuota: 200 },
 };
 
 // Initialisation des compteurs pour tous les fournisseurs
@@ -67,91 +73,101 @@ function checkAndResetDailyCounters() {
   }
 }
 
+// Fonction pour obtenir des informations sur un fournisseur d'email
+async function getProviderInfo(providerName) {
+  const providerInfo = providerQuotas[providerName];
+
+  if (!providerInfo) {
+    return {
+      providerName,
+      remainingQuota: 0,
+    };
+  }
+
+  return {
+    providerName,
+    remainingQuota: providerInfo.remainingQuota,
+  };
+}
+
 /**
  * Sélectionne le meilleur fournisseur d'email basé sur les limites actuelles
- * @param {number} emailsToSend - Nombre d'emails à envoyer
+ * @param {Object} options - Options
+ * @param {Object} options.logger - Logger
  * @returns {Object} - Informations sur le fournisseur sélectionné
  */
-export async function selectBestProvider(emailsToSend) {
-  // Initialiser les compteurs si nécessaire
+// lib/utils/providerRotation.js
+export async function selectBestProvider({ logger }) {
   initializeCounters();
-  
-  // Vérifier et réinitialiser les compteurs si nécessaire
   checkAndResetHourlyCounters();
-  if (emailConfig.rotation.resetCountersAtMidnight) {
-    checkAndResetDailyCounters();
-  }
+  checkAndResetDailyCounters();
   
   const availableProviders = [];
+  const usageState = getProvidersUsageState();
   
-  // Parcourir tous les fournisseurs et comptes pour vérifier leur disponibilité
+  // Parcourir tous les fournisseurs configurés
   Object.keys(emailConfig.providers).forEach(providerName => {
-    const provider = emailConfig.providers[providerName];
+    const providerConfig = emailConfig.providers[providerName];
     
-    provider.accounts.forEach(account => {
-      const counter = usageCounters.providers[providerName][account.id];
+    // Parcourir tous les comptes de ce fournisseur
+    providerConfig.accounts.forEach(account => {
+      // Vérifier si la clé API est définie
+      if (!account.apiKey) {
+        logger?.warn?.(`⚠️ Clé API manquante pour ${providerName}:${account.id}`);
+        return; // Passer à l'itération suivante
+      }
       
-      // Vérifier si ce compte a suffisamment de quota disponible
-      const remainingHourlyCapacity = account.hourlyLimit - counter.hourlyCount;
-      const remainingDailyCapacity = account.dailyLimit - counter.dailyCount;
-      const availableCapacity = Math.min(remainingHourlyCapacity, remainingDailyCapacity);
+      // Pour Mailjet, vérifier aussi la clé secrète
+      if (providerName === 'mailjet' && !account.secretKey) {
+        logger?.warn?.(`⚠️ Clé secrète manquante pour ${providerName}:${account.id}`);
+        return;
+      }
       
-      if (availableCapacity >= emailsToSend) {
+      const accountUsage = usageState[providerName]?.[account.id];
+      
+      // Vérifier si le compte a encore de la capacité
+      if (accountUsage && 
+          accountUsage.hourlyRemaining > 0 && 
+          accountUsage.dailyRemaining > 0) {
+        
+        // Ce compte est disponible, l'ajouter à la liste
         availableProviders.push({
           providerName,
           accountId: account.id,
           apiKey: account.apiKey,
-          secretKey: account.secretKey, // Pour Mailjet qui nécessite deux clés
-          availableCapacity,
-          // Calculer un score de priorité basé sur le pourcentage de capacité restante
-          // Cela favorise les comptes avec plus de quota disponible
-          priorityScore: availableCapacity / Math.max(account.hourlyLimit, account.dailyLimit)
+          secretKey: account.secretKey, // Pour Mailjet
+          hourlyRemaining: accountUsage.hourlyRemaining,
+          dailyRemaining: accountUsage.dailyRemaining,
+          // Score pour déterminer le meilleur fournisseur
+          score: (accountUsage.hourlyRemaining / account.hourlyLimit) * 100 +
+                 (accountUsage.dailyRemaining / account.dailyLimit) * 50
         });
       }
     });
   });
-  
-  // Si aucun fournisseur n'a suffisamment de capacité, prendre celui avec le plus de capacité
+
+  // Trier les fournisseurs disponibles par score (du plus haut au plus bas)
+  availableProviders.sort((a, b) => b.score - a.score);
+
+  // Si aucun fournisseur disponible
   if (availableProviders.length === 0) {
-    let bestProvider = null;
-    let bestCapacity = 0;
-    
-    Object.keys(emailConfig.providers).forEach(providerName => {
-      const provider = emailConfig.providers[providerName];
-      
-      provider.accounts.forEach(account => {
-        const counter = usageCounters.providers[providerName][account.id];
-        
-        const remainingHourlyCapacity = account.hourlyLimit - counter.hourlyCount;
-        const remainingDailyCapacity = account.dailyLimit - counter.dailyCount;
-        const availableCapacity = Math.min(remainingHourlyCapacity, remainingDailyCapacity);
-        
-        if (availableCapacity > bestCapacity) {
-          bestCapacity = availableCapacity;
-          bestProvider = {
-            providerName,
-            accountId: account.id,
-            apiKey: account.apiKey,
-            secretKey: account.secretKey,
-            availableCapacity,
-            priorityScore: 1
-          };
-        }
+    logger?.warn?.('⚠️ Tous les fournisseurs ont atteint leurs limites');
+
+    // Si inngest est défini, envoyer un événement
+    if (typeof inngest !== 'undefined') {
+      await inngest.send({
+        name: EVENTS.EMAIL_LIMIT_REACHED,
+        data: {
+          message: "Tous les fournisseurs ont atteint leurs limites d'envoi.",
+          timestamp: new Date().toISOString(),
+        },
       });
-    });
-    
-    if (bestProvider) {
-      return bestProvider;
     }
-    
-    // Si vraiment aucune capacité, attendre et réessayer plus tard
-    throw new Error('Tous les fournisseurs ont atteint leurs limites');
+
+    return null;
   }
-  
-  // Trier les fournisseurs par score de priorité
-  availableProviders.sort((a, b) => b.priorityScore - a.priorityScore);
-  
-  // Sélectionner le fournisseur avec le meilleur score
+
+  // Retourne le meilleur fournisseur
   return availableProviders[0];
 }
 
@@ -170,6 +186,14 @@ export function updateProviderUsage(providerName, accountId, sentCount) {
   const counter = usageCounters.providers[providerName][accountId];
   counter.hourlyCount += sentCount;
   counter.dailyCount += sentCount;
+  
+  // Mettre à jour également le quota restant du fournisseur
+  if (providerQuotas[providerName]) {
+    providerQuotas[providerName].remainingQuota -= sentCount;
+    if (providerQuotas[providerName].remainingQuota < 0) {
+      providerQuotas[providerName].remainingQuota = 0;
+    }
+  }
   
   // Vérifier si les compteurs dépassent les limites (pour la sécurité)
   const account = emailConfig.providers[providerName].accounts.find(a => a.id === accountId);

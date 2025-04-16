@@ -1,9 +1,9 @@
-// config/email.js
+// config/emails.js
 export const emailConfig = {
   // Paramètres par défaut
-  defaultFromEmail: process.env.DEFAULT_FROM_EMAIL || 'newsletter@example.com',
-  defaultFromName: process.env.DEFAULT_FROM_NAME || 'Newsletter',
-  defaultReplyTo: process.env.DEFAULT_REPLY_TO || 'noreply@example.com',
+  defaultFromEmail: process.env.DEFAULT_FROM_EMAIL,
+  defaultFromName: process.env.DEFAULT_FROM_NAME,
+  defaultReplyTo: process.env.DEFAULT_REPLY_TO,
   
   // Configuration des fournisseurs et leurs limites
   providers: {
@@ -22,7 +22,7 @@ export const emailConfig = {
           hourlyLimit: 20
         }
       ],
-      defaultFromEmail: 'newsletter@example.com',
+      defaultFromEmail: process.env.DEFAULT_FROM_EMAIL,
     },
     brevo: {
       accounts: [
@@ -39,7 +39,7 @@ export const emailConfig = {
           hourlyLimit: 50
         }
       ],
-      defaultFromEmail: 'newsletter@exemple.fr',
+      defaultFromEmail: process.env.DEFAULT_FROM_EMAIL,
     },
     mailjet: {
       accounts: [
@@ -65,7 +65,7 @@ export const emailConfig = {
           hourlyLimit: 70
         }
       ],
-      defaultFromEmail: 'news@example.com',
+      defaultFromEmail: process.env.DEFAULT_FROM_EMAIL,
     }
   },
   

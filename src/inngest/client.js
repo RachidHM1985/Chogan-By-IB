@@ -11,5 +11,6 @@ export const inngest = new Inngest({
 export const EVENTS = {
   EMAIL_SENT: 'email_sent',
   EMAIL_FAILED: 'email_failed',
-  NEWSLETTER_TRIGGER: 'newsletter/send'
+  NEWSLETTER_TRIGGER: 'newsletter/send',
+  EMAIL_LIMIT_REACHED: 'email_limit_reached',
 };
