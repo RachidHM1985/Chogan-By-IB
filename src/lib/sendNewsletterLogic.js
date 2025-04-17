@@ -33,7 +33,7 @@ export async function sendNewsletterBatch({ subscribers, newsletterId, templateI
       const provider = await getEmailProviderClient(providerInfo, logger);
       const emailResult = await provider.send({
         to: subscriber.email,
-        subject: `Votre Newsletter - Nouveaux parfums disponibles`,
+        subject: `Découvrez la beauté accessible avec Chogan 🌸`,
         html: await generateEmailHTML(subscriber),
         trackingId: `newsletter-${newsletterId}-${subscriber.id}`,
       });
