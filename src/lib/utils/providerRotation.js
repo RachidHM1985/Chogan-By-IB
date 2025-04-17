@@ -1,48 +1,56 @@
+
 // lib/utils/providerRotation.js
 import { emailConfig } from '../../config/emails';
 import { inngest, EVENTS } from '../../inngest/client';
+
 // Compteurs d'utilisation des fournisseurs
 const usageCounters = {
   lastReset: Date.now(),
   providers: {}
 };
 
-const providerQuotas = {
-  sendgrid: { remainingQuota: 100 },
-  brevo: { remainingQuota: 300 },
-  mailjet: { remainingQuota: 200 },
+// Suivi des erreurs des fournisseurs (pour exclusion temporaire)
+const providerErrors = {
+  providers: {}
 };
 
-// Initialisation des compteurs pour tous les fournisseurs
+// Quotas simulés par provider
+const providerQuotas = {
+  sendgrid: { remainingQuota: 100 },
+  brevo:   { remainingQuota: 300 }
+};
+/*const providerQuotas = {
+  sendgrid: { remainingQuota: 100 },
+  brevo:   { remainingQuota: 300 },
+  mailjet: { remainingQuota: 200 }
+};*/
+
+// Initialisation des compteurs et erreurs pour tous les accounts
 function initializeCounters() {
   if (Object.keys(usageCounters.providers).length > 0) return;
-  
   Object.keys(emailConfig.providers).forEach(providerName => {
-    const provider = emailConfig.providers[providerName];
-    
     usageCounters.providers[providerName] = {};
-    
-    provider.accounts.forEach(account => {
+    providerErrors.providers[providerName] = {};
+    emailConfig.providers[providerName].accounts.forEach(account => {
       usageCounters.providers[providerName][account.id] = {
         dailyCount: 0,
         hourlyCount: 0,
         lastHourlyReset: Date.now()
       };
+      providerErrors.providers[providerName][account.id] = {
+        errorType: null,
+        lastErrorTime: null,
+        errorCount: 0
+      };
     });
   });
 }
 
-/**
- * Réinitialise les compteurs horaires si nécessaire
- */
 function checkAndResetHourlyCounters() {
   const now = Date.now();
   const ONE_HOUR = 60 * 60 * 1000;
-  
-  Object.keys(usageCounters.providers).forEach(providerName => {
-    Object.keys(usageCounters.providers[providerName]).forEach(accountId => {
-      const counter = usageCounters.providers[providerName][accountId];
-      
+  Object.values(usageCounters.providers).forEach(accounts => {
+    Object.values(accounts).forEach(counter => {
       if (now - counter.lastHourlyReset > ONE_HOUR) {
         counter.hourlyCount = 0;
         counter.lastHourlyReset = now;
@@ -51,192 +59,177 @@ function checkAndResetHourlyCounters() {
   });
 }
 
-/**
- * Réinitialise les compteurs quotidiens à minuit
- */
 function checkAndResetDailyCounters() {
   const now = new Date();
-  const lastResetDate = new Date(usageCounters.lastReset);
-  
-  // Si nous sommes passés à un nouveau jour
-  if (now.getDate() !== lastResetDate.getDate() || 
-      now.getMonth() !== lastResetDate.getMonth() || 
-      now.getFullYear() !== lastResetDate.getFullYear()) {
-    
-    Object.keys(usageCounters.providers).forEach(providerName => {
-      Object.keys(usageCounters.providers[providerName]).forEach(accountId => {
-        usageCounters.providers[providerName][accountId].dailyCount = 0;
-      });
+  const last = new Date(usageCounters.lastReset);
+  if (now.toDateString() !== last.toDateString()) {
+    Object.values(usageCounters.providers).forEach(accounts => {
+      Object.values(accounts).forEach(counter => counter.dailyCount = 0);
     });
-    
     usageCounters.lastReset = now.getTime();
   }
 }
 
-// Fonction pour obtenir des informations sur un fournisseur d'email
-async function getProviderInfo(providerName) {
-  const providerInfo = providerQuotas[providerName];
-
-  if (!providerInfo) {
-    return {
-      providerName,
-      remainingQuota: 0,
-    };
-  }
-
-  return {
-    providerName,
-    remainingQuota: providerInfo.remainingQuota,
+function checkAndResetProviderErrors() {
+  const now = Date.now();
+  const RESET_TIMES = {
+    auth_error:   24 * 60 * 60 * 1000,
+    rate_limit:   60 * 60 * 1000,
+    server_error: 15 * 60 * 1000
   };
-}
-
-/**
- * Sélectionne le meilleur fournisseur d'email basé sur les limites actuelles
- * @param {Object} options - Options
- * @param {Object} options.logger - Logger
- * @returns {Object} - Informations sur le fournisseur sélectionné
- */
-// lib/utils/providerRotation.js
-export async function selectBestProvider({ logger }) {
-  initializeCounters();
-  checkAndResetHourlyCounters();
-  checkAndResetDailyCounters();
-  
-  const availableProviders = [];
-  const usageState = getProvidersUsageState();
-  
-  // Parcourir tous les fournisseurs configurés
-  Object.keys(emailConfig.providers).forEach(providerName => {
-    const providerConfig = emailConfig.providers[providerName];
-    
-    // Parcourir tous les comptes de ce fournisseur
-    providerConfig.accounts.forEach(account => {
-      // Vérifier si la clé API est définie
-      if (!account.apiKey) {
-        logger?.warn?.(`⚠️ Clé API manquante pour ${providerName}:${account.id}`);
-        return; // Passer à l'itération suivante
-      }
-      
-      // Pour Mailjet, vérifier aussi la clé secrète
-      if (providerName === 'mailjet' && !account.secretKey) {
-        logger?.warn?.(`⚠️ Clé secrète manquante pour ${providerName}:${account.id}`);
-        return;
-      }
-      
-      const accountUsage = usageState[providerName]?.[account.id];
-      
-      // Vérifier si le compte a encore de la capacité
-      if (accountUsage && 
-          accountUsage.hourlyRemaining > 0 && 
-          accountUsage.dailyRemaining > 0) {
-        
-        // Ce compte est disponible, l'ajouter à la liste
-        availableProviders.push({
-          providerName,
-          accountId: account.id,
-          apiKey: account.apiKey,
-          secretKey: account.secretKey, // Pour Mailjet
-          hourlyRemaining: accountUsage.hourlyRemaining,
-          dailyRemaining: accountUsage.dailyRemaining,
-          // Score pour déterminer le meilleur fournisseur
-          score: (accountUsage.hourlyRemaining / account.hourlyLimit) * 100 +
-                 (accountUsage.dailyRemaining / account.dailyLimit) * 50
-        });
+  Object.values(providerErrors.providers).forEach(accounts => {
+    Object.values(accounts).forEach(err => {
+      if (err.errorType && (now - err.lastErrorTime) > (RESET_TIMES[err.errorType] || RESET_TIMES.auth_error)) {
+        err.errorType = null;
+        err.lastErrorTime = null;
+        err.errorCount = 0;
       }
     });
   });
+}
 
-  // Trier les fournisseurs disponibles par score (du plus haut au plus bas)
-  availableProviders.sort((a, b) => b.score - a.score);
+/**
+ * Marque un provider comme en erreur pour exclusion temporaire
+ * @param {string} providerName
+ * @param {string} accountId
+ * @param {'auth_error'|'rate_limit'|'server_error'} errorType
+ */
+export function markProviderAsErrored(providerName, accountId, errorType) {
+  initializeCounters();
+  const err = providerErrors.providers[providerName]?.[accountId];
+  if (!err) return;
+  err.errorType = errorType;
+  err.lastErrorTime = Date.now();
+  err.errorCount += 1;
 
-  // Si aucun fournisseur disponible
-  if (availableProviders.length === 0) {
-    logger?.warn?.('⚠️ Tous les fournisseurs ont atteint leurs limites');
+  // Cas spécifique pour Mailjet
+  if (providerName === 'mailjet' && errorType === 'rate_limit') {
+    // Bloquer temporairement ce compte Mailjet
+    console.error(`❌ Compte Mailjet bloqué temporairement: ${providerName}:${accountId}`);
+    inngest.send({
+      name: EVENTS.EMAIL_PROVIDER_ERROR,
+      data: { providerName, accountId, errorType, timestamp: new Date().toISOString() }
+    }).catch(console.error);
+  }
+  
+  // Alerter si plusieurs erreurs d'auth pour tous les providers
+  if (errorType === 'auth_error' && err.errorCount >= 3) {
+    console.error(`❌ Auth error persistant: ${providerName}:${accountId}`);
+    inngest.send({
+      name: EVENTS.EMAIL_PROVIDER_ERROR,
+      data: { providerName, accountId, errorType, timestamp: new Date().toISOString() }
+    }).catch(console.error);
+  }
+}
 
-    // Si inngest est défini, envoyer un événement
-    if (typeof inngest !== 'undefined') {
-      await inngest.send({
-        name: EVENTS.EMAIL_LIMIT_REACHED,
-        data: {
-          message: "Tous les fournisseurs ont atteint leurs limites d'envoi.",
-          timestamp: new Date().toISOString(),
-        },
-      });
-    }
+/**
+ * Sélectionne le meilleur provider non exclu et sans erreur
+ * @param {Object} options
+ * @param {Object} options.logger
+ * @param {string[]} options.excludedProviders - providerKey à exclure pour ce batch
+ * @returns {Object|null}
+ */
+export async function selectBestProvider({ logger, excludedProviders = [] }) {
+  initializeCounters();
+  checkAndResetHourlyCounters();
+  if (emailConfig.rotation.resetCountersAtMidnight) checkAndResetDailyCounters();
+  checkAndResetProviderErrors();
 
+  const usageState = getProvidersUsageState();
+  const candidates = [];
+
+  Object.entries(emailConfig.providers).forEach(([providerName, cfg]) => {
+    cfg.accounts.forEach(account => {
+      const key = `${providerName}-${account.id}`;
+      // Exclure si présent dans la liste
+      if (excludedProviders.includes(key)) {
+        logger?.debug?.(`⏭️ Exclu (batch) : ${key}`);
+        return;
+      }
+      // Exclure si erreur persistante ou bloqué (ex: Mailjet)
+      const err = providerErrors.providers[providerName]?.[account.id];
+      if (err?.errorType) {
+        logger?.debug?.(`⏭️ En erreur : ${key} (${err.errorType})`);
+        return;
+      }
+      // Vérifier clés API
+      if (!account.apiKey || (providerName === 'mailjet' && !account.secretKey)) {
+        logger?.warn?.(`⚠️ Clé manquante : ${key}`);
+        return;
+      }
+      // Vérifier quotas
+      const u = usageState[providerName]?.[account.id];
+      if (!u || u.hourlyRemaining <= 0 || u.dailyRemaining <= 0) return;
+      // Calcul du score
+      const score = (u.hourlyRemaining / account.hourlyLimit) * 100
+                  + (u.dailyRemaining  / account.dailyLimit)  * 50;
+      candidates.push({ providerName, accountId: account.id, apiKey: account.apiKey, secretKey: account.secretKey, score });
+    });
+  });
+
+  if (!candidates.length) {
+    logger?.warn('⚠️ Aucun provider disponible');
+    await inngest.send({ name: EVENTS.EMAIL_LIMIT_REACHED, data: { excludedProviders, timestamp: new Date().toISOString() } }).catch(console.error);
     return null;
   }
 
-  // Retourne le meilleur fournisseur
-  return availableProviders[0];
+  candidates.sort((a, b) => b.score - a.score);
+  return candidates[0];
 }
 
 /**
- * Met à jour les compteurs d'utilisation pour un fournisseur
- * @param {string} providerName - Nom du fournisseur
- * @param {string} accountId - ID du compte
- * @param {number} sentCount - Nombre d'emails envoyés
+ * Met à jour l'utilisation d'un provider
  */
 export function updateProviderUsage(providerName, accountId, sentCount) {
-  if (!usageCounters.providers[providerName] || 
-      !usageCounters.providers[providerName][accountId]) {
-    return;
-  }
-  
-  const counter = usageCounters.providers[providerName][accountId];
+  const counter = usageCounters.providers[providerName]?.[accountId];
+  if (!counter) return;
   counter.hourlyCount += sentCount;
-  counter.dailyCount += sentCount;
-  
-  // Mettre à jour également le quota restant du fournisseur
+  counter.dailyCount  += sentCount;
   if (providerQuotas[providerName]) {
-    providerQuotas[providerName].remainingQuota -= sentCount;
-    if (providerQuotas[providerName].remainingQuota < 0) {
-      providerQuotas[providerName].remainingQuota = 0;
-    }
-  }
-  
-  // Vérifier si les compteurs dépassent les limites (pour la sécurité)
-  const account = emailConfig.providers[providerName].accounts.find(a => a.id === accountId);
-  
-  if (counter.hourlyCount > account.hourlyLimit) {
-    console.warn(`Le compteur horaire pour ${providerName}:${accountId} dépasse la limite définie!`);
-  }
-  
-  if (counter.dailyCount > account.dailyLimit) {
-    console.warn(`Le compteur quotidien pour ${providerName}:${accountId} dépasse la limite définie!`);
+    providerQuotas[providerName].remainingQuota = Math.max(0, providerQuotas[providerName].remainingQuota - sentCount);
   }
 }
 
 /**
- * Obtient l'état actuel d'utilisation de tous les fournisseurs
- * @returns {Object} - État actuel des compteurs
+ * Retourne l'état d'utilisation actuel
  */
 export function getProvidersUsageState() {
   initializeCounters();
   checkAndResetHourlyCounters();
-  if (emailConfig.rotation.resetCountersAtMidnight) {
-    checkAndResetDailyCounters();
-  }
-  
+  if (emailConfig.rotation.resetCountersAtMidnight) checkAndResetDailyCounters();
   const state = {};
-  
-  Object.keys(usageCounters.providers).forEach(providerName => {
+  Object.entries(usageCounters.providers).forEach(([providerName, accounts]) => {
     state[providerName] = {};
-    
-    Object.keys(usageCounters.providers[providerName]).forEach(accountId => {
-      const counter = usageCounters.providers[providerName][accountId];
-      const account = emailConfig.providers[providerName].accounts.find(a => a.id === accountId);
-      
-      state[providerName][accountId] = {
-        hourlyUsage: counter.hourlyCount,
-        dailyUsage: counter.dailyCount,
-        hourlyLimit: account.hourlyLimit,
-        dailyLimit: account.dailyLimit,
-        hourlyRemaining: account.hourlyLimit - counter.hourlyCount,
-        dailyRemaining: account.dailyLimit - counter.dailyCount
+    Object.entries(accounts).forEach(([id, c]) => {
+      const cfg = emailConfig.providers[providerName].accounts.find(a => a.id === id);
+      state[providerName][id] = {
+        hourlyUsage:   c.hourlyCount,
+        dailyUsage:    c.dailyCount,
+        hourlyRemaining: cfg.hourlyLimit - c.hourlyCount,
+        dailyRemaining:  cfg.dailyLimit  - c.dailyCount
       };
     });
   });
-  
+  return state;
+}
+
+/**
+ * Retourne l'état des erreurs actuel
+ */
+export function getProvidersErrorState() {
+  initializeCounters();
+  checkAndResetProviderErrors();
+  const state = {};
+  Object.entries(providerErrors.providers).forEach(([providerName, accounts]) => {
+    state[providerName] = {};
+    Object.entries(accounts).forEach(([id, err]) => {
+      state[providerName][id] = {
+        hasError:  !!err.errorType,
+        errorType: err.errorType,
+        errorCount: err.errorCount,
+        lastErrorTime: err.lastErrorTime
+      };
+    });
+  });
   return state;
 }

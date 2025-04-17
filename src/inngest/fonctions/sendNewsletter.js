@@ -71,7 +71,7 @@ export const processNewsletterBatch = inngest.createFunction(
       }));
     });
 
-    const providers = ['sendgrid', 'brevo', 'mailjet'];
+    const providers = ['sendgrid', 'brevo'];// ['sendgrid', 'brevo', 'mailjet'];
     const providerStats = {};
 
     // Initialiser les statistiques
