@@ -37,32 +37,12 @@ export const emailConfig = {
           apiKey: process.env.BREVO_API_KEY_2,
           dailyLimit: 300,
           hourlyLimit: 50
-        }
-      ],
-      defaultFromEmail: process.env.DEFAULT_FROM_EMAIL,
-    },
-    mailjet: {
-      accounts: [
-        { 
-          id: 'mailjet1',
-          apiKey: process.env.MAILJET_API_KEY_1,
-          secretKey: process.env.MAILJET_SECRET_KEY_1,
-          dailyLimit: 200, // Limite quotidienne typique pour compte gratuit
-          hourlyLimit: 70  // Estimation de la limite horaire
         },
         { 
-          id: 'mailjet2',
-          apiKey: process.env.MAILJET_API_KEY_2,
-          secretKey: process.env.MAILJET_SECRET_KEY_2,
-          dailyLimit: 200,
-          hourlyLimit: 70
-        },
-        { 
-          id: 'mailjet3',
-          apiKey: process.env.MAILJET_API_KEY_3,
-          secretKey: process.env.MAILJET_SECRET_KEY_3,
-          dailyLimit: 200,
-          hourlyLimit: 70
+          id: 'brevo3',
+          apiKey: process.env.BREVO_API_KEY_3,
+          dailyLimit: 300,
+          hourlyLimit: 50
         }
       ],
       defaultFromEmail: process.env.DEFAULT_FROM_EMAIL,

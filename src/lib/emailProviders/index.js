@@ -1,7 +1,6 @@
 // lib/emailProviders/index.js
 import { sendgridProvider } from './sendgrid';
 import { brevoProvider } from './brevo';
-import { mailjetProvider } from './mailjet';
 import { selectBestProvider, updateProviderUsage, markProviderAsErrored } from '../utils/providerRotation';
 import { emailConfig } from '../../config/emails';
 
@@ -14,14 +13,11 @@ import { emailConfig } from '../../config/emails';
  */
 export async function getEmailProviderClient({ logger, excludedProviders = [] } = {}) {
   try {
-
-     // Exclure tous les comptes de Mailjet
-     const mailjetAccounts = emailConfig.providers.mailjet?.accounts?.map(acc => `mailjet-${acc.id}`) || [];
-     const finalExcludedProviders = [...excludedProviders, ...mailjetAccounts];
+    
     // Sélectionner le meilleur fournisseur en fonction des limites et disponibilités
     const provider = await selectBestProvider({ 
       logger,
-      excludedProviders: finalExcludedProviders
+      excludedProviders
     });
     
     if (!provider) {
@@ -53,21 +49,7 @@ export async function getEmailProviderClient({ logger, excludedProviders = [] } 
             providerName: provider.providerName,
             accountId: provider.accountId
           }
-        };
-     
-     /*case 'mailjet':
-        return {
-          ...mailjetProvider({
-            apiKey: provider.apiKey,
-            secretKey: provider.secretKey,
-            fromEmail: emailConfig.providers.mailjet.defaultFromEmail
-          }),
-          _meta: {
-            providerName: provider.providerName,
-            accountId: provider.accountId
-          }
-        };*/
-     
+        };     
       default:
         throw new Error(`Fournisseur non pris en charge: ${provider.providerName}`);
     }
@@ -90,9 +72,6 @@ export async function sendEmailWithRotation(emailData, { logger, maxRetries = 3,
   let attemptCount = 0;
   const excludedProviders = [];
   let lastError = null;
-  // Exclure tous les comptes de Mailjet
-  const mailjetAccounts = emailConfig.providers.mailjet?.accounts?.map(acc => `mailjet-${acc.id}`) || [];
-  const finalExcludedProviders = [...excludedProviders, ...mailjetAccounts];
 
   while (attemptCount < maxRetries) {
     attemptCount++;
@@ -100,7 +79,7 @@ export async function sendEmailWithRotation(emailData, { logger, maxRetries = 3,
     try {
       const provider = await getEmailProviderClient({ 
         logger, 
-        excludedProviders: finalExcludedProviders
+        excludedProviders
       });
       
       if (!provider) {
@@ -192,4 +171,4 @@ export function logProviderUsage(provider, sentCount) {
 }
 
 // Exporter les fournisseurs individuels pour utilisation directe si nécessaire
-export { sendgridProvider, brevoProvider };//export { sendgridProvider, brevoProvider, mailjetProvider };
+export { sendgridProvider, brevoProvider };

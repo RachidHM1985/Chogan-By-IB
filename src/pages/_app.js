@@ -14,6 +14,7 @@ import React, { useEffect, useState } from 'react';
 import { CssBaseline } from '@mui/material'; // Optionnel : réinitialiser les styles de Material-UI
 import { CartProvider } from '../context/CartContext';
 import { Analytics } from '@vercel/analytics/react';
+import Head from 'next/head';
 
 function MyApp({ Component, pageProps }) {
   // Etat pour s'assurer que nous sommes en mode client
@@ -29,7 +30,13 @@ function MyApp({ Component, pageProps }) {
   return (
     <>
       <CssBaseline /> {/* Assure que le CSS de Material-UI est réinitialisé pour un rendu cohérent */}
-      
+      <Head>
+        {/* Ajout de la balise meta Trustpilot */}
+        <meta
+          name="trustpilot-one-time-domain-verification-id"
+          content="0cdac582-1fd2-41f4-b6a0-20c2236ee699"
+        />
+      </Head>
       <CartProvider>
       <Component {...pageProps} />
     </CartProvider>

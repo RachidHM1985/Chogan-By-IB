@@ -129,9 +129,9 @@ const ReviewsSection = ({ tableName, productId, isInsertComment }) => {
   return (
     <Box
       sx={{
-        marginTop: '10px',
+        marginTop: '5px',
         backgroundColor: '#f8f8f8',
-        padding: '40px 20px',
+        padding: '20px 20px',
         width: {
           xs: '100%',  // For mobile screens, set width to 100%
           sm: '80%',   // For small screens, 80%

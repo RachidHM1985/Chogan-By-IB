@@ -2,8 +2,7 @@
 const counters = {
   daily: {
     sendgrid: { count: 0 },
-    brevo: { count: 0 },
-    mailjet: { count: 0 }
+    brevo: { count: 0 }
   }
 };
 
@@ -11,7 +10,6 @@ const counters = {
 const DAILY_LIMITS = {
   sendgrid: 100, // Exemple de limite
   brevo: 300,
-  mailjet: 200
 };
 
 // Incrémenter le compteur pour un provider

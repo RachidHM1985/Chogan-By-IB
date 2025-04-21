@@ -9,6 +9,10 @@ import ReviewsSection from '../components/ReviewsSection';
 import Link from 'next/link';
 import Banner from '../components/Banner';
 import ReassurancesComponent from '../components/ReassurancesComponent';
+import TopProducts from '../components/TopProducts';
+import ContactSection from'../components/ContactSection';
+import {TrustpilotBanner } from '../components/TrustpilotBanner'
+
 
 export default function Home() {
   const [isClient, setIsClient] = useState(false);
@@ -20,7 +24,6 @@ export default function Home() {
 
   if (!isClient) return null; // Evite le rendu SSR
 
-  // Liste des images pour le carrousel automatique
 // Liste des images avec leurs liens respectifs
 const promoImages = [
   { src: '/images/image0_promo.jpg', href: '/perfumes' },
@@ -180,8 +183,17 @@ const promoImages = [
         <Box sx={{marginTop: '50px'}}>                    
           <ReassurancesComponent />
         </Box>
+        <Box>
+        <TopProducts />
+        </Box>
+        <Box>
+          <ContactSection />
+        </Box>
+        <Box sx={{padding: '10px 10px' }}>
+            <TrustpilotBanner />
+        </Box>
         {/* Section des Avis Clients */}
-        <Box sx={{ marginTop: '40px', backgroundColor: '#f8f8f8', padding: '5px 5px' }}>
+        <Box sx={{backgroundColor: '#f8f8f8', padding: '5px 5px' }}>
           <ReviewsSection productId={'*'} isInsertComment={false} />
         </Box>
         {/* Footer */}

@@ -71,7 +71,7 @@ export const processNewsletterBatch = inngest.createFunction(
       }));
     });
 
-    const providers = ['sendgrid', 'brevo'];// ['sendgrid', 'brevo', 'mailjet'];
+    const providers = ['sendgrid', 'brevo'];
     const providerStats = {};
 
     // Initialiser les statistiques
@@ -80,73 +80,34 @@ export const processNewsletterBatch = inngest.createFunction(
     });
 
     // Traiter les abonnés par fournisseur de manière optimisée
-    for (const provider of providers) {
-      const subscribersForProvider = batch.filter((_, idx) => idx % providers.length === providers.indexOf(provider));
-
-      if (subscribersForProvider.length === 0) continue;
-
-      // Diviser par mini-lots pour un envoi plus rapide
-      for (let i = 0; i < subscribersForProvider.length; i += 30) {
-        const miniLot = subscribersForProvider.slice(i, i + 30);
-
-        try {
-          // Envoyer les emails
-          const result = await step.run(`send-${provider}-${i}`, async () => {
-            const client = await getEmailProviderClient(provider, logger);
-
-            if (!client) {
-              logger.warn('⛔ Envoi du batch arrêté : aucun client email disponible.');
-              await inngest.send({
-                name: EVENTS.EMAIL_LIMIT_REACHED,
-                data: {
-                  message: `Limite atteinte pour tous les fournisseurs. Mini-lot annulé : ${provider}`,
-                  provider,
-                  batchIndex,
-                  timestamp: new Date().toISOString(),
-                },
-              });
-              return {
-                status: 'batch_stopped',
-                reason: 'no_provider_available'
-              };
-            }
-
-            const sendResult = await sendNewsletterBatch({
-              subscribers: miniLot,
-              newsletterId,
-              provider,
-              logger
-            });
-
-            return {
-              sent: sendResult.sentCount,
-              failed: sendResult.failedCount
-            };
+    for (let i = 0; i < batch.length; i += 30) {
+      const miniLot = batch.slice(i, i + 30);
+      
+      try {
+        // Utiliser sendNewsletterBatch qui gérera la rotation automatiquement
+        const result = await step.run(`send-batch-${i}`, async () => {
+          return await sendNewsletterBatch({
+            subscribers: miniLot,
+            newsletterId,
+            logger
           });
-
-          // Mettre à jour les statistiques
-          providerStats[provider].success += result.sent;
-          providerStats[provider].failed += result.failed;
-
-          // Mettre à jour la base de données
-          await step.run(`update-db-${i}`, async () => {
-            await supabase.from('prospects').update({
-              status: 'sent',
-              last_sent: new Date().toISOString(),
-              provider,
-            }).in('email', miniLot.map(s => s.email));
-            return { updated: true };
-          });
-
-          // Pause entre les mini-lots pour ne pas surcharger
-          if (i + 5 < subscribersForProvider.length) {
-            logger.info(`⏳ Pause entre mini-lots de ${provider}`);
-            await step.sleep(`pause-${i}`, '5s');
-          }
-        } catch (error) {
-          logger.error(`[${provider}] Erreur lors de l'envoi des emails : ${error.message}`);
-          providerStats[provider].failed += miniLot.length;
-        }
+        });
+        
+        // Agréger les statistiques
+        results.sentCount += result.sentCount;
+        results.failedCount += result.failedCount;
+        
+        // Agréger les stats par provider
+        Object.entries(result.providerStats || {}).forEach(([providerKey, count]) => {
+          // Extraire juste le nom du provider pour la compatibilité avec le code existant
+          const [providerName] = providerKey.split('-');
+          if (!providerStats[providerName]) providerStats[providerName] = { success: 0, failed: 0 };
+          providerStats[providerName].success += count;
+        });
+        
+        await step.sleep(`pause-${i}`, '2s');
+      } catch (error) {
+        logger.error(`Erreur lors du traitement du lot ${i}: ${error.message}`);
       }
     }
 
