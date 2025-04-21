@@ -36,11 +36,14 @@ export const sendNewsletter = inngest.createFunction(
         taskId,
         newsletterId,
         segmentId,
-        batchIndex: 0,
+        batchIndex: batchIndex + 1,
         batchSize,
         totalBatches
-      }
+      },
+      // ⏱️ Délai de 30 minutes
+      delay: '30m'
     });
+    
 
     // Retourner un résultat minimal
     return {
