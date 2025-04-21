@@ -17,7 +17,7 @@ export const TrustpilotBanner = () => {
       >
         <a
           className="trustpilot-widget"
-          href="https://fr.trustpilot.com/review/choganbyikram.trustpilot.com"
+          href="https://fr.trustpilot.com/review/chogan-by-ikram.vercel.app"
           target="_blank"
           rel="noopener noreferrer"
           style={{
