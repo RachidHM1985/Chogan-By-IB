@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Container, Typography, CircularProgress, Alert } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Analytics } from '@vercel/analytics'; // Assurez-vous que vous avez importé Vercel Analytics
+import { Analytics } from '@vercel/analytics/react';
 
 // Créer un thème personnalisé pour la police Montserrat
 const theme = createTheme({
