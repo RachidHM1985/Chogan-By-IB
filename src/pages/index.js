@@ -88,14 +88,6 @@ const promoImages = [
 
   return (
     <>
-    <Head>
-      <meta
-        name="trustpilot-one-time-domain-verification-id"
-        content="0cdac582-1fd2-41f4-b6a0-20c2236ee699"
-      />
-      <title>Chogan by Ikram</title>
-    </Head>
-    <main>
       <Header />
       <Banner />
       <Box
@@ -207,7 +199,6 @@ const promoImages = [
         {/* Footer */}
         <Footer />      
       </Box>
-      </main> 
     </>
   );
 }

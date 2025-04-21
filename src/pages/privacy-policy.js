@@ -1,7 +1,10 @@
 import React from 'react';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 const PrivacyPolicy = () => {
   return (
+    <><Header />
     <section style={styles.container}>
       <h1 style={styles.heading}>Politique de confidentialité</h1>
       <p style={styles.text}>
@@ -38,12 +41,14 @@ const PrivacyPolicy = () => {
       <p style={styles.text}>
         En utilisant notre site, vous consentez à notre politique de confidentialité.
       </p>
-    </section>
+    </section> <Footer /></>
+    
   );
 };
 
 const styles = {
   container: {
+    marginTop: '50px',
     maxWidth: '900px',
     margin: '0 auto',
     padding: '2rem',
