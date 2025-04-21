@@ -30,13 +30,6 @@ function MyApp({ Component, pageProps }) {
   return (
     <>
       <CssBaseline /> {/* Assure que le CSS de Material-UI est réinitialisé pour un rendu cohérent */}
-      <Head>
-        {/* Ajout de la balise meta Trustpilot */}
-        <meta
-          name="trustpilot-one-time-domain-verification-id"
-          content="0cdac582-1fd2-41f4-b6a0-20c2236ee699"
-        />
-      </Head>
       <CartProvider>
       <Component {...pageProps} />
     </CartProvider>

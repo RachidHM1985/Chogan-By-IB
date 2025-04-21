@@ -12,7 +12,7 @@ import ReassurancesComponent from '../components/ReassurancesComponent';
 import TopProducts from '../components/TopProducts';
 import ContactSection from'../components/ContactSection';
 import {TrustpilotBanner } from '../components/TrustpilotBanner'
-
+import Head from 'next/head';
 
 export default function Home() {
   const [isClient, setIsClient] = useState(false);
@@ -88,6 +88,14 @@ const promoImages = [
 
   return (
     <>
+    <Head>
+      <meta
+        name="trustpilot-one-time-domain-verification-id"
+        content="0cdac582-1fd2-41f4-b6a0-20c2236ee699"
+      />
+      <title>Chogan by Ikram</title>
+    </Head>
+    <main>
       <Header />
       <Banner />
       <Box
@@ -198,7 +206,8 @@ const promoImages = [
         </Box>
         {/* Footer */}
         <Footer />      
-      </Box>  
+      </Box>
+      </main> 
     </>
   );
 }
