@@ -52,6 +52,59 @@ export const sendNewsletter = inngest.createFunction(
   }
 );
 
+export const sendMiniNewsletterBatch = inngest.createFunction(
+  { id: 'newsletter-send-subbatch' },
+  { event: 'newsletter.send.subbatch' },
+  async ({ event, step, logger }) => {
+    const { taskId, newsletterId, batchIndex, miniBatchIndex, subscribers } = event.data;
+
+    logger.info(`📦 Envoi du mini-lot #${miniBatchIndex} du batch #${batchIndex} (${subscribers.length} abonnés)`);
+
+    try {
+      const result = await step.run(`send-mini-batch-${miniBatchIndex}`, async () => {
+        return await sendNewsletterBatch({
+          subscribers,
+          newsletterId,
+          logger
+        });
+      });
+
+      // Enregistrer les stats dans Supabase
+      await step.run('save-mini-batch-results', async () => {
+        await supabase.from('newsletter_subbatch_stats').insert({
+          task_id: taskId,
+          batch_index: batchIndex,
+          mini_batch_index: miniBatchIndex,
+          sent_count: result.sentCount,
+          failed_count: result.failedCount,
+          stats: result.providerStats,
+          processed_at: new Date().toISOString()
+        });
+
+        return { saved: true };
+      });
+
+      return {
+        status: 'mini_batch_sent',
+        batchIndex,
+        miniBatchIndex,
+        sentCount: result.sentCount,
+        failedCount: result.failedCount
+      };
+    } catch (error) {
+      logger.error(`❌ Erreur lors du mini-lot #${miniBatchIndex} : ${error.message}`);
+
+      return {
+        status: 'failed',
+        batchIndex,
+        miniBatchIndex,
+        error: error.message
+      };
+    }
+  }
+);
+
+
 // Fonction pour traiter un lot d'abonnés
 export const processNewsletterBatch = inngest.createFunction(
   { id: 'process-newsletter-batch' },
@@ -80,36 +133,24 @@ export const processNewsletterBatch = inngest.createFunction(
     });
 
     // Traiter les abonnés par fournisseur de manière optimisée
-    for (let i = 0; i < batch.length; i += 30) {
-      const miniLot = batch.slice(i, i + 30);
-      
-      try {
-        // Utiliser sendNewsletterBatch qui gérera la rotation automatiquement
-        const result = await step.run(`send-batch-${i}`, async () => {
-          return await sendNewsletterBatch({
-            subscribers: miniLot,
+    await step.run("enqueue-subbatches", async () => {
+      for (let i = 0; i < batch.length; i += 30) {
+        const miniLot = batch.slice(i, i + 30);
+        const miniBatchIndex = i / 30;
+    
+        await inngest.send({
+          name: 'newsletter.send.subbatch',
+          data: {
+            taskId,
             newsletterId,
-            logger
-          });
+            batchIndex,
+            miniBatchIndex,
+            subscribers: miniLot
+          }
         });
-        
-        // Agréger les statistiques
-        results.sentCount += result.sentCount;
-        results.failedCount += result.failedCount;
-        
-        // Agréger les stats par provider
-        Object.entries(result.providerStats || {}).forEach(([providerKey, count]) => {
-          // Extraire juste le nom du provider pour la compatibilité avec le code existant
-          const [providerName] = providerKey.split('-');
-          if (!providerStats[providerName]) providerStats[providerName] = { success: 0, failed: 0 };
-          providerStats[providerName].success += count;
-        });
-        
-        await step.sleep(`pause-${i}`, '2s');
-      } catch (error) {
-        logger.error(`Erreur lors du traitement du lot ${i}: ${error.message}`);
       }
-    }
+    });
+    
 
     // Enregistrer les résultats de ce lot
     await step.run('save-batch-results', async () => {
