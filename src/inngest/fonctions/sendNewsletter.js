@@ -36,12 +36,10 @@ export const sendNewsletter = inngest.createFunction(
         taskId,
         newsletterId,
         segmentId,
-        batchIndex: batchIndex + 1,
+        batchIndex: 0,
         batchSize,
         totalBatches
       },
-      // ⏱️ Délai de 30 minutes
-      delay: '30m'
     });
     
 
@@ -168,19 +166,19 @@ export const processNewsletterBatch = inngest.createFunction(
     });
 
     // Si ce n'est pas le dernier lot, déclencher le traitement du lot suivant
-    if (batchIndex + 1 < totalBatches) {
-      // Attendre avant d'envoyer le prochain lot
-      await inngest.send({
-        name: 'newsletter.process.batch',
-        data: {
-          taskId,
-          newsletterId,
-          segmentId,
-          batchIndex: batchIndex + 1,
-          batchSize,
-          totalBatches
-        }
-      });
+    await inngest.send({
+      name: 'newsletter.process.batch',
+      data: {
+        taskId,
+        newsletterId,
+        segmentId,
+        batchIndex: batchIndex + 1,
+        batchSize,
+        totalBatches
+      },
+      delay: '30m'
+    });
+    
 
       return {
         status: 'batch_completed',
