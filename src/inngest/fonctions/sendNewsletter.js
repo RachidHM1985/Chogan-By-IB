@@ -41,32 +41,62 @@ export const processNewsletterBatch = inngest.createFunction(
   { event: 'newsletter.process.batch' },
   async ({ event, step, logger }) => {
     const { taskId, newsletterId, segmentId, batchIndex, batchSize, totalBatches } = event.data;
-    
-    logger.info(`🚀 Démarrage lot #${batchIndex}`);
 
-    // 1) On récupère précisément ce lot
-    const all = await getSubscribersInSegment(segmentId);
-    const batch = all.slice(batchIndex * batchSize, (batchIndex + 1) * batchSize);
-    
-    // 2) On appelle ta logique d’envoi
-    await step.run(`send-batch-${batchIndex}`, () =>
-      sendNewsletterBatch({ subscribers: batch, newsletterId, logger })
-    );
+    // Récupérer uniquement les abonnés pour ce lot (pagination)
+    const batch = await step.run('get-batch', async () => {
+      const allSubscribers = await getSubscribersInSegment(segmentId, {
+        limit: batchSize,
+        offset: batchIndex * batchSize
+      });
 
-    // 3) On sauve les stats du batch
+      return allSubscribers.map(s => ({
+        id: s.id,
+        email: s.email,
+        first_name: s.first_name || ''
+      }));
+    });
+
+    logger.info(`📦 Lot #${batchIndex} → ${batch.length} abonnés`);
+
+    const providers = ['sendgrid', 'brevo'];
+    const providerStats = {};
+    providers.forEach(p => {
+      providerStats[p] = { success: 0, failed: 0 };
+    });
+
+    // ⚠️ ENVOI des mini-batches EN DEHORS DU step.run
+    for (let i = 0; i < batch.length; i += 30) {
+      const miniLot = batch.slice(i, i + 30);
+      const miniBatchIndex = i / 30;
+
+      await step.sendEvent(`send-mini-${batchIndex}-${miniBatchIndex}`, {
+        name: 'newsletter.send.subbatch',
+        data: {
+          taskId,
+          newsletterId,
+          batchIndex,
+          miniBatchIndex,
+          subscribers: miniLot
+        },
+        delay: `${miniBatchIndex * 10}s` // 0s, 10s, 20s...
+      });
+    }
+
+    // Enregistrer les résultats de ce lot
     await step.run('save-batch-results', async () => {
       await supabase.from('newsletter_batch_stats').insert({
-        task_id:      taskId,
-        batch_index:  batchIndex,
+        task_id: taskId,
+        batch_index: batchIndex,
         processed_at: new Date().toISOString(),
+        stats: providerStats
       });
+
       return { saved: true };
     });
 
-    // 4) Planifier le lot suivant, avec délai
+    // Si ce n'est pas le dernier lot, déclencher le traitement du lot suivant
     if (batchIndex + 1 < totalBatches) {
-      logger.info(`⏱️ Lot #${batchIndex} terminé — planification lot #${batchIndex + 1} dans 30 min`);
-      await step.sendEvent(`process-batch-${batchIndex + 1}`, {
+      await inngest.send({
         name: 'newsletter.process.batch',
         data: {
           taskId,
@@ -78,13 +108,22 @@ export const processNewsletterBatch = inngest.createFunction(
         },
         delay: '30m'
       });
-      return { status: 'scheduled', nextBatch: batchIndex + 1 };
+
+      return {
+        status: 'batch_completed',
+        batchIndex,
+        nextBatch: batchIndex + 1,
+        remaining: totalBatches - batchIndex - 1
+      };
     }
 
-    logger.info(`✅ Tous les lots (${totalBatches}) ont été traités.`);
-    return { status: 'all_completed' };
+    return {
+      status: 'all_completed',
+      batchesProcessed: totalBatches
+    };
   }
 );
+
 
 export const sendMiniNewsletterBatch = inngest.createFunction(
   { id: 'newsletter-send-subbatch' },
