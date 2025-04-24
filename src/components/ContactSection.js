@@ -113,11 +113,12 @@ export default function ContactSection() {
               component={Link}
               href="https://instagram.com/direct/t/ikram_nahyl_amir/?text=Bonjour,%20j'aimerais%20acheter%20votre%20produit"
               variant="contained"
-              color="primary"
+              color="#EFE7DB"
               sx={{
                 textTransform: 'none',
                 padding: '10px 20px',
-                fontSize: '1rem',
+                fontSize: '1rem',                
+                backgroundColor:"#efe7db"
               }}
             >
               Contactez-nous sur Instagram
@@ -127,11 +128,11 @@ export default function ContactSection() {
               component={Link}
               href="mailto:choganbyikram.contact@gmail.com"
               variant="contained"
-              color="secondary"
               sx={{
                 textTransform: 'none',
                 padding: '10px 20px',
                 fontSize: '1rem',
+                backgroundColor:"#efe7db"
               }}
             >
               Écrivez-nous par email

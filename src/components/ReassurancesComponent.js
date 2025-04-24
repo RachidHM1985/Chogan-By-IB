@@ -50,9 +50,9 @@ export default function ReassurancesComponent() {
                 dangerouslySetInnerHTML={{ __html: item.text }}
               />
             </div>
-          </div>
-        ))}
-      </ul>
+          </div>          
+        ))}         
+      </ul>     
     </section>
   );
 }

@@ -12,7 +12,7 @@ import ReassurancesComponent from '../components/ReassurancesComponent';
 import TopProducts from '../components/TopProducts';
 import ContactSection from'../components/ContactSection';
 import {TrustpilotBanner } from '../components/TrustpilotBanner'
-import Head from 'next/head';
+import TrustLogos from '../components/TrustLogos';
 
 export default function Home() {
   const [isClient, setIsClient] = useState(false);
@@ -26,8 +26,9 @@ export default function Home() {
 
 // Liste des images avec leurs liens respectifs
 const promoImages = [
+  { src: '/images/promo-presentation.png', href: '' },
   { src: '/images/image0_promo.jpg', href: '/perfumes' },
-  { src: '/images/image2_promo.png', href: '/perfumes' },
+  { src: '/images/parfums-presentation.png', href: '/perfumes' },
   { src: '/images/image3_promo.png', href: '/beauty' },
   { src: '/images/image4_promo.jpg', href: '/beauty' },
 ];
@@ -45,11 +46,11 @@ const promoImages = [
   // Paramètres du carrousel automatique
   const autoCarouselSettings = {
     infinite: true,
-    speed: 500,
+    speed:300,
     slidesToShow: 1,
     slidesToScroll: 1,
     autoplay: true,
-    autoplaySpeed: 3000,
+    autoplaySpeed: 5000,
   };
 
   // Paramètres du carrousel manuel
