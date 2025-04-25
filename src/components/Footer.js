@@ -31,22 +31,22 @@ const Footer = () => {
       >
         {/* Section Contact */}
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          <Typography variant="h6" color="textPrimary" sx={{ marginBottom: 0.5, fontSize: '0.75rem' }}>
+          <Typography variant="h6" color="textPrimary" sx={{ fontWeight:'bold', marginBottom: 0.5, fontSize: '0.75rem' }}>
             Contact
           </Typography>
           <Typography variant="body2" color="textSecondary" sx={{ fontSize: '0.65rem' }}>
             Adresse : Chogan by Ikram, 68 rue Louis Roussel, 34070 Montpellier
+          </Typography>          
+          <Typography variant="body2" color="textSecondary" sx={{ fontSize: '0.65rem' }}>
+            Email : choganbyikram.contact@gmail.com
           </Typography>
           <Typography variant="body2" color="textSecondary" sx={{ fontSize: '0.65rem' }}>
             RCS : 943 461 939 R.C.S. Montpellier
-          </Typography>
-          <Typography variant="body2" color="textSecondary" sx={{ fontSize: '0.65rem' }}>
-            Email : choganbyikram.contact@gmail.com
-          </Typography>          
+          </Typography>         
         </Box>
         {/* Section Liens utiles (À propos, Conditions, etc.) */}
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          <Typography variant="h6" color="textPrimary" sx={{ marginBottom: 0.5, fontSize: '0.75rem' }}>
+          <Typography variant="h6" color="textPrimary" sx={{  fontWeight:'bold', marginBottom: 0.5, fontSize: '0.75rem' }}>
             Liens utiles
           </Typography>
           <Link href="/about" color="textSecondary" sx={{ fontSize: '0.65rem', marginBottom: 0.5 }}>
@@ -58,7 +58,7 @@ const Footer = () => {
         </Box>
         {/* Section Suivez-nous (réseaux sociaux) */}
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <Typography variant="h6" color="textPrimary" sx={{ marginBottom: 0.5, fontSize: '0.75rem' }}>
+          <Typography variant="h6" color="textPrimary" sx={{ fontWeight:'bold', marginBottom: 0.5, fontSize: '0.75rem' }}>
             Suivez-nous
           </Typography>
           <Box sx={{ display: 'flex', gap: 1 }}>
@@ -86,7 +86,7 @@ const Footer = () => {
           width: '100%',
         }}
       >
-        <Typography variant="body2" color="textSecondary" sx={{ fontSize: '0.6rem' }}>
+        <Typography variant="body2" color="textSecondary" sx={{ fontWeight:'bold', fontSize: '0.6rem' }}>
           © 2025 Chogan by Ikram - Site indépendant d'un consultant Chogan Group
         </Typography>
       </Box>
