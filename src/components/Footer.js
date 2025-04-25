@@ -4,7 +4,6 @@ import { Typography, Container, Box, IconButton, Link } from '@mui/material';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import { FaTiktok } from 'react-icons/fa'; // TikTok avec react-icons
 import { FaSnapchatSquare } from 'react-icons/fa'; // Snapchat avec react-icons
-import { relative } from 'path';
 
 const Footer = () => {
   return (
@@ -26,7 +25,7 @@ const Footer = () => {
           flexDirection: 'row',
           justifyContent: 'space-between',
           alignItems: 'flex-start',
-          gap: 2, // Réduction de l'espacement entre les sections
+          gap: 2, 
           maxWidth: 'lg',
         }}
       >
@@ -36,13 +35,15 @@ const Footer = () => {
             Contact
           </Typography>
           <Typography variant="body2" color="textSecondary" sx={{ fontSize: '0.65rem' }}>
-            Adresse : Chogan Group s.p.a., Montpellier
+            Adresse : Chogan by Ikram, 68 rue Louis Roussel, 34070 Montpellier
+          </Typography>
+          <Typography variant="body2" color="textSecondary" sx={{ fontSize: '0.65rem' }}>
+            RCS : 943 461 939 R.C.S. Montpellier
           </Typography>
           <Typography variant="body2" color="textSecondary" sx={{ fontSize: '0.65rem' }}>
             Email : choganbyikram.contact@gmail.com
-          </Typography>
+          </Typography>          
         </Box>
-
         {/* Section Liens utiles (À propos, Conditions, etc.) */}
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           <Typography variant="h6" color="textPrimary" sx={{ marginBottom: 0.5, fontSize: '0.75rem' }}>
@@ -55,7 +56,6 @@ const Footer = () => {
             Politique de confidentialité
           </Link>
         </Box>
-
         {/* Section Suivez-nous (réseaux sociaux) */}
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <Typography variant="h6" color="textPrimary" sx={{ marginBottom: 0.5, fontSize: '0.75rem' }}>
@@ -74,7 +74,6 @@ const Footer = () => {
           </Box>
         </Box>
       </Container>
-
       {/* Footer Bottom */}
       <Box
         sx={{
@@ -88,7 +87,7 @@ const Footer = () => {
         }}
       >
         <Typography variant="body2" color="textSecondary" sx={{ fontSize: '0.6rem' }}>
-          © 2025 Chogan by Ikram - Site indépendant d’un consultant Chogan Group
+          © 2025 Chogan by Ikram - Site indépendant d'un consultant Chogan Group
         </Typography>
       </Box>
     </Box>
