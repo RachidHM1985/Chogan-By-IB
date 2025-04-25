@@ -181,8 +181,9 @@ const promoImages = [
             </Grid>
           </Grid>
         </Box>
-        <Box sx={{marginTop: '50px'}}>                    
-          <ReassurancesComponent />
+        <Box className = "mt-12" sx={{marginTop: '50px'}}>                    
+          <ReassurancesComponent />          
+          <TrustLogos />
         </Box>
         <Box>
         <TopProducts />
