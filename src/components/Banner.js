@@ -26,7 +26,7 @@ export default function Banner() {
       setShowBanner(true);
 
       // Cacher la bannière après 5 secondes
-      setTimeout(() => setShowBanner(false), 5000);
+      setTimeout(() => setShowBanner(false), 10000);
     } else {
       console.log('🚫 Pas d\'affichage de la bannière');
     }
@@ -53,10 +53,10 @@ export default function Banner() {
       onClick={() => setShowBanner(false)} // Fermer la bannière au clic
     >
       <img
-        src="/images/Banniere_Chogan_by_Ikram.jpg"
+        src="/images/promo-presentation.png"
         alt="Bienvenue sur Chogan-by-Ikram"
         style={{
-          maxWidth: '100%',
+          maxWidth: '55%',
           maxHeight: '100vh',
           borderRadius: '10px',
           boxShadow: '0px 0px 20px rgba(255, 255, 255, 0.8)',
