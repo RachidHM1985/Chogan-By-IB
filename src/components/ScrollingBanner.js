@@ -22,6 +22,11 @@ const ScrollingBanner = () => {
         top: 0,
         left: 0,
         zIndex: 9999,
+        width: '100%',
+        backgroundColor: '#C59A6B',
+        color: '#fff',
+        padding: '10px 0',
+        overflow: 'hidden',
         boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
         overflow: 'hidden',
       }}
@@ -30,49 +35,62 @@ const ScrollingBanner = () => {
         sx={{
           display: 'flex',
           whiteSpace: 'nowrap',
-          animation: 'scrollText1 19s linear infinite',
+          animation: 'scrollText 25s linear infinite',
           animationDelay: '0s',
         }}
       >
-        <Typography
-          variant="body1"
-          sx={{
-            overflow: 'hidden',
-            display: 'inline-block',
-            marginRight: '400px',
-          }}
-        >
-          🚚 Livraison offerte à partir de 80€ d'achat ! 🎉
-        </Typography>
-       
+        {[
+          "🚚 Livraison offerte à partir de 80€ d'achat ! 🎉",
+          "🚀 Prêt à gagner plus et à prendre le contrôle de ton avenir ? ",
+          "⚡ Offre Flash : -50% sur le 2ème produit avec le code : CHOGAN50 🔥"
+        ].map((message, index) => (
           <Typography
-            variant="body1"
+            key={index}
+            variant="body2"
             sx={{
-              overflow: 'hidden',
               display: 'inline-block',
-              cursor: 'pointer', // Modifier le curseur pour indiquer que le texte est cliquable
+              marginRight: '80px',
+              fontWeight: 500,
+              fontSize: '15px',
             }}
           >
-        🚀 Prêt à gagner plus et à prendre le contrôle de ton avenir ?   
-            <Link href="/BecomeConsultant" passHref>
-              <span 
-                style={{ color:'black', textDecoration: 'underline' }}
-              > Deviens Consultant !💼</span>
-            </Link>         
-          </Typography>        
+            {index === 1 ? (
+              <>
+                🚀 Prêt à gagner plus et à prendre le contrôle de ton avenir ?{' '}
+                <Link href="/BecomeConsultant" passHref>
+                  <Box
+                    component="span"
+                    sx={{ color: 'black', textDecoration: 'underline', cursor: 'pointer' }}
+                  >
+                    💼 Deviens Consultant !
+                  </Box>
+                </Link>
+              </>
+            ) : index === 3 ? (
+              <>
+                ⚡ Offre Flash : -50% sur le 2ème produit avec le code :{' '}
+                <Box component="span" sx={{ color: 'black', fontWeight: 600 }}>
+                  CHOGAN50
+                </Box>{' '}
+                🔥
+              </>
+            ) : (
+              message
+            )}
+          </Typography>
+        ))}
       </Box>
-      <style>
-        {`
-          @keyframes scrollText1 {
-            0% {
-              transform: translateX(100%);
-            }
-            100% {
-              transform: translateX(-100%);
-            }
+
+      <style>{`
+        @keyframes scrollText {
+          0% {
+            transform: translateX(100%);
           }
-        `}
-      </style>
+          100% {
+            transform: translateX(-100%);
+          }
+        }
+      `}</style>
     </Box>
   );
 };
