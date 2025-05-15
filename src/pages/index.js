@@ -26,10 +26,10 @@ export default function Home() {
 
 // Liste des images avec leurs liens respectifs
 const promoImages = [
-  { src: '/images/image0_promo.jpg', href: '/perfumes' },
   { src: '/images/promo-flash.png', href: '/perfumes' }, 
+  { src: '/images/promo-parfums.png', href: '/perfumes' },
+  { src: '/images/image0_promo.jpg', href: '/perfumes' }, 
   { src: '/images/parfums-presentation.png', href: '/perfumes' },
-  { src: '/images/image3_promo.png', href: '/beauty' },
   { src: '/images/image4_promo.jpg', href: '/beauty' },
 ];
 
