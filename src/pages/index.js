@@ -199,10 +199,7 @@ const promoImages = [
         <Box className = "mt-12" sx={{marginTop: '50px'}}>                    
           <ReassurancesComponent />          
           <TrustLogos />
-        </Box>
-        <Box>
-        <TopProducts />
-        </Box>        
+        </Box>    
         <Box sx={{padding: '10px 10px' }}>
             <TrustpilotBanner />
         </Box>        
