@@ -29,7 +29,6 @@ const promoImages = [
   { src: '/images/promo-flash.png', href: '/perfumes' }, 
   { src: '/images/promo-parfums.png', href: '/perfumes' },
   { src: '/images/image0_promo.jpg', href: '/perfumes' }, 
-  { src: '/images/parfums-presentation.png', href: '/perfumes' },
   { src: '/images/image4_promo.jpg', href: '/beauty' },
 ];
 
@@ -90,7 +89,6 @@ const promoImages = [
   return (
     <>
       <Header />
-      <Banner />
       <Box
         sx={{
           display: 'flex',

@@ -232,7 +232,7 @@ const ReviewsSection = ({ tableName, productId, isInsertComment }) => {
                   sx={{
                     display: 'flex',
                     flexDirection: 'column',
-                    height: '265px',
+                    height: '310px',
                   }}
                 >
                   <Box

@@ -57,7 +57,7 @@ const ScrollingBanner = () => {
         sx={{
           display: 'inline-flex',
           whiteSpace: 'nowrap',
-          animation: 'scrollText 35s linear infinite',
+          animation: 'scrollText 30s linear infinite',
           '&:hover': {
             animationPlayState: 'paused',
           },
