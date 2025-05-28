@@ -1,37 +1,50 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Rating, TextField, Button, Select, MenuItem, Pagination, Tooltip } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Rating,
+  TextField,
+  Button,
+  Select,
+  MenuItem,
+  Pagination,
+  Tooltip,
+  Grid,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
 import { supabase } from '../lib/supabaseClient';
 
 const ReviewsSection = ({ tableName, productId, isInsertComment }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const [reviews, setReviews] = useState([]);
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
   const [userName, setUserName] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [filterRating, setFilterRating] = useState(0); // For filter rating
-  const [page, setPage] = useState(1); // Pagination state
-  const [reviewsPerPage, setReviewsPerPage] = useState(3); // Number of reviews to display per page
-  const [showSuccessTooltip, setShowSuccessTooltip] = useState(false); // State to control success tooltip visibility
-  const [reviewsUpdated, setReviewsUpdated] = useState(false); // State to trigger re-fetch after posting a review
+  const [filterRating, setFilterRating] = useState(0);
+  const [page, setPage] = useState(1);
+  const [reviewsPerPage, setReviewsPerPage] = useState(3);
+  const [showSuccessTooltip, setShowSuccessTooltip] = useState(false);
+  const [reviewsUpdated, setReviewsUpdated] = useState(false);
 
   useEffect(() => {
     const fetchReviewsAndPerfume = async () => {
       setLoading(true);
 
-      // Fetch reviews from 'avis' table and filter by rating
       let query = supabase
         .from('avis')
         .select('*')
-        .gte('rating', filterRating)  // Filter by rating
-        .order('created_at', { ascending: false });  // Sort by date (latest first)
+        .gte('rating', filterRating)
+        .order('created_at', { ascending: false });
 
-      // If isInsertComment is true, filter by product_id
       if (isInsertComment) {
-        query = query.eq('product_id', productId);  // Filter by product_id
+        query = query.eq('product_id', productId);
       }
 
-      // Execute the query for reviews
       const { data: reviewsData, error: reviewsError } = await query;
 
       if (reviewsError) {
@@ -44,11 +57,9 @@ const ReviewsSection = ({ tableName, productId, isInsertComment }) => {
     };
 
     fetchReviewsAndPerfume();
-  }, [productId, filterRating, reviewsUpdated, isInsertComment]); // Re-fetch reviews when dependencies change
+  }, [productId, filterRating, reviewsUpdated, isInsertComment]);
 
-  // Calculate the average rating and update the perfume record
   const updatePerfumeAverageRating = async () => {
-    // Fetch all reviews for the product
     const { data: allReviews, error: reviewsError } = await supabase
       .from('avis')
       .select('rating')
@@ -59,10 +70,10 @@ const ReviewsSection = ({ tableName, productId, isInsertComment }) => {
       return;
     }
 
-    // Calculate the average rating
+    if (!allReviews.length) return; // éviter division par zéro
+
     const totalRating = allReviews.reduce((sum, review) => sum + review.rating, 0);
     const averageRating = totalRating / allReviews.length;
-
 
     const { error: updateError } = await supabase
       .from(tableName)
@@ -74,15 +85,13 @@ const ReviewsSection = ({ tableName, productId, isInsertComment }) => {
     }
   };
 
-  // Handle posting a new review
   const handlePostReview = async () => {
     if (rating === 0 || !reviewText || !userName) {
       alert('Veuillez remplir tous les champs.');
       return;
     }
 
-    // Post the review to the database
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('avis')
       .insert([
         {
@@ -99,66 +108,93 @@ const ReviewsSection = ({ tableName, productId, isInsertComment }) => {
       setError('Erreur lors de l\'envoi de votre avis.');
     } else {
       setError('');
-      // Trigger re-fetch by updating the reviewsUpdated state
-      setReviewsUpdated(prev => !prev);  // Toggle the state to trigger re-fetch
+      setReviewsUpdated((prev) => !prev);
       setRating(0);
       setReviewText('');
       setUserName('');
-
-      // After posting the review, update the average rating in the perfume table
       await updatePerfumeAverageRating();
-
-      // Show success tooltip after successful submission
       setShowSuccessTooltip(true);
-
-      // Hide the tooltip after a short duration
-      setTimeout(() => {
-        setShowSuccessTooltip(false);
-      }, 3000); // Tooltip will disappear after 3 seconds
+      setTimeout(() => setShowSuccessTooltip(false), 3000);
     }
   };
 
-  // Handle page change for pagination
   const handleChangePage = (event, value) => {
     setPage(value);
   };
 
-  // Get the current reviews to display based on pagination
+  // Pagination slice
   const currentReviews = reviews.slice((page - 1) * reviewsPerPage, page * reviewsPerPage);
 
   return (
     <Box
       sx={{
-        marginTop: '5px',
-        backgroundColor: '#f8f8f8',
-        padding: '20px 20px',
-        width: {
-          xs: '100%',  // For mobile screens, set width to 100%
-          sm: '80%',   // For small screens, 80%
-          md: '70%',   // For medium screens, 70%
-          lg: '60%'    // For large screens, 60%
-        },
-        marginLeft: 'auto',   // Centering the Box horizontally
-        marginRight: 'auto',  // Centering the Box horizontally
+        marginTop: 4,
+        backgroundColor: '#fefefe',
+        padding: { xs: 2, sm: 4 },
+        width: { xs: '95%', sm: '85%', md: '75%', lg: '60%' },
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        borderRadius: '12px',
+        boxShadow: '0 6px 18px rgba(0,0,0,0.1)',
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
       }}
     >
-      <Typography variant="h6" sx={{ fontWeight: 'bold', textAlign: 'center', marginBottom: '20px' }}>
+      <Typography
+        variant="h5"
+        sx={{
+          fontWeight: '900',
+          textAlign: 'center',
+          color: '#5d3a00',
+          marginBottom: 3,
+          textShadow: '1px 1px 4px rgba(93,58,0,0.3)',
+          letterSpacing: 1.2,
+        }}
+      >
         Avis Clients
       </Typography>
 
       {loading ? (
-        <Typography variant="body1" align="center">Chargement des avis...</Typography>
+        <Typography variant="body1" align="center" color="#7a7a7a">
+          Chargement des avis...
+        </Typography>
       ) : error ? (
-        <Typography variant="body1" color="error" align="center">{error}</Typography>
+        <Typography variant="body1" align="center" color="error">
+          {error}
+        </Typography>
       ) : (
-        <Box>
-          {/* Filter section */}
-          <Box sx={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-            <Typography variant="body1" sx={{ marginRight: '10px' }}>Filtrer par note :</Typography>
+        <>
+          {/* Filtre par note */}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              marginBottom: 3,
+              gap: 2,
+              flexWrap: 'wrap',
+            }}
+          >
+            <Typography
+              variant="body1"
+              sx={{ alignSelf: 'center', fontWeight: 600, color: '#6b4c3b' }}
+            >
+              Filtrer par note :
+            </Typography>
             <Select
               value={filterRating}
-              onChange={(e) => setFilterRating(e.target.value)}
-              sx={{ width: '120px' }}
+              onChange={(e) => {
+                setFilterRating(e.target.value);
+                setPage(1);
+              }}
+              size="small"
+              sx={{
+                width: 140,
+                bgcolor: '#fff',
+                borderRadius: 2,
+                boxShadow: '0 0 8px rgba(107,76,59,0.1)',
+                '& .MuiSelect-icon': {
+                  color: '#6b4c3b',
+                },
+              }}
             >
               <MenuItem value={0}>Toutes</MenuItem>
               <MenuItem value={1}>1 étoile</MenuItem>
@@ -169,81 +205,166 @@ const ReviewsSection = ({ tableName, productId, isInsertComment }) => {
             </Select>
           </Box>
 
-          {/* Display reviews */}
-          {currentReviews.length === 0 ? (
-            <Typography variant="body1" align="center">Aucun avis pour ce produit.</Typography>
-          ) : (
-            currentReviews.map((review) => (
-              <Box key={review.id} sx={{ marginBottom: '20px', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
-                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{review.user_name}</Typography>
-                <Typography variant="h6">Chogan: {review.product_id}</Typography>
-                <Rating name="read-only" value={review.rating} readOnly sx={{ marginBottom: '10px' }} />
-                <Typography variant="body2" sx={{ color: '#555' }}>"{review.review}"</Typography>
-              </Box>
-            ))
-          )}
+          {/* Reviews Grid */}
+          <Grid
+            container
+            spacing={3}
+            direction={isMobile ? 'column' : 'row'}
+            alignItems={isMobile ? 'stretch' : 'flex-start'}
+            justifyContent="flex-start"
+          >
+            {currentReviews.length === 0 ? (
+              <Typography
+                variant="body1"
+                align="center"
+                sx={{ width: '100%', color: '#7a7a7a', fontStyle: 'italic' }}
+              >
+                Aucun avis pour ce produit.
+              </Typography>
+            ) : (
+              currentReviews.map((review) => (
+                <Grid
+                  item
+                  key={review.id}
+                  xs={12}
+                  sm={6}
+                  md={4}
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '265px',
+                  }}
+                >
+                  <Box
+                    sx={{
+                      backgroundColor: '#fff',
+                      borderRadius: '15px',
+                      padding: 3,
+                      boxShadow:
+                        '0 4px 15px rgba(107, 76, 59, 0.15), 0 1px 6px rgba(0, 0, 0, 0.05)',
+                      transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                      cursor: 'default',
+                      flexGrow: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      '&:hover': {
+                        transform: 'scale(1.05)',
+                        boxShadow:
+                          '0 10px 25px rgba(107, 76, 59, 0.3), 0 4px 10px rgba(0, 0, 0, 0.1)',
+                      },
+                    }}
+                  >
+                    <Typography
+                      variant="h6"
+                      sx={{ fontWeight: 700, color: '#6b4c3b', mb: 0.5 }}
+                    >
+                      {review.user_name}
+                    </Typography>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ mb: 1, color: '#a67c52', fontWeight: 600 }}
+                    >
+                      Produit : {review.product_id}
+                    </Typography>
+                    <Rating
+                      name="read-only"
+                      value={review.rating}
+                      readOnly
+                      sx={{ mb: 1, color: '#d2b48c' }}
+                    />
+                    <Typography
+                      variant="body2"
+                      sx={{ color: '#4e3b27', fontStyle: 'italic', flexGrow: 1 }}
+                    >
+                      « {review.review} »
+                    </Typography>
+                  </Box>
+                </Grid>
+              ))
+            )}
+          </Grid>
 
           {/* Pagination */}
           {reviews.length > reviewsPerPage && (
-            <Pagination
-              count={Math.ceil(reviews.length / reviewsPerPage)}
-              page={page}
-              onChange={handleChangePage}
-              sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}
-            />
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+              <Pagination
+                count={Math.ceil(reviews.length / reviewsPerPage)}
+                page={page}
+                onChange={handleChangePage}
+                color="primary"
+                shape="rounded"
+              />
+            </Box>
           )}
 
-          {/* Form for submitting a new review */}
+          {/* Formulaire d'ajout d'avis */}
           {isInsertComment && (
-            <Box sx={{ marginTop: '30px' }}>
-              <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Laissez un avis</Typography>
+            <Box
+              sx={{
+                marginTop: 5,
+                padding: 3,
+                borderRadius: 3,
+                bgcolor: '#fff',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                maxWidth: 600,
+                marginLeft: 'auto',
+                marginRight: 'auto',
+              }}
+            >
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 'bold', color: '#5d3a00', mb: 2 }}
+              >
+                Laissez un avis
+              </Typography>
               <Rating
                 name="rating"
                 value={rating}
                 onChange={(event, newValue) => setRating(newValue)}
-                sx={{ marginBottom: '20px' }}
+                sx={{ mb: 3, color: '#d2b48c' }}
               />
               <TextField
                 label="Nom"
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
                 fullWidth
-                sx={{ marginBottom: '10px' }}
+                sx={{ mb: 3 }}
               />
               <TextField
                 label="Votre avis"
-                multiline
-                rows={4}
                 value={reviewText}
                 onChange={(e) => setReviewText(e.target.value)}
+                multiline
+                rows={4}
                 fullWidth
-                sx={{ marginBottom: '20px' }}
+                sx={{ mb: 3 }}
               />
               <Tooltip
-                title="Avis envoyé avec succès !"
+                title="Avis posté avec succès !"
                 open={showSuccessTooltip}
+                disableFocusListener
+                disableHoverListener
+                disableTouchListener
                 arrow
-                placement="top"
-                sx={{
-                  position: 'absolute',
-                  top: '90%',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  zIndex: 1300,
-                }}
               >
-                <span></span> {/* Empty span for the tooltip */}
+                <Button
+                  variant="contained"
+                  onClick={handlePostReview}
+                  sx={{
+                    bgcolor: '#a67c52',
+                    color: '#fff',
+                    fontWeight: 'bold',
+                    '&:hover': {
+                      bgcolor: '#6b4c3b',
+                    },
+                  }}
+                >
+                  Envoyer
+                </Button>
               </Tooltip>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handlePostReview}
-              >
-                Poster l'avis
-              </Button>
             </Box>
           )}
-        </Box>
+        </>
       )}
     </Box>
   );

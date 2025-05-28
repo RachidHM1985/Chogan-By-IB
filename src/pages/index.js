@@ -132,6 +132,21 @@ const promoImages = [
           </Grid>
         </Grid>
         </Box>
+        
+        <Box>
+        <TopProducts />
+        </Box>  
+        <Box className = "mt-12" sx={{marginTop: '50px'}}>                    
+          <ReassurancesComponent />          
+          <TrustLogos />
+        </Box>      
+        <Box sx={{padding: '10px 10px' }}>
+            <TrustpilotBanner />
+        </Box>  
+        {/* Section des Avis Clients */}
+        <Box sx={{backgroundColor: '#f8f8f8', padding: '5px 5px' }}>
+          <ReviewsSection productId={'*'} isInsertComment={false} />
+        </Box>
         {/* Carrousel manuel avec titre et phrase */}
         <Box sx={{ position: 'relative', top: '5vh' }}>
           <Grid container justifyContent="center">
@@ -187,16 +202,12 @@ const promoImages = [
         </Box>
         <Box>
         <TopProducts />
-        </Box>
-        <Box>
-          <ContactSection />
-        </Box>
+        </Box>        
         <Box sx={{padding: '10px 10px' }}>
             <TrustpilotBanner />
-        </Box>
-        {/* Section des Avis Clients */}
-        <Box sx={{backgroundColor: '#f8f8f8', padding: '5px 5px' }}>
-          <ReviewsSection productId={'*'} isInsertComment={false} />
+        </Box>        
+        <Box>
+          <ContactSection />
         </Box>
         {/* Footer */}
         <Footer />      

@@ -60,7 +60,7 @@ const Header = () => {
         zIndex: 1100,
         backgroundColor: '#EFE7DB',
         boxShadow: 'none',
-        height: showBanner ? '95px' : '75px',
+        height: showBanner ? '100px' : '75px',
         transition: 'height 0.3s ease',
       }}
     >
@@ -68,7 +68,7 @@ const Header = () => {
       <Toolbar>
         <Grid container alignItems="center" justifyContent="space-between">
           {/* Menu Hamburger */}
-          <Grid item xs={2} sx={{ display: 'flex', justifyContent: 'flex-start', paddingLeft: '20px' }}>
+          <Grid item xs={2} sx={{ display: 'flex', justifyContent: 'flex-start', paddingLeft: '20px', paddingTop: '40px' }}>
             <IconButton
               aria-label="menu"
               edge="start"
@@ -80,7 +80,7 @@ const Header = () => {
           </Grid>
 
           {/* Logo */}
-          <Grid item xs={6} sm={4} md={2} sx={{ display: 'flex', justifyContent: 'center', paddingTop: '18px' }}>
+          <Grid item xs={6} sm={4} md={2} sx={{ display: 'flex', justifyContent: 'center', paddingTop: '40px' }}>
             <Link href="/" passHref>
               <IconButton edge="start" color="inherit" aria-label="logo">
                 <Image
@@ -94,7 +94,7 @@ const Header = () => {
           </Grid>
 
           {/* Recherche et Panier */}
-          <Grid item xs={2} sx={{ display: 'flex', justifyContent: 'flex-end', paddingRight: '20px' }}>
+          <Grid item xs={2} sx={{ display: 'flex', justifyContent: 'flex-end', paddingRight: '20px', paddingTop: '40px' }}>
             <IconButton
               color="inherit"
               sx={{ color: 'black' }}

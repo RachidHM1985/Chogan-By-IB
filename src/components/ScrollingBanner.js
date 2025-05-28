@@ -1,87 +1,84 @@
 // components/ScrollingBanner.js
 
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, useTheme } from '@mui/material';
 import Link from 'next/link';
 
 const ScrollingBanner = () => {
+  const theme = useTheme();
+
+  const messages = [
+    {
+      text: "🚚 Livraison offerte dès 80€ d'achat !",
+    },
+    {
+      text: (
+        <>
+          🚀 Marre de la routine ?{' '}
+          <Link href="/BecomeConsultant" passHref legacyBehavior>
+            <a style={{ color: '#fff', fontWeight: 'bold', textDecoration: 'underline' }}>
+              Deviens Consultant Chogan 💼
+            </a>
+          </Link>
+        </>
+      ),
+    },
+    {
+      text: (
+        <>
+          🔥 Offre Spéciale :{' '}
+          <strong style={{ color: '#FFD700' }}>-50%</strong> sur le 2ᵉ produit avec le code :{' '}
+          <Box component="span" sx={{ color: '#fff', fontWeight: 'bold', ml: 1 }}>
+            CHOGAN50
+          </Box>
+        </>
+      ),
+    },
+  ];
+
   return (
     <Box
       sx={{
-        display: 'flex',
-        alignItems: 'center',
-        height: '25px',
         width: '100%',
-        backgroundColor: '#C59A6B',
+        background: 'linear-gradient(90deg, #C59A6B, #E6BE9A)',
         color: '#fff',
-        fontSize: '16px',
-        fontWeight: 'bold',
-        textAlign: 'center',
-        padding: '10px 0',
+        fontWeight: 500,
+        py: 1,
+        px: 2,
         position: 'fixed',
         top: 0,
         left: 0,
         zIndex: 9999,
-        width: '100%',
-        backgroundColor: '#C59A6B',
-        color: '#fff',
-        padding: '10px 0',
         overflow: 'hidden',
-        boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
-        overflow: 'hidden',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.15)',
       }}
     >
       <Box
         sx={{
-          display: 'flex',
+          display: 'inline-flex',
           whiteSpace: 'nowrap',
-          animation: 'scrollText 25s linear infinite',
-          animationDelay: '0s',
+          animation: 'scrollText 35s linear infinite',
+          '&:hover': {
+            animationPlayState: 'paused',
+          },
         }}
       >
-        {[
-          "🚚 Livraison offerte à partir de 80€ d'achat ! 🎉",
-          "🚀 Prêt à gagner plus et à prendre le contrôle de ton avenir ? ",
-          "⚡ Offre Flash : -50% sur le 2ème produit avec le code : CHOGAN50 🔥"
-        ].map((message, index) => (
+        {messages.map((msg, index) => (
           <Typography
             key={index}
-            variant="body2"
             sx={{
               display: 'inline-block',
-              marginRight: '80px',
-              fontWeight: 500,
-              fontSize: '15px',
+              mr: 6,
+              fontSize: { xs: '0.9rem', sm: '1rem' },
+              lineHeight: 1.6,
             }}
           >
-            {index === 1 ? (
-              <>
-                🚀 Prêt à gagner plus et à prendre le contrôle de ton avenir ?{' '}
-                <Link href="/BecomeConsultant" passHref>
-                  <Box
-                    component="span"
-                    sx={{ color: 'black', textDecoration: 'underline', cursor: 'pointer' }}
-                  >
-                    💼 Deviens Consultant !
-                  </Box>
-                </Link>
-              </>
-            ) : index === 3 ? (
-              <>
-                ⚡ Offre Flash : -50% sur le 2ème produit avec le code :{' '}
-                <Box component="span" sx={{ color: 'black', fontWeight: 600 }}>
-                  CHOGAN50
-                </Box>{' '}
-                🔥
-              </>
-            ) : (
-              message
-            )}
+            {msg.text}
           </Typography>
         ))}
       </Box>
 
-      <style>{`
+      <style jsx>{`
         @keyframes scrollText {
           0% {
             transform: translateX(100%);
