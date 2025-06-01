@@ -23,17 +23,17 @@ const ScrollingBanner = () => {
         </>
       ),
     },
-    {
-      text: (
-        <>
-          🔥 Offre Spéciale :{' '}
-          <strong style={{ color: '#FFD700' }}>-50%</strong> sur le 2ᵉ produit avec le code :{' '}
-          <Box component="span" sx={{ color: '#fff', fontWeight: 'bold', ml: 1 }}>
-            CHOGAN50
-          </Box>
-        </>
-      ),
-    },
+    // {
+    //   text: (
+    //     // <>
+    //     //   🔥 Offre Spéciale :{' '}
+    //     //   <strong style={{ color: '#FFD700' }}>-50%</strong> sur le 2ᵉ produit avec le code :{' '}
+    //     //   <Box component="span" sx={{ color: '#fff', fontWeight: 'bold', ml: 1 }}>
+    //     //     CHOGAN50
+    //     //   </Box>
+    //     // </>
+    //   ),
+    // },
   ];
 
   return (

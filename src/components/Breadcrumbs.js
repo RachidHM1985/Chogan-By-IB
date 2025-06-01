@@ -7,19 +7,19 @@ const MyBreadcrumbs = () => {
   const router = useRouter();
   const [breadcrumbs, setBreadcrumbs] = useState([]);
 
-  const promo = {
-    title: "🔥 Vente Flash -50% sur tous les produits Chogan ! 🔥",
-    subtitle: (
-      <>
-        Offre valable jusqu'au vendredi 30 mai 2025 minuit.<br />
-        <strong style={{ color: '#fff200' }}>
-          N'oubliez pas de saisir le code <span style={{ color: '#000' }}>CHOGAN50</span> lors de la validation du panier !
-        </strong>
-      </>
-    ),
-    background: 'linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%)',
-    ctaText: "J'en profite",
-  };
+  // const promo = {
+  //   title: "🔥 Vente Flash -50% sur tous les produits Chogan ! 🔥",
+  //   subtitle: (
+  //     <>
+  //       Offre valable jusqu'au vendredi 30 mai 2025 minuit.<br />
+  //       <strong style={{ color: '#fff200' }}>
+  //         N'oubliez pas de saisir le code <span style={{ color: '#000' }}>CHOGAN50</span> lors de la validation du panier !
+  //       </strong>
+  //     </>
+  //   ),
+  //   background: 'linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%)',
+  //   ctaText: "J'en profite",
+  // };
 
   const labelMap = {
     homme: 'Homme',
@@ -81,7 +81,7 @@ const MyBreadcrumbs = () => {
   return (
     <>
       {/* Bannière promo compacte et impactante pleine largeur */}
-      <Box
+      {/* <Box
         sx={{
           width: '100%',
           background: promo.background,
@@ -149,7 +149,7 @@ const MyBreadcrumbs = () => {
         >
           {promo.ctaText}
         </Button>
-      </Box>
+      </Box> */}
 
       {/* Fil d'Ariane classique sous la bannière */}
       <Box
