@@ -31,7 +31,7 @@ export default function Home() {
       href: '/perfumes',
       title: "Collection Parfums Premium",
       subtitle: "Parfums authentiques inspirés par les plus grandes marques",
-      cta: "Explorer maintenant",
+      cta: "Découvrir",
       badge: "Parfums premium",
       alt: "Collection de parfums premium - Fragrances d'exception et parfums de luxe"
     },
@@ -40,7 +40,7 @@ export default function Home() {
       href: '/perfumes/Luxe',
       title: "Parfums de Luxe",
       subtitle: "L'élégance à votre portée - Grandes marques disponibles",
-      cta: "Voir la collection",
+      cta: "Découvrir",
       badge: "Parfums de Luxe",
       alt: "Parfums de luxe pour homme et femme - Élégance et raffinement"
     },
@@ -776,7 +776,7 @@ export default function Home() {
                 sx={{ 
                   fontWeight: 'bold', 
                   marginBottom: { xs: 1.5, sm: 2 },
-                  background: 'linear-gradient(45deg, #2196F3, #21CBF3)',
+                  background: 'black',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   fontSize: { 
