@@ -16,6 +16,7 @@ export default function ContactSection() {
           maxWidth: '1200px', // Max width for larger screens
           gap: { xs: '20px', md: '0' }, // Gap between elements on small screens
           padding: '10px',
+          backgroundColor: '#f8f9fa'
         }}
       >
         <picture>

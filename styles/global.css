@@ -133,3 +133,38 @@ html {
   }
 
 }
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .slick-dots li button:before {
+          font-size: 12px;
+        }
+
+        .custom-hero-dots {
+          text-align: center;
+        }
+
+        .custom-hero-dots li {
+          margin: 0 5px;
+        }
+
+        /* Amélioration des performances */
+        img {
+          content-visibility: auto;
+        }
+
+        /* Focus visible pour l'accessibilité */
+        button:focus-visible,
+        a:focus-visible {
+          outline: 2px solid #2196F3;
+          outline-offset: 2px;
+        }
+      
