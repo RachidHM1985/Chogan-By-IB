@@ -38,7 +38,7 @@ export default function Home() {
     },
     { 
       src: '/images/image0_promo.png', 
-      href: '/perfumes/Luxe',
+      href: '/perfumes?category=Luxe',
       title: "Parfums de Luxe",
       subtitle: "L'élégance à votre portée - Grandes marques disponibles",
       cta: "Découvrir",

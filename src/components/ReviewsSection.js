@@ -141,21 +141,6 @@ const ReviewsSection = ({ tableName, productId, isInsertComment }) => {
         overflow: 'hidden', // Prévention des débordements
       }}
     >
-      <Typography
-        variant="h5"
-        sx={{
-          fontWeight: '900',
-          textAlign: 'center',
-          color: '#5d3a00',
-          marginBottom: 3,
-          textShadow: '1px 1px 4px rgba(93,58,0,0.3)',
-          letterSpacing: { xs: 0.5, sm: 1.2 }, // Réduction de l'espacement sur mobile
-          fontSize: { xs: '1.25rem', sm: '1.5rem' }, // Taille réduite sur mobile
-        }}
-      >
-        Avis Clients
-      </Typography>
-
       {loading ? (
         <Typography variant="body1" align="center" color="#7a7a7a">
           Chargement des avis...
