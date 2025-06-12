@@ -7,6 +7,7 @@ import {
   Drawer,
   Grid,
   Badge,
+  Box,
 } from '@mui/material';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -41,14 +42,12 @@ const Header = () => {
   }, [router.events]);
 
   const handleQuantityChange = (index, newQuantity) => {
-    const updatedCart = [...cartItems];  // Clone du panier
+    const updatedCart = [...cartItems];
     if (updatedCart[index]) {
       updatedCart[index].quantity = newQuantity;
-      updateCart(updatedCart);  // Utilisez updateCart pour mettre à jour le contexte
+      updateCart(updatedCart);
     }
   };
-  
-  
 
   return (
     <AppBar
@@ -62,56 +61,124 @@ const Header = () => {
         boxShadow: 'none',
         height: showBanner ? '100px' : '75px',
         transition: 'height 0.3s ease',
+        // Empêcher le débordement horizontal
+        overflow: 'hidden',
+        width: '100%',
+        maxWidth: '100vw',
       }}
     >
       {showBanner && <ScrollingBanner />}
-      <Toolbar>
-        <Grid container alignItems="center" justifyContent="space-between">
+      <Toolbar
+        sx={{
+          // Réduire le padding par défaut de MUI
+          padding: { xs: '0 8px', sm: '0 16px' },
+          minHeight: '64px !important',
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '100%',
+            maxWidth: '100%',
+            overflow: 'hidden',
+          }}
+        >
           {/* Menu Hamburger */}
-          <Grid item xs={2} sx={{ display: 'flex', justifyContent: 'flex-start', paddingLeft: '20px', paddingTop: showBanner ? '40px' : '0px' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              paddingTop: showBanner ? '40px' : '0px',
+              minWidth: 0, // Permet la compression
+            }}
+          >
             <IconButton
               aria-label="menu"
-              edge="start"
               onClick={() => setOpenSidebar(true)}
-              sx={{ color: 'black' }}
+              sx={{
+                color: 'black',
+                padding: { xs: '4px', sm: '8px' },
+                minWidth: 0,
+              }}
             >
               <MenuIcon />
             </IconButton>
-          </Grid>
+          </Box>
 
           {/* Logo */}
-          <Grid item xs={6} sm={4} md={2} sx={{ display: 'flex', justifyContent: 'center', paddingTop: showBanner? '40px': '0px' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              paddingTop: showBanner ? '40px' : '0px',
+              flex: 1,
+              minWidth: 0,
+            }}
+          >
             <Link href="/" passHref>
-              <IconButton edge="start" color="inherit" aria-label="logo">
+              <IconButton
+                color="inherit"
+                aria-label="logo"
+                sx={{
+                  padding: { xs: '4px', sm: '8px' },
+                  minWidth: 0,
+                }}
+              >
                 <Image
                   src="/images/By_Ikram_logo.png"
                   alt="Logo"
-                  width={80}
-                  height={60}
+                  width={60} // Réduit pour mobile
+                  height={45} // Réduit pour mobile
+                  style={{
+                    maxWidth: '100%',
+                    height: 'auto',
+                  }}
                 />
               </IconButton>
             </Link>
-          </Grid>
+          </Box>
 
           {/* Recherche et Panier */}
-          <Grid item xs={2} sx={{ display: 'flex', justifyContent: 'flex-end', paddingRight: '20px', paddingTop: showBanner? '40px' : '0px'}}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              paddingTop: showBanner ? '40px' : '0px',
+              minWidth: 0,
+            }}
+          >
             <IconButton
               color="inherit"
-              sx={{ color: 'black' }}
+              sx={{
+                color: 'black',
+                padding: { xs: '4px', sm: '8px' },
+                minWidth: 0,
+              }}
               onClick={() => setOpenSearch(true)}
             >
               <SearchIcon />
             </IconButton>
-            <IconButton color="inherit" sx={{ color: 'black' }} onClick={() => setOpenCart(true)}>
-              <Badge badgeContent= {totalQuantity} color="error">
+            <IconButton
+              color="inherit"
+              sx={{
+                color: 'black',
+                padding: { xs: '4px', sm: '8px' },
+                minWidth: 0,
+              }}
+              onClick={() => setOpenCart(true)}
+            >
+              <Badge badgeContent={totalQuantity} color="error">
                 <ShoppingCartIcon />
               </Badge>
             </IconButton>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </Toolbar>
 
-      {/* Sidebar (Drawer) - Correction avec passage de la prop onClose */}
+      {/* Sidebar (Drawer) */}
       <Drawer anchor="left" open={openSidebar} onClose={() => setOpenSidebar(false)}>
         <Sidebar open={openSidebar} onClose={() => setOpenSidebar(false)} />
       </Drawer>
@@ -120,11 +187,11 @@ const Header = () => {
       {openSearch && <SearchOverlay open={openSearch} onClose={() => setOpenSearch(false)} />}
 
       {/* Panier */}
-      <CartDialog 
+      <CartDialog
         open={openCart}
         handleCloseCart={() => setOpenCart(false)}
         cartItems={cartItems}
-        handleQuantityChange={handleQuantityChange}  // Assurez-vous qu'il est bien ici
+        handleQuantityChange={handleQuantityChange}
         removeFromCart={removeFromCart}
         updateCartItems={updateCart}
       />

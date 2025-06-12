@@ -1,43 +1,71 @@
-/* global.css */
-
-
+/* global.css - Version corrigée pour mobile */
 /* Importation de Bootstrap */
 @import 'bootstrap/dist/css/bootstrap.min.css';
-@import 'slick-carousel/slick/slick.css'; 
+@import 'slick-carousel/slick/slick.css';
 @import 'slick-carousel/slick/slick-theme.css';
 
 /* Styles généraux pour l'application */
 body {
-  min-width: 450px;
+  min-width: 320px; /* Réduit de 450px à 320px pour les très petits écrans */
   margin: 0;
   padding: 0;
   font-family: 'Roboto', sans-serif;
   background-color: #f4f4f9;
   color: #333;
-  position: relative; /* Assurez-vous que le contexte de la page permet une superposition correcte */
+  position: relative;
   z-index: 1;
+  /* Prévenir le débordement horizontal */
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
+
+/* Appliquer box-sizing à tous les éléments */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 /* Définir un comportement de défilement fluide */
 html {
-    scroll-behavior: smooth;
-  }
+  scroll-behavior: smooth;
+  /* Prévenir le débordement horizontal global */
+  overflow-x: hidden;
+}
 
+/* Corrections pour les conteneurs MUI */
+div.css-1bupzq4-MuiContainer-root {
+  padding-left: 8px; /* Augmenté de 1px à 8px pour un meilleur espacement */
+  padding-right: 8px;
+  box-sizing: border-box;
+}
+
+@media (min-width: 1200px) {
+  main.css-19xko21-MuiContainer-root {
+    width: 100%;
+    max-width: 100%; /* Ajout pour éviter le débordement */
+  }
+}
+
+/* Correction critique pour mobile */
+@media (max-width: 1200px) {
   div.css-1bupzq4-MuiContainer-root {
-    padding-left: 1px;
-    padding-right: 1px;
-}
-  @media (min-width: 1200px){
-  main.css-19xko21-MuiContainer-root{
-    width: 100%;    
+    width: 100%; /* Changé de 500px fixe à 100% responsive */
+    max-width: 500px; /* Limite maximale */
+    margin: 0 auto; /* Centrage */
+    padding-left: 15px;
+    padding-right: 15px;
   }
 }
 
-@media (max-width: 1200px){
-  div.css-1bupzq4-MuiContainer-root{
-    width: 500px;
+/* Responsive supplémentaire pour très petits écrans */
+@media (max-width: 576px) {
+  div.css-1bupzq4-MuiContainer-root {
+    max-width: 100%;
+    padding-left: 10px;
+    padding-right: 10px;
   }
 }
 
+/* Animations existantes */
 @keyframes slideIn {
   0% {
     opacity: 0;
@@ -52,34 +80,23 @@ html {
 @keyframes glitterEffect {
   0% {
     opacity: 1;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.7), 0 0 20px rgba(255, 255, 255, 0.5);  /* Effet d'étincelles */
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.7), 0 0 20px rgba(255, 255, 255, 0.5);
   }
   25% {
     opacity: 0.9;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.3);  /* Effet d'étincelles */
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.3);
   }
   50% {
     opacity: 1;
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.7), 0 0 40px rgba(255, 255, 255, 0.5);  /* Effet d'étincelles */
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.7), 0 0 40px rgba(255, 255, 255, 0.5);
   }
   75% {
     opacity: 0.9;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.3);  /* Effet d'étincelles */
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.3);
   }
   100% {
     opacity: 1;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.7), 0 0 20px rgba(255, 255, 255, 0.5);  /* Effet d'étincelles */
-  }
-}
-
-@keyframes slideIn {
-  0% {
-    opacity: 0;
-    transform: translateY(-50px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.7), 0 0 20px rgba(255, 255, 255, 0.5);
   }
 }
 
@@ -93,37 +110,65 @@ html {
   }
 }
 
+/* Bannière responsive */
 .banner {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  background-color: #1a73e8; /* couleur de fond de la bannière */
+  background-color: #1a73e8;
   color: white;
   text-align: center;
-  padding: 20px 0;
-  font-size: 18px;
+  padding: 15px 10px; /* Réduit le padding sur mobile */
+  font-size: 16px; /* Réduit la taille de police */
   z-index: 1000;
-  animation: slideIn 1s ease-out forwards, glitterEffect 2s linear infinite; /* Animation de scintillement plus lente */
+  animation: slideIn 1s ease-out forwards, glitterEffect 2s linear infinite;
+  box-sizing: border-box;
+  /* Assurer que la bannière ne déborde pas */
+  max-width: 100vw;
+  overflow: hidden;
+}
+
+/* Bannière responsive pour mobile */
+@media (max-width: 576px) {
+  .banner {
+    font-size: 14px;
+    padding: 12px 8px;
+    line-height: 1.3;
+  }
 }
 
 .banner.hide {
   animation: fadeOut 1s forwards;
 }
 
+/* Conteneur de réassurances responsive */
 .reassurances-container {
   padding-left: 0;
-  width: fit-content;
-  margin: auto;
+  width: 100%; /* Changé de fit-content à 100% */
+  max-width: fit-content;
+  margin: 0 auto;
   padding-bottom: 10px;
   display: grid;
-  grid-template-columns: repeat(2, 130px);
-  column-gap: 15px;
+  grid-template-columns: repeat(2, minmax(120px, 130px)); /* Utilisation de minmax */
+  column-gap: 10px; /* Réduit l'espacement */
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+/* Responsive pour les réassurances */
+@media (max-width: 480px) {
+  .reassurances-container {
+    grid-template-columns: repeat(2, minmax(100px, 120px));
+    column-gap: 8px;
+    padding: 0 10px;
+  }
 }
 
 @media (min-width: 640px) {
   .reassurances-container {
     grid-template-columns: repeat(2, 130px);
+    column-gap: 15px;
   }
 }
 
@@ -131,40 +176,102 @@ html {
   .reassurances-container {
     grid-template-columns: repeat(4, 130px);
   }
-
 }
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
 
-        .slick-dots li button:before {
-          font-size: 12px;
-        }
+/* Animations existantes */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-        .custom-hero-dots {
-          text-align: center;
-        }
+/* Corrections pour Slick Carousel */
+.slick-dots li button:before {
+  font-size: 12px;
+}
 
-        .custom-hero-dots li {
-          margin: 0 5px;
-        }
+.custom-hero-dots {
+  text-align: center;
+  padding: 0 10px; /* Ajout de padding pour éviter le débordement */
+}
 
-        /* Amélioration des performances */
-        img {
-          content-visibility: auto;
-        }
+.custom-hero-dots li {
+  margin: 0 5px;
+}
 
-        /* Focus visible pour l'accessibilité */
-        button:focus-visible,
-        a:focus-visible {
-          outline: 2px solid #2196F3;
-          outline-offset: 2px;
-        }
-      
+/* Slick carousel responsive */
+.slick-slider {
+  box-sizing: border-box;
+}
+
+.slick-list {
+  overflow: hidden;
+}
+
+.slick-track {
+  display: flex;
+  align-items: center;
+}
+
+/* Images responsives */
+img {
+  content-visibility: auto;
+  max-width: 100%;
+  height: auto;
+  box-sizing: border-box;
+}
+
+/* Focus visible pour l'accessibilité */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #2196F3;
+  outline-offset: 2px;
+}
+
+/* Animations existantes */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+}
+
+@keyframes expandLine {
+  0% {
+    width: 0;
+    opacity: 0;
+  }
+  100% {
+    width: 100%;
+    opacity: 1;
+  }
+}
+
+/* Classes utilitaires pour prévenir le débordement */
+.no-overflow {
+  overflow-x: hidden;
+}
+
+.responsive-container {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+@media (max-width: 576px) {
+  .responsive-container {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}

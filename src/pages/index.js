@@ -10,10 +10,11 @@ import Header from '../components/Header';
 import ReviewsSection from '../components/ReviewsSection';
 import Link from 'next/link';
 import TopProducts from '../components/TopProducts';
-import ContactSection from '../components/ContactSection';
+import { ContactSection } from '../components/ContactSection';
 import { TrustpilotBanner } from '../components/TrustpilotBanner';
 import TrustLogos from '../components/TrustLogos';
 import { ArrowForward, LocalShipping, Security, Support, Star } from '@mui/icons-material';
+import PartnerBrandsSection from '../components/BrandPartnersSection'
 
 export default function Home() {
   const [isClient, setIsClient] = useState(false);
@@ -213,7 +214,7 @@ export default function Home() {
       </Head>
 
       <Header />
-      
+
       <Box 
         component="main"
         sx={{ 
@@ -228,6 +229,7 @@ export default function Home() {
           }
         }}
       >
+      
 
         {/* Hero Section Responsive Optimisée */}
         <section aria-label="Promotions et collections en vedette">
@@ -611,7 +613,7 @@ export default function Home() {
             </Container>
           </Box>
         </section>
-      
+
         {/* Section Avantages Centrée */}
         <section aria-label="Nos avantages clients">
           <Container 
@@ -714,7 +716,7 @@ export default function Home() {
                     >
                       {benefit.title}
                     </Typography>
-                    <Typography 
+                    <Typography
                       variant="body2" 
                       color="text.secondary"
                       sx={{ 
@@ -735,9 +737,9 @@ export default function Home() {
               ))}
             </Grid>
           </Container>
-        </section>
+        </section>        
 
-        {/* Section Produits Populaires Centrée */}
+         {/* Section Produits Populaires Centrée */}
         <section aria-label="Nos produits populaires">
           <Box sx={{ 
             backgroundColor: '#fafafa', 
@@ -756,183 +758,12 @@ export default function Home() {
             </Container>
           </Box>
         </section>
-
-        {/* Section Marques Partenaires Centrée */}
-        <section aria-label="Nos marques partenaires">
-          <Container 
-            maxWidth="lg" 
-            sx={{ 
-              marginY: { xs: 5, sm: 7, md: 8 }, 
-              padding: { xs: '0 16px', sm: '0 24px', md: '0 32px' },
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center'
-            }}
-          >
-            <Box sx={{ textAlign: 'center', marginBottom: { xs: 4, sm: 5, md: 6 }, width: '100%' }}>
-              <Typography 
-                component="h2"
-                variant="h3" 
-                sx={{ 
-                  fontWeight: 'bold', 
-                  marginBottom: { xs: 1.5, sm: 2 },
-                  background: 'black',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  fontSize: { 
-                    xs: '1.6rem', 
-                    sm: '2rem', 
-                    md: '2.4rem',
-                    lg: '2.8rem'
-                  },
-                  lineHeight: 1.2
-                }}
-              >
-                Nos Marques Partenaires
-              </Typography>
-              <Typography 
-                variant="h6" 
-                sx={{ 
-                  color: '#666',
-                  fontSize: { 
-                    xs: '0.95rem', 
-                    sm: '1.05rem', 
-                    md: '1.15rem',
-                    lg: '1.25rem'
-                  },
-                  lineHeight: 1.3,
-                  maxWidth: { xs: '100%', sm: '80%', md: '70%' },
-                  margin: '0 auto'
-                }}
-              >
-                Des marques d'exception pour votre bien-être
-              </Typography>
-            </Box>
-            
-            <Box sx={{ 
-              width: '100%',
-              maxWidth: '100%',
-              overflow: 'hidden',
-              '& .slick-slide': {
-                padding: { xs: '0 6px', sm: '0 8px', md: '0 10px' },
-                height: 'auto'
-              },
-              '& .slick-list': {
-                padding: { xs: '0 12px', sm: '0 16px', md: '0 20px' },
-                margin: { xs: '0 -12px', sm: '0 -16px', md: '0 -20px' }
-              },
-              '& .slick-track': {
-                display: 'flex',
-                alignItems: 'stretch'
-              },
-              '& .slick-slide > div': {
-                height: '100%'
-              },
-              '& .slick-arrow': {
-                zIndex: 1,
-                display: { xs: 'none !important', md: 'block !important' },
-                '&:before': {
-                  fontSize: '22px',
-                  color: '#333'
-                }
-              },
-              '& .slick-prev': {
-                left: { md: '-40px', lg: '-45px' }
-              },
-              '& .slick-next': {
-                right: { md: '-40px', lg: '-45px' }
-              }
-            }}>
-              <Slider {...brandSettings}>
-                {brandImages.map((brand, index) => (
-                  <Box key={index} sx={{ height: '100%' }}>
-                    <Link href={brand.link} passHref>
-                      <Card sx={{
-                        cursor: 'pointer',
-                        borderRadius: { xs: '16px', sm: '20px', md: '24px' },
-                        overflow: 'hidden',
-                        boxShadow: '0 6px 24px rgba(0,0,0,0.12)',
-                        transition: 'all 0.3s ease',
-                        height: '100%',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        minHeight: { xs: '220px', sm: '240px', md: '260px' },
-                        maxWidth: '100%',
-                        '&:hover': {
-                          transform: 'translateY(-12px)',
-                          boxShadow: '0 16px 48px rgba(0,0,0,0.2)'
-                        }
-                      }}>
-                        <Box sx={{ 
-                          aspectRatio: '16/10',
-                          width: '100%',
-                          position: 'relative',
-                          overflow: 'hidden',
-                          minHeight: { xs: '140px', sm: '160px', md: '180px' }
-                        }}>
-                          <Image
-                            src={brand.src}
-                            alt={brand.alt}
-                            fill
-                            style={{
-                              objectFit: 'contain',
-                              objectPosition: 'center',
-                              padding: '16px'
-                            }}
-                            sizes="(max-width: 600px) 90vw, (max-width: 900px) 45vw, 22vw"
-                            loading="lazy"
-                          />
-                        </Box>
-                        <CardContent sx={{ 
-                          textAlign: 'center', 
-                          padding: { xs: 2, sm: 2.5, md: 3 },
-                          flexGrow: 1,
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'center'
-                        }}>
-                          <Typography 
-                            component="h3"
-                            variant="h6" 
-                            sx={{ 
-                              fontWeight: 'bold',
-                              marginBottom: { xs: 0.5, sm: 0.5, md: 1 },
-                              fontSize: { 
-                                xs: '0.85rem', 
-                                sm: '0.95rem', 
-                                md: '1.05rem',
-                                lg: '1.15rem'
-                              },
-                              lineHeight: 1.2
-                            }}
-                          >
-                            {brand.name}
-                          </Typography>
-                          <Typography 
-                            variant="body2" 
-                            color="text.secondary"
-                            sx={{ 
-                              fontSize: { 
-                                xs: '0.7rem', 
-                                sm: '0.75rem', 
-                                md: '0.8rem',
-                                lg: '0.85rem'
-                              },
-                              lineHeight: 1.3
-                            }}
-                          >
-                            {brand.description}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  </Box>
-                ))}
-              </Slider>
-            </Box>
-          </Container>
+        <section>
+          {/* Section Marques Partenaires Centrée */}
+          <PartnerBrandsSection brands={brandImages}/>
         </section>
-
+       
+        
         {/* Section Trust Logos Centrée */}
         <section aria-label="Nos certifications et partenaires de confiance">
           <Box sx={{ 

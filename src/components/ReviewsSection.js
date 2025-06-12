@@ -130,13 +130,15 @@ const ReviewsSection = ({ tableName, productId, isInsertComment }) => {
       sx={{
         marginTop: 4,
         backgroundColor: '#fefefe',
-        padding: { xs: 2, sm: 4 },
-        width: { xs: '95%', sm: '85%', md: '75%', lg: '60%' },
+        padding: { xs: 1, sm: 4 }, // Réduction du padding sur mobile
+        width: { xs: '100%', sm: '85%', md: '75%', lg: '60%' }, // 100% sur mobile
+        maxWidth: '100%', // Ajout d'une largeur max
         marginLeft: 'auto',
         marginRight: 'auto',
-        borderRadius: '12px',
-        boxShadow: '0 6px 18px rgba(0,0,0,0.1)',
+        borderRadius: { xs: 0, sm: '12px' }, // Pas de border-radius sur mobile
+        boxShadow: { xs: 'none', sm: '0 6px 18px rgba(0,0,0,0.1)' }, // Pas de shadow sur mobile
         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+        overflow: 'hidden', // Prévention des débordements
       }}
     >
       <Typography
@@ -147,7 +149,8 @@ const ReviewsSection = ({ tableName, productId, isInsertComment }) => {
           color: '#5d3a00',
           marginBottom: 3,
           textShadow: '1px 1px 4px rgba(93,58,0,0.3)',
-          letterSpacing: 1.2,
+          letterSpacing: { xs: 0.5, sm: 1.2 }, // Réduction de l'espacement sur mobile
+          fontSize: { xs: '1.25rem', sm: '1.5rem' }, // Taille réduite sur mobile
         }}
       >
         Avis Clients
@@ -168,14 +171,23 @@ const ReviewsSection = ({ tableName, productId, isInsertComment }) => {
             sx={{
               display: 'flex',
               justifyContent: 'center',
+              alignItems: 'center',
               marginBottom: 3,
-              gap: 2,
+              gap: { xs: 1, sm: 2 }, // Gap réduit sur mobile
               flexWrap: 'wrap',
+              padding: { xs: '0 8px', sm: 0 }, // Padding horizontal sur mobile
             }}
           >
             <Typography
               variant="body1"
-              sx={{ alignSelf: 'center', fontWeight: 600, color: '#6b4c3b' }}
+              sx={{ 
+                alignSelf: 'center', 
+                fontWeight: 600, 
+                color: '#6b4c3b',
+                fontSize: { xs: '0.875rem', sm: '1rem' }, // Taille réduite sur mobile
+                textAlign: 'center',
+                minWidth: 'fit-content',
+              }}
             >
               Filtrer par note :
             </Typography>
@@ -187,12 +199,15 @@ const ReviewsSection = ({ tableName, productId, isInsertComment }) => {
               }}
               size="small"
               sx={{
-                width: 140,
+                width: { xs: 120, sm: 140 }, // Largeur réduite sur mobile
                 bgcolor: '#fff',
                 borderRadius: 2,
                 boxShadow: '0 0 8px rgba(107,76,59,0.1)',
                 '& .MuiSelect-icon': {
                   color: '#6b4c3b',
+                },
+                '& .MuiOutlinedInput-notchedOutline': {
+                  maxWidth: '100%',
                 },
               }}
             >
@@ -208,19 +223,31 @@ const ReviewsSection = ({ tableName, productId, isInsertComment }) => {
           {/* Reviews Grid */}
           <Grid
             container
-            spacing={3}
-            direction={isMobile ? 'column' : 'row'}
-            alignItems={isMobile ? 'stretch' : 'flex-start'}
-            justifyContent="flex-start"
+            spacing={{ xs: 2, sm: 3 }} // Espacement réduit sur mobile
+            sx={{
+              margin: 0,
+              width: '100%',
+              '& .MuiGrid-item': {
+                paddingLeft: { xs: 1, sm: 3 }, // Padding gauche réduit
+                paddingTop: { xs: 1, sm: 3 }, // Padding haut réduit
+              },
+            }}
           >
             {currentReviews.length === 0 ? (
-              <Typography
-                variant="body1"
-                align="center"
-                sx={{ width: '100%', color: '#7a7a7a', fontStyle: 'italic' }}
-              >
-                Aucun avis pour ce produit.
-              </Typography>
+              <Grid item xs={12}>
+                <Typography
+                  variant="body1"
+                  align="center"
+                  sx={{ 
+                    width: '100%', 
+                    color: '#7a7a7a', 
+                    fontStyle: 'italic',
+                    padding: { xs: 2, sm: 0 },
+                  }}
+                >
+                  Aucun avis pour ce produit.
+                </Typography>
+              </Grid>
             ) : (
               currentReviews.map((review) => (
                 <Grid
@@ -232,14 +259,13 @@ const ReviewsSection = ({ tableName, productId, isInsertComment }) => {
                   sx={{
                     display: 'flex',
                     flexDirection: 'column',
-                    height: '310px',
                   }}
                 >
                   <Box
                     sx={{
                       backgroundColor: '#fff',
                       borderRadius: '15px',
-                      padding: 3,
+                      padding: { xs: 2, sm: 3 }, // Padding réduit sur mobile
                       boxShadow:
                         '0 4px 15px rgba(107, 76, 59, 0.15), 0 1px 6px rgba(0, 0, 0, 0.05)',
                       transition: 'transform 0.3s ease, box-shadow 0.3s ease',
@@ -247,22 +273,39 @@ const ReviewsSection = ({ tableName, productId, isInsertComment }) => {
                       flexGrow: 1,
                       display: 'flex',
                       flexDirection: 'column',
+                      minHeight: { xs: 'auto', sm: '280px' }, // Hauteur flexible sur mobile
+                      maxWidth: '100%',
+                      overflow: 'hidden',
                       '&:hover': {
-                        transform: 'scale(1.05)',
-                        boxShadow:
-                          '0 10px 25px rgba(107, 76, 59, 0.3), 0 4px 10px rgba(0, 0, 0, 0.1)',
+                        transform: { xs: 'none', sm: 'scale(1.05)' }, // Pas d'effet hover sur mobile
+                        boxShadow: {
+                          xs: '0 4px 15px rgba(107, 76, 59, 0.15), 0 1px 6px rgba(0, 0, 0, 0.05)',
+                          sm: '0 10px 25px rgba(107, 76, 59, 0.3), 0 4px 10px rgba(0, 0, 0, 0.1)',
+                        },
                       },
                     }}
                   >
                     <Typography
                       variant="h6"
-                      sx={{ fontWeight: 700, color: '#6b4c3b', mb: 0.5 }}
+                      sx={{ 
+                        fontWeight: 700, 
+                        color: '#6b4c3b', 
+                        mb: 0.5,
+                        fontSize: { xs: '1rem', sm: '1.25rem' },
+                        wordBreak: 'break-word', // Gestion des mots longs
+                      }}
                     >
                       {review.user_name}
                     </Typography>
                     <Typography
                       variant="subtitle2"
-                      sx={{ mb: 1, color: '#a67c52', fontWeight: 600 }}
+                      sx={{ 
+                        mb: 1, 
+                        color: '#a67c52', 
+                        fontWeight: 600,
+                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                        wordBreak: 'break-word',
+                      }}
                     >
                       Produit : {review.product_id}
                     </Typography>
@@ -270,11 +313,20 @@ const ReviewsSection = ({ tableName, productId, isInsertComment }) => {
                       name="read-only"
                       value={review.rating}
                       readOnly
+                      size={isMobile ? 'small' : 'medium'} // Taille réduite sur mobile
                       sx={{ mb: 1, color: '#d2b48c' }}
                     />
                     <Typography
                       variant="body2"
-                      sx={{ color: '#4e3b27', fontStyle: 'italic', flexGrow: 1 }}
+                      sx={{ 
+                        color: '#4e3b27', 
+                        fontStyle: 'italic', 
+                        flexGrow: 1,
+                        fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                        wordBreak: 'break-word',
+                        overflowWrap: 'break-word',
+                        hyphens: 'auto',
+                      }}
                     >
                       « {review.review} »
                     </Typography>
@@ -286,13 +338,25 @@ const ReviewsSection = ({ tableName, productId, isInsertComment }) => {
 
           {/* Pagination */}
           {reviews.length > reviewsPerPage && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              mt: 4,
+              px: { xs: 1, sm: 0 }, // Padding horizontal sur mobile
+            }}>
               <Pagination
                 count={Math.ceil(reviews.length / reviewsPerPage)}
                 page={page}
                 onChange={handleChangePage}
                 color="primary"
                 shape="rounded"
+                size={isMobile ? 'small' : 'medium'} // Taille réduite sur mobile
+                sx={{
+                  '& .MuiPagination-ul': {
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                  },
+                }}
               />
             </Box>
           )}
@@ -302,18 +366,24 @@ const ReviewsSection = ({ tableName, productId, isInsertComment }) => {
             <Box
               sx={{
                 marginTop: 5,
-                padding: 3,
+                padding: { xs: 2, sm: 3 }, // Padding réduit sur mobile
                 borderRadius: 3,
                 bgcolor: '#fff',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                maxWidth: 600,
+                maxWidth: { xs: '100%', sm: 600 }, // Largeur complète sur mobile
                 marginLeft: 'auto',
                 marginRight: 'auto',
+                mx: { xs: 1, sm: 'auto' }, // Marge horizontale sur mobile
               }}
             >
               <Typography
                 variant="h6"
-                sx={{ fontWeight: 'bold', color: '#5d3a00', mb: 2 }}
+                sx={{ 
+                  fontWeight: 'bold', 
+                  color: '#5d3a00', 
+                  mb: 2,
+                  fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                }}
               >
                 Laissez un avis
               </Typography>
@@ -321,6 +391,7 @@ const ReviewsSection = ({ tableName, productId, isInsertComment }) => {
                 name="rating"
                 value={rating}
                 onChange={(event, newValue) => setRating(newValue)}
+                size={isMobile ? 'medium' : 'large'} // Taille appropriée
                 sx={{ mb: 3, color: '#d2b48c' }}
               />
               <TextField
@@ -328,16 +399,28 @@ const ReviewsSection = ({ tableName, productId, isInsertComment }) => {
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
                 fullWidth
-                sx={{ mb: 3 }}
+                sx={{ 
+                  mb: 3,
+                  '& .MuiOutlinedInput-root': {
+                    maxWidth: '100%',
+                  },
+                }}
+                size={isMobile ? 'small' : 'medium'}
               />
               <TextField
                 label="Votre avis"
                 value={reviewText}
                 onChange={(e) => setReviewText(e.target.value)}
                 multiline
-                rows={4}
+                rows={isMobile ? 3 : 4} // Moins de lignes sur mobile
                 fullWidth
-                sx={{ mb: 3 }}
+                sx={{ 
+                  mb: 3,
+                  '& .MuiOutlinedInput-root': {
+                    maxWidth: '100%',
+                  },
+                }}
+                size={isMobile ? 'small' : 'medium'}
               />
               <Tooltip
                 title="Avis posté avec succès !"
@@ -350,10 +433,12 @@ const ReviewsSection = ({ tableName, productId, isInsertComment }) => {
                 <Button
                   variant="contained"
                   onClick={handlePostReview}
+                  fullWidth={isMobile} // Bouton pleine largeur sur mobile
                   sx={{
                     bgcolor: '#a67c52',
                     color: '#fff',
                     fontWeight: 'bold',
+                    minWidth: { xs: '100%', sm: 'auto' },
                     '&:hover': {
                       bgcolor: '#6b4c3b',
                     },
