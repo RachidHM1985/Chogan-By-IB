@@ -5,7 +5,6 @@ import {
   Toolbar,
   IconButton,
   Drawer,
-  Grid,
   Badge,
   Box,
 } from '@mui/material';
@@ -20,6 +19,62 @@ import SearchOverlay from '../pages/SearchOverlay';
 import CartDialog from '../pages/panier/CartDialog';
 import ScrollingBanner from './ScrollingBanner';
 
+// Styles constants pour optimiser les performances
+const styles = {
+  appBar: {
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1100,
+    backgroundColor: '#EFE7DB',
+    boxShadow: 'none',
+    transition: 'height 0.3s ease',
+    overflow: 'hidden',
+    width: '100%',
+    maxWidth: '100vw'
+  },
+  toolbar: {
+    padding: { xs: '0 8px', sm: '0 16px' }, // Ajout de padding mobile
+    minHeight: '64px !important'
+  },
+  container: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    maxWidth: '100%',
+    overflow: 'hidden'
+  },
+  menuSection: {
+    display: 'flex',
+    alignItems: 'center',
+    minWidth: 0
+  },
+  logoSection: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1,
+    minWidth: 0
+  },
+  actionsSection: {
+    display: 'flex',
+    alignItems: 'center',
+    minWidth: 0,
+    gap: { xs: 0.5, sm: 1 }, // Espacement entre les icônes
+    paddingRight: { xs: 1, sm: 0 } // Décalage vers la gauche sur mobile
+  },
+  iconButton: {
+    color: 'black',
+    padding: { xs: '6px', sm: '8px' },
+    minWidth: 0
+  },
+  logoButton: {
+    padding: { xs: '4px', sm: '8px' },
+    minWidth: 0
+  }
+};
+
 const Header = () => {
   const [showBanner, setShowBanner] = useState(false);
   const [openSidebar, setOpenSidebar] = useState(false);
@@ -28,6 +83,7 @@ const Header = () => {
   const router = useRouter();
   const { totalQuantity, cartItems, updateCart, removeFromCart } = useCart();
 
+  // Effects optimisés
   useEffect(() => {
     setShowBanner(router.pathname === '/');
   }, [router.pathname]);
@@ -36,9 +92,7 @@ const Header = () => {
     if (!router.events) return;
     const handleRouteChange = () => setOpenSidebar(false);
     router.events.on('routeChangeComplete', handleRouteChange);
-    return () => {
-      router.events.off('routeChangeComplete', handleRouteChange);
-    };
+    return () => router.events.off('routeChangeComplete', handleRouteChange);
   }, [router.events]);
 
   const handleQuantityChange = (index, newQuantity) => {
@@ -49,92 +103,48 @@ const Header = () => {
     }
   };
 
+  const paddingTop = showBanner ? '40px' : '0px';
+  const headerHeight = showBanner ? '100px' : '75px';
+
   return (
     <AppBar
       position="fixed"
       sx={{
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 1100,
-        backgroundColor: '#EFE7DB',
-        boxShadow: 'none',
-        height: showBanner ? '100px' : '75px',
-        transition: 'height 0.3s ease',
-        // Empêcher le débordement horizontal
-        overflow: 'hidden',
-        width: '100%',
-        maxWidth: '100vw',
+        ...styles.appBar,
+        height: headerHeight
       }}
     >
       {showBanner && <ScrollingBanner />}
-      <Toolbar
-        sx={{
-          // Réduire le padding par défaut de MUI
-          padding: { xs: '0 0px', sm: '0 16px' },
-          minHeight: '64px !important',
-        }}
-      >
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            width: '100%',
-            maxWidth: '100%',
-            overflow: 'hidden',
-          }}
-        >
+      
+      <Toolbar sx={styles.toolbar}>
+        <Box sx={styles.container}>
           {/* Menu Hamburger */}
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              paddingTop: showBanner ? '40px' : '0px',
-              minWidth: 0, // Permet la compression
-            }}
-          >
+          <Box sx={{ ...styles.menuSection, paddingTop }}>
             <IconButton
               aria-label="menu"
               onClick={() => setOpenSidebar(true)}
-              sx={{
-                color: 'black',
-                padding: { xs: '4px', sm: '8px' },
-                minWidth: 0,
-              }}
+              sx={styles.iconButton}
             >
               <MenuIcon />
             </IconButton>
           </Box>
 
           {/* Logo */}
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              paddingTop: showBanner ? '40px' : '0px',
-              flex: 1,
-              minWidth: 0,
-            }}
-          >
+          <Box sx={{ ...styles.logoSection, paddingTop }}>
             <Link href="/" passHref>
               <IconButton
                 color="inherit"
                 aria-label="logo"
-                sx={{
-                  padding: { xs: '4px', sm: '8px' },
-                  minWidth: 0,
-                }}
+                sx={styles.logoButton}
               >
                 <Image
                   src="/images/By_Ikram_logo.png"
                   alt="Logo"
-                  width={60} // Réduit pour mobile
-                  height={45} // Réduit pour mobile
+                  width={60}
+                  height={45}
                   style={{
                     maxWidth: '100%',
-                    height: 'auto',
+                    height: 'auto'
                   }}
                 />
               </IconButton>
@@ -142,33 +152,21 @@ const Header = () => {
           </Box>
 
           {/* Recherche et Panier */}
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              paddingTop: showBanner ? '40px' : '0px',
-              minWidth: 0,
-            }}
-          >
+          <Box sx={{ ...styles.actionsSection, paddingTop }}>
             <IconButton
               color="inherit"
-              sx={{
-                color: 'black',
-                padding: { xs: '2px', sm: '4px' },
-                minWidth: 0,
-              }}
+              sx={styles.iconButton}
               onClick={() => setOpenSearch(true)}
+              aria-label="recherche"
             >
               <SearchIcon />
             </IconButton>
+            
             <IconButton
               color="inherit"
-              sx={{
-                color: 'black',
-                padding: { xs: '4px', sm: '8px' },
-                minWidth: 0,
-              }}
+              sx={styles.iconButton}
               onClick={() => setOpenCart(true)}
+              aria-label="panier"
             >
               <Badge badgeContent={totalQuantity} color="error">
                 <ShoppingCartIcon />
@@ -178,15 +176,27 @@ const Header = () => {
         </Box>
       </Toolbar>
 
-      {/* Sidebar (Drawer) */}
-      <Drawer anchor="left" open={openSidebar} onClose={() => setOpenSidebar(false)}>
-        <Sidebar open={openSidebar} onClose={() => setOpenSidebar(false)} />
+      {/* Sidebar */}
+      <Drawer 
+        anchor="left" 
+        open={openSidebar} 
+        onClose={() => setOpenSidebar(false)}
+      >
+        <Sidebar 
+          open={openSidebar} 
+          onClose={() => setOpenSidebar(false)} 
+        />
       </Drawer>
 
-      {/* Overlay de recherche */}
-      {openSearch && <SearchOverlay open={openSearch} onClose={() => setOpenSearch(false)} />}
+      {/* Search Overlay */}
+      {openSearch && (
+        <SearchOverlay 
+          open={openSearch} 
+          onClose={() => setOpenSearch(false)} 
+        />
+      )}
 
-      {/* Panier */}
+      {/* Cart Dialog */}
       <CartDialog
         open={openCart}
         handleCloseCart={() => setOpenCart(false)}
