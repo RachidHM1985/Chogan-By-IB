@@ -1,5 +1,4 @@
 // components/Footer.js
-import React from 'react';
 import { Typography, Container, Box, IconButton, Link } from '@mui/material';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import { FaTiktok } from 'react-icons/fa'; // TikTok avec react-icons
@@ -10,7 +9,7 @@ const Footer = () => {
     <Box
       sx={{
         backgroundColor: '#F8F8F8', // Rose poudré
-        padding: '5px 0', // Réduction de l'espacement pour un footer encore plus petit
+        padding: '0 0', // Réduction de l'espacement pour un footer encore plus petit
         zIndex: 1000,
         boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.1)', // Ombre pour le footer
         display: 'flex',
@@ -61,7 +60,7 @@ const Footer = () => {
           <Typography variant="h6" color="textPrimary" sx={{ fontWeight:'bold', marginBottom: 0.5, fontSize: '0.75rem' }}>
             Suivez-nous
           </Typography>
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: 'flex' }}>
             <IconButton href="https://www.snapchat.com/add/ikramou-anass" target="_blank" aria-label="SnapChat">
               <FaSnapchatSquare style={{ fontSize: '1.2rem', color: 'black' }} />
             </IconButton>
@@ -81,7 +80,7 @@ const Footer = () => {
           justifyContent: 'center',
           alignItems: 'center',
           marginTop: 1, // Réduction de l'espacement du bas
-          padding: '3px 0', // Réduction du padding du bas
+          padding: '0 0', // Réduction du padding du bas
           borderTop: '1px solid #ddd',
           width: '100%',
         }}

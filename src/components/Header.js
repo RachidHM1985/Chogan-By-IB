@@ -71,7 +71,7 @@ const Header = () => {
       <Toolbar
         sx={{
           // Réduire le padding par défaut de MUI
-          padding: { xs: '0 8px', sm: '0 16px' },
+          padding: { xs: '0 0px', sm: '0 16px' },
           minHeight: '64px !important',
         }}
       >
