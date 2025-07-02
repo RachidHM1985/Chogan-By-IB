@@ -1,96 +1,147 @@
 // components/Footer.js
-import { Typography, Container, Box, IconButton, Link } from '@mui/material';
+import { Typography, Container, Box, IconButton, Link, Grid } from '@mui/material';
 import InstagramIcon from '@mui/icons-material/Instagram';
-import { FaTiktok } from 'react-icons/fa'; // TikTok avec react-icons
-import { FaSnapchatSquare } from 'react-icons/fa'; // Snapchat avec react-icons
+import { FaTiktok, FaSnapchatSquare } from 'react-icons/fa';
 
-const Footer = () => {
-  return (
-    <Box
-      sx={{
-        backgroundColor: '#F8F8F8', // Rose poudré
-        padding: '0 0', // Réduction de l'espacement pour un footer encore plus petit
-        zIndex: 1000,
-        boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.1)', // Ombre pour le footer
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center', 
-      }}
-    >
-      <Container
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          gap: 2, 
-          maxWidth: 'lg',
-        }}
-      >
-        {/* Section Contact */}
-        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          <Typography variant="h6" color="textPrimary" sx={{ fontWeight:'bold', marginBottom: 0.5, fontSize: '0.75rem' }}>
-            Contact
-          </Typography>
-          <Typography variant="body2" color="textSecondary" sx={{ fontSize: '0.65rem' }}>
-            Adresse : Chogan by Ikram, 68 rue Louis Roussel, 34070 Montpellier
-          </Typography>          
-          <Typography variant="body2" color="textSecondary" sx={{ fontSize: '0.65rem' }}>
-            Email : choganbyikram.contact@gmail.com
-          </Typography>
-          <Typography variant="body2" color="textSecondary" sx={{ fontSize: '0.65rem' }}>
-            RCS : 943 461 939 R.C.S. Montpellier
-          </Typography>         
-        </Box>
-        {/* Section Liens utiles (À propos, Conditions, etc.) */}
-        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          <Typography variant="h6" color="textPrimary" sx={{  fontWeight:'bold', marginBottom: 0.5, fontSize: '0.75rem' }}>
-            Liens utiles
-          </Typography>
-          <Link href="/about" color="textSecondary" sx={{ fontSize: '0.65rem', marginBottom: 0.5 }}>
-            À propos
-          </Link>
-          <Link href="/privacy-policy" color="textSecondary" sx={{ fontSize: '0.65rem' }}>
-            Politique de confidentialité
-          </Link>
-        </Box>
-        {/* Section Suivez-nous (réseaux sociaux) */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <Typography variant="h6" color="textPrimary" sx={{ fontWeight:'bold', marginBottom: 0.5, fontSize: '0.75rem' }}>
+// Styles constants pour éviter les re-renders
+const styles = {
+  footer: {
+    backgroundColor: '#F8F8F8',
+    zIndex: 1000,
+    boxShadow: '0 -2px 10px rgba(0,0,0,0.1)',
+    mt: 'auto',
+    py: { xs: 2, md: 3 }
+  },
+  sectionTitle: {
+    fontWeight: 'bold',
+    mb: 1,
+    fontSize: { xs: '0.85rem', md: '0.9rem' }
+  },
+  bodyText: {
+    fontSize: { xs: '0.7rem', md: '0.75rem' }
+  },
+  link: {
+    textDecoration: 'none',
+    '&:hover': { textDecoration: 'underline', color: 'primary.main' }
+  },
+  iconButton: {
+    '&:hover': { transform: 'scale(1.1)', transition: 'transform 0.2s' }
+  },
+  copyright: {
+    fontWeight: 'bold',
+    fontSize: { xs: '0.65rem', md: '0.7rem' },
+    textAlign: 'center'
+  }
+};
+
+// Données statiques
+const contactInfo = [
+  { label: 'Adresse', value: 'Chogan by Ikram\n68 rue Louis Roussel\n34070 Montpellier' },
+  { label: 'Email', value: 'choganbyikram.contact@gmail.com', isLink: true },
+  { label: 'RCS', value: '943 461 939 R.C.S. Montpellier' }
+];
+
+const links = [
+  { href: '/about', text: 'À propos' },
+  { href: '/privacy-policy', text: 'Politique de confidentialité' },
+  { href: '/terms', text: 'Conditions générales' }
+];
+
+const socialMedia = [
+  { 
+    href: 'https://www.snapchat.com/add/ikramou-anass',
+    label: 'SnapChat',
+    icon: FaSnapchatSquare,
+    color: '#FFFC00'
+  },
+  {
+    href: 'https://www.instagram.com/ikram_nahyl_amir',
+    label: 'Instagram', 
+    icon: InstagramIcon,
+    color: '#E4405F',
+    isMui: true
+  },
+  {
+    href: 'https://www.tiktok.com/@ikrams.chogan',
+    label: 'TikTok',
+    icon: FaTiktok,
+    color: '#000000'
+  }
+];
+
+const Footer = () => (
+  <Box component="footer" sx={styles.footer}>
+    <Container maxWidth="lg">
+      <Grid container spacing={{ xs: 2, md: 4 }} justifyContent="space-between">
+        
+        {/* Contact Section */}
+        <Grid item xs={12} sm={6} md={4}>
+          <Typography color="textPrimary" sx={styles.sectionTitle}>Contact</Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+            {contactInfo.map(({ label, value, isLink }) => (
+              <Typography key={label} variant="body2" color="textSecondary" sx={styles.bodyText}>
+                <strong>{label}:</strong><br />
+                {isLink ? (
+                  <Link href={`mailto:${value}`} color="inherit" sx={styles.link}>
+                    {value}
+                  </Link>
+                ) : (
+                  value.split('\n').map((line, i) => (
+                    <span key={i}>{line}{i < value.split('\n').length - 1 && <br />}</span>
+                  ))
+                )}
+              </Typography>
+            ))}
+          </Box>
+        </Grid>
+
+        {/* Links Section */}
+        <Grid item xs={12} sm={6} md={3}>
+          <Typography color="textPrimary" sx={styles.sectionTitle}>Liens utiles</Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+            {links.map(({ href, text }) => (
+              <Link key={href} href={href} color="textSecondary" sx={{...styles.bodyText, ...styles.link}}>
+                {text}
+              </Link>
+            ))}
+          </Box>
+        </Grid>
+
+        {/* Social Media Section */}
+        <Grid item xs={12} md={3}>
+          <Typography 
+            color="textPrimary" 
+            sx={{...styles.sectionTitle, textAlign: { xs: 'center', md: 'left' }}}
+          >
             Suivez-nous
           </Typography>
-          <Box sx={{ display: 'flex' }}>
-            <IconButton href="https://www.snapchat.com/add/ikramou-anass" target="_blank" aria-label="SnapChat">
-              <FaSnapchatSquare style={{ fontSize: '1.2rem', color: 'black' }} />
-            </IconButton>
-            <IconButton href="https://www.instagram.com/ikram_nahyl_amir" target="_blank" aria-label="Instagram">
-              <InstagramIcon sx={{ fontSize: '1.2rem', color: 'black' }} />
-            </IconButton>
-            <IconButton href="https://www.tiktok.com/@ikrams.chogan" target="_blank" aria-label="TikTok">
-              <FaTiktok style={{ fontSize: '1.2rem', color: 'black' }} />
-            </IconButton>
+          <Box sx={{ display: 'flex', justifyContent: { xs: 'center', md: 'flex-start' }, gap: 1 }}>
+            {socialMedia.map(({ href, label, icon: Icon, color, isMui }) => (
+              <IconButton
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                sx={styles.iconButton}
+              >
+                <Icon 
+                  {...(isMui ? { sx: { fontSize: '1.4rem', color } } : { style: { fontSize: '1.4rem', color } })}
+                />
+              </IconButton>
+            ))}
           </Box>
-        </Box>
-      </Container>
-      {/* Footer Bottom */}
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          marginTop: 1, // Réduction de l'espacement du bas
-          padding: '0 0', // Réduction du padding du bas
-          borderTop: '1px solid #ddd',
-          width: '100%',
-        }}
-      >
-        <Typography variant="body2" color="textSecondary" sx={{ fontWeight:'bold', fontSize: '0.6rem' }}>
+        </Grid>
+      </Grid>
+
+      {/* Copyright */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: { xs: 2, md: 3 }, pt: 2, borderTop: '1px solid #ddd' }}>
+        <Typography color="textSecondary" sx={styles.copyright}>
           © 2025 Chogan by Ikram - Site indépendant d'un consultant Chogan Group
         </Typography>
       </Box>
-    </Box>
-  );
-};
+    </Container>
+  </Box>
+);
 
 export default Footer;

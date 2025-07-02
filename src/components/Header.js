@@ -154,7 +154,7 @@ const Header = () => {
               color="inherit"
               sx={{
                 color: 'black',
-                padding: { xs: '4px', sm: '8px' },
+                padding: { xs: '2px', sm: '4px' },
                 minWidth: 0,
               }}
               onClick={() => setOpenSearch(true)}
