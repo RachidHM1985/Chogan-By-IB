@@ -3,378 +3,371 @@
 export async function generateEmailHTML (prospect){
     const { firstName, lastName, email } = prospect;
   
-    // Exemple simple de contenu — à adapter en fonction du templateId si nécessaire
-    const htmlContent = `
-     <!DOCTYPE html>
-<html lang="fr" dir="ltr" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office">
-<head>
-  <meta charset="UTF-8">
-  <meta content="width=device-width, initial-scale=1" name="viewport">
-  <meta name="x-apple-disable-message-reformatting">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta content="telephone=no" name="format-detection">
-  <title>Chogan By Ikram - Découvrez nos produits</title>
-  <!--[if (mso 16)]>
-  <style type="text/css">
-    a {text-decoration: none;}
-  </style>
-  <![endif]-->
-  <!--[if gte mso 9]><style>sup { font-size: 100% !important; }</style><![endif]-->
-  <!--[if !mso]><!-- -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
-  <!--<![endif]-->
-  <style type="text/css">
-    /* Base styles */
-    body {
-      font-family: 'Montserrat', Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      -webkit-text-size-adjust: 100%;
-      -ms-text-size-adjust: 100%;
-      background-color: #f7f7f7;
-      color: #333333;
-    }
-    
-    table {
-      mso-table-lspace: 0pt;
-      mso-table-rspace: 0pt;
-      border-collapse: collapse;
-    }
-    
-    img {
-      -ms-interpolation-mode: bicubic;
-      display: block;
-      border: 0;
-      outline: none;
-      text-decoration: none;
-    }
-    
-    p, h1, h2, h3 {
-      margin: 0;
-      padding: 0;
-    }
-    
-    /* Layout */
-    .email-container {
-      max-width: 600px;
-      margin: 0 auto;
-      background-color: #ffffff;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    
-    /* Header */
-    .header {
-      background-color: #ffffff;
-      padding: 25px 0;
-      text-align: center;
-    }
-    
-    /* Navigation */
-    .nav-container {
-      background-color: #fff5f5;
-      padding: 0;
-      border-radius: 8px;
-    }
-    
-    .nav-item {
-      padding: 12px 5px;
-      text-align: center;
-      font-weight: 600;
-      font-size: 13px;
-      border-bottom: 2px solid transparent;
-      transition: all 0.3s ease;
-    }
-    
-    .nav-item a {
-      color: #444444;
-      text-decoration: none;
-    }
-    
-    .nav-item:hover {
-      border-bottom-color: #ff809c;
-    }
-    
-    .nav-item:hover a {
-      color: #ff809c;
-    }
-    
-    /* Content */
-    .content-section {
-      padding: 20px;
-      background-color: #ffffff;
-    }
-    
-    .hero-title {
-      color: #ff809c;
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 22px;
-      margin-bottom: 15px;
-      text-align: center;
-    }
-    
-    .content-image {
-      width: 100%;
-      max-width: 560px;
-      height: auto;
-      border-radius: 8px;
-      margin: 15px 0;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-    
-    .info-box {
-      background-color: #ecded5;
-      padding: 20px;
-      border-radius: 8px;
-      margin: 20px 0;
-    }
-    
-    .info-title {
-      color: #333333;
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 10px;
-      text-align: center;
-    }
-    
-    .info-text {
-      color: #555555;
-      font-size: 16px;
-      line-height: 1.6;
-    }
-    
-    /* Footer */
-    .footer {
-      padding: 20px;
-      background-color: #fff5f5;
-      text-align: center;
-      border-top: 1px solid #ffdad7;
-    }
-    
-    .footer-title {
-      color: #ffb406;
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 28px;
-      font-weight: 700;
-      margin-bottom: 15px;
-    }
-    
-    .social-banner {
-      background-color: #ffdad7;
-      padding: 15px;
-      margin: 15px 0;
-      border-radius: 8px;
-      font-weight: 600;
-    }
-    
-    .social-container {
-      margin: 20px 0;
-    }
-    
-    .social-button {
-      display: inline-block;
-      padding: 10px 25px;
-      margin: 10px 0;
-      border: 2px solid #ff809c;
-      color: #ff809c;
-      border-radius: 25px;
-      text-decoration: none;
-      font-weight: 600;
-      transition: all 0.3s ease;
-    }
-    
-    .social-button:hover {
-      background-color: #ff809c;
-      color: #ffffff;
-    }
-    
-    .social-icons {
-      margin: 20px 0;
-    }
-    
-    .social-icon {
-      display: inline-block;
-      margin: 0 5px;
-    }
-    
-    .footer-info {
-      font-size: 12px;
-      color: #666666;
-      line-height: 1.5;
-      margin: 15px 0;
-    }
-    
-    .unsubscribe {
-      font-size: 12px;
-      color: #888888;
-      text-decoration: underline;
-    }
-    
-    /* Responsive */
-    @media only screen and (max-width: 600px) {
-      .email-container {
-        width: 100% !important;
-        border-radius: 0;
-      }
-      
-      .nav-container {
-        margin: 0 10px 15px;
-      }
-      
-      .nav-item {
-        padding: 10px 2px;
-        font-size: 11px;
-      }
-      
-      .content-section {
-        padding: 15px;
-      }
-      
-      .hero-title {
-        font-size: 20px;
-      }
-      
-      .info-title {
-        font-size: 18px;
-      }
-      
-      .info-text {
-        font-size: 14px;
-      }
-      
-      .footer-title {
-        font-size: 24px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div style="background-color: #f7f7f7; padding: 20px 0;">
-    <!-- Main Container -->
-    <table width="100%" cellspacing="0" cellpadding="0" border="0">
-      <tr>
-        <td align="center" valign="top">
-          <table class="email-container" width="600" cellspacing="0" cellpadding="0" border="0">
-            <!-- Header -->
-            <tr>
-              <td class="header">
-                <a href="https://chogan-by-ikram.vercel.app/" target="_blank" style="text-decoration:none;">
-                  <img src="https://fujclez.stripocdn.email/content/guids/CABINET_2c24e97afd23d91f7dec388776c2c7964532e878da1223d8a41a5bf7df4c04fa/images/by_ikram_logo.png" alt="Chogan By Ikram" width="160" style="display:block; margin:0 auto;">
-                </a>
-              </td>
-            </tr>
-            
-            <!-- Navigation -->
-            <tr>
-			  <td align="center" style="padding: 0 20px;">
-				<table class="nav-container" width="100%" cellspacing="0" cellpadding="0" border="0">
-				  <tr>
-					<td width="20%" class="nav-item">
-					  <a href="https://chogan-by-ikram.vercel.app/perfumes" target="_blank">Parfums d’Exception</a>
-					</td>
-					<td width="20%" class="nav-item">
-					  <a href="https://chogan-by-ikram.vercel.app/brilhome" target="_blank">Beauté & Soins Quotidiens</a>
-					</td>
-					<td width="20%" class="nav-item">
-					  <a href="https://chogan-by-ikram.vercel.app/peptilux" target="_blank">Cosmétiques Haut de Gamme</a>
-					</td>
-					<td width="20%" class="nav-item">
-					  <a href="https://chogan-by-ikram.vercel.app/brilhome" target="_blank">Maison Propre & Éclatante</a>
-					</td>
-					<td width="20%" class="nav-item">
-					  <a href="https://chogan-by-ikram.vercel.app/parfumerieInterieur" target="_blank">Ambiances Parfumées</a>
-					</td>
-				  </tr>
-				</table>
-			  </td>
-			</tr>
-
-            
-            <!-- Content Section -->
-            <tr>
-              <td class="content-section">
-                <h1 class="hero-title"><strong>Bienvenue chez Chogan By Ikram!</strong></h1>
-                
-                <!-- First Image -->
-				<a href="https://chogan-by-ikram.vercel.app/" target="_blank">
-				  <img src="https://fujclez.stripocdn.email/content/guids/CABINET_a4942cb7174952c31a70ca72e80355d6e2d2e4df757c4d74f502b4b8f33a9d97/images/story_instagram_recrutement_entreprise_moderne_minimal_blanc_noir_rose_550_x_550_px112.png" 
-					   alt="Produits Chogan" 
-					   class="content-image" 
-					   width="560" 
-					   style="display: block; border: none; outline: none; text-decoration: none;">
-				</a>
-                
-                <!-- Second Image -->
-				<a href="https://chogan-by-ikram.vercel.app/" target="_blank">
-					<img href="https://chogan-by-ikram.vercel.app/perfumes" src="https://fujclez.stripocdn.email/content/guids/CABINET_a4942cb7174952c31a70ca72e80355d6e2d2e4df757c4d74f502b4b8f33a9d97/images/image_qIK.png"
-					 alt="Produits Chogan" 
-					   class="content-image" 
-					   width="560" 
-					   style="display: block; border: none; outline: none; text-decoration: none;">
-				</a>
-                <!-- Information Box -->
-                <div class="info-box">
-                  <h3 class="info-title">Pourquoi nos prix sont bas ?</h3>
-                  <p class="info-text">
-                    Chez Chogan, nous avons optimisé chaque étape de notre chaîne de production et de distribution. 
-                    En supprimant les intermédiaires et en privilégiant la vente directe, nous pouvons vous offrir 
-                    des produits de qualité à des prix imbattables.
-                  </p>
-                </div>
-                
-                <!-- Third Image -->
-                <img src="https://fujclez.stripocdn.email/content/guids/CABINET_a4942cb7174952c31a70ca72e80355d6e2d2e4df757c4d74f502b4b8f33a9d97/images/image_Sgd.jpeg" alt="Produits Chogan" class="content-image" width="560">
-              </td>
-            </tr>
-            
-            <!-- Footer -->
-            <tr>
-              <td class="footer">
-                <h2 class="footer-title">SUIVEZ NOUS!</h2>
-                
-                <div class="social-banner">
-                  On est présents partout, mais pour ne rien rater – actus, coulisses et exclus – c'est sur Instagram que ça se passe !
-                </div>
-                
-                <div class="social-container">
-                  <a href="https://www.instagram.com/ikram_nahyl_amir/" target="_blank" class="social-button">
-                    Chogan By Ikram
-                  </a>
-                </div>
-                
-                <div class="social-icons">
-                  <a href="https://www.tiktok.com/@ikrams.chogan" target="_blank" class="social-icon">
-                    <img src="https://fujclez.stripocdn.email/content/assets/img/social-icons/logo-colored/tiktok-logo-colored.png" alt="TikTok" width="32" height="32">
-                  </a>
-                  <a href="https://www.instagram.com/ikram_nahyl_amir/" target="_blank" class="social-icon">
-                    <img src="https://fujclez.stripocdn.email/content/assets/img/social-icons/logo-colored/instagram-logo-colored.png" alt="Instagram" width="32" height="32">
-                  </a>
-                  <a href="https://www.snapchat.com/add/ikramou-anass" target="_blank" class="social-icon">
-                    <img src="https://fujclez.stripocdn.email/content/assets/img/messenger-icons/logo-colored/snapchat-logo-colored.png" alt="Snapchat" width="32" height="32">
-                  </a>
-                  <a href="mailto:choganbyikram.contact@gmail.com?subject=Renseignements%20Produits%20" target="_blank" class="social-icon">
-                    <img src="https://fujclez.stripocdn.email/content/assets/img/other-icons/logo-colored/mail-logo-colored.png" alt="Email" width="32" height="32">
-                  </a>
-                </div>
-                
-                <p class="footer-info">
-                  <strong>Chogan Group S.p.A.</strong> se spécialise dans la production et la distribution de produits cosmétiques et de soins personnels de haute qualité. Actif à l'international, l'entreprise est dynamique et en constante expansion.
-                </p>
-                
-                <a href="#" target="_blank" class="unsubscribe">
-                  <strong>Désabonner</strong>
-                </a>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-    </table>
-  </div>
-</body>
-</html>`;
+    // Variables de personnalisation
+    const personalizedGreeting = `Bonjour ${firstName +" "+ lastName || 'Cher amateur de belles senteurs'},`;
+  
+    const htmlContent = `<!DOCTYPE html>
+<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office">
+  <head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <meta name="x-apple-disable-message-reformatting">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="telephone=no" name="format-detection">
+    <title>
+      Le Secret des Parfums de Luxe à Prix Abordable
+    </title>
+    <link href="https://fonts.googleapis.com/css?family=Playfair+Display:400,400i,700,700i" rel="stylesheet">
+    <style type="text/css">
+      /* Styles CSS pour une meilleure lisibilité */ body { font-family: Arial, sans-serif; } .es-button { border-radius: 5px !important; } .es-button-border { border-radius: 5px !important; }
+    </style>
+  </head>
+  <body class="body" style="background-color: #fafafa">
+    <div dir="ltr" class="es-wrapper-color">
+      <table cellpadding="0" cellspacing="0" width="100%" class="es-wrapper">
+        <tbody>
+          <tr>
+            <td valign="top" class="esd-email-paddings">
+              <table align="center" cellpadding="0" cellspacing="0" class="es-header">
+                <tbody>
+                  <tr>
+                    <td align="center" class="esd-stripe">
+                      <table align="center" bgcolor="#ffffff" cellpadding="0" cellspacing="0" width="600" class="es-header-body">
+                        <tbody>
+                          <tr>
+                            <td align="left" class="esd-structure es-p10t es-p10b es-p20r es-p20l">
+                              <table cellpadding="0" cellspacing="0" width="100%">
+                                <tbody>
+                                  <tr>
+                                    <td align="center" valign="top" width="560" class="es-m-p0r esd-container-frame">
+                                      <table cellpadding="0" cellspacing="0" width="100%">
+                                        <tbody>
+                                          <tr>
+                                            <td align="center" class="esd-block-image es-p20b" style="font-size: 0px">
+                                              <a target="_blank" href="https://chogan-by-ikram.vercel.app/">
+                                                <img alt="Logo By Ikram" src="https://fujclez.stripocdn.email/content/guids/CABINET_f295fbfa96b4f50a858efad56963e60e3ef7117f54de28144de53de8248c2fd1/images/by_ikram_logo.png" title="Logo" width="200" class="adapt-img" style="display: block; font-size: 12px">
+                                              </a>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <table align="center" cellpadding="0" cellspacing="0" class="es-content">
+                <tbody>
+                  <tr>
+                    <td align="center" class="esd-stripe">
+                      <table align="center" bgcolor="#ffffff" cellpadding="0" cellspacing="0" width="600" class="es-content-body">
+                        <tbody>
+                          <tr>
+                            <td align="left" class="esd-structure es-p30t es-p20r es-p20l">
+                              <table cellpadding="0" cellspacing="0" width="100%">
+                                <tbody>
+                                  <tr>
+                                    <td align="center" valign="top" width="560" class="esd-container-frame">
+                                      <table cellpadding="0" cellspacing="0" width="100%">
+                                        <tbody>
+                                          <tr>
+                                            <td align="center" class="esd-block-text">
+                                              <h1 style="color: #000000; font-size: 24px">
+                                                **${personalizedGreeting}**
+                                              </h1>
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td align="center" class="esd-block-text es-p20t es-p20b">
+                                              <p style="font-size: 18px; line-height: 1.5; color: #444">
+                                                **Vous aimez les parfums de luxe, mais pas leurs prix ?** Découvrez comment des milliers de personnes profitent déjà de leurs fragrances préférées sans se ruiner.
+                                              </p>
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td align="center" class="esd-block-image es-p10t es-p10b" style="font-size: 0px">
+                                              <a href="https://chogan-by-ikram.vercel.app/perfumes" target="_blank">
+                                                <img alt="Parfum Chogan" src="https://fujclez.stripocdn.email/content/guids/CABINET_f295fbfa96b4f50a858efad56963e60e3ef7117f54de28144de53de8248c2fd1/images/photo_email_1.png" width="330" class="adapt-img" style="display: block">
+                                              </a>
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td align="left" class="esd-block-text es-p20t es-p10b">
+                                              <h2 style="color: #333; font-size: 20px; text-align: center">
+                                                Pourquoi choisir By Ikram ?
+                                              </h2>
+                                              <ul style="padding-left: 20px; font-size: 16px; color: #555">
+                                                <li style="margin-bottom: 10px">
+                                                  **Qualité Exceptionnelle :** Nos parfums sont créés avec 30% d'essence pour une tenue intense et durable, équivalente aux grandes marques.
+                                                </li>
+                                                <li style="margin-bottom: 10px">
+                                                  **Économies Garanties :** Fini les prix exorbitants des parfumeries traditionnelles. Profitez de la même expérience olfactive pour une fraction du prix.
+                                                </li>
+                                                <li style="margin-bottom: 10px">
+                                                  **Vaste Choix :** Plus de 130 fragrances inspirées des plus grands succès mondiaux vous attendent.
+                                                </li>
+                                              </ul>
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td align="center" class="esd-block-button es-p30t es-p30b">
+                                              <span class="es-button-border" style="border-width: 2px; border-color: #5c68e2; background: #000000">
+                                                <a href="https://chogan-by-ikram.vercel.app/perfumes" target="_blank" class="es-button es-button-1621620532140" style="padding: 12px 35px; text-decoration: none; color: white; background-color: #000000; border-radius: 5px; font-family: Arial, sans-serif; font-size: 18px; display: inline-block">
+                                                  Découvrir les 5 Incontournables
+                                                </a>
+                                              </span>
+                                              <p style="margin-top: 15px; font-size: 14px; color: #888">
+                                                (Et trouvez votre coup de cœur sans engagement)
+                                              </p>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <table align="center" cellpadding="0" cellspacing="0" class="es-content">
+                <tbody>
+                  <tr>
+                    <td align="center" class="esd-stripe">
+                      <table align="center" bgcolor="#ffffff" cellpadding="0" cellspacing="0" width="600" class="es-content-body">
+                        <tbody>
+                          <tr>
+                            <td align="left" class="esd-structure es-p20t es-p10b es-p20r es-p20l">
+                              <table cellpadding="0" cellspacing="0" width="100%">
+                                <tbody>
+                                  <tr>
+                                    <td align="center" valign="top" width="560" class="esd-container-frame">
+                                      <table cellpadding="0" cellspacing="0" width="100%">
+                                        <tbody>
+                                          <tr>
+                                            <td align="center" class="esd-block-text es-p20b">
+                                              <h2 style="color: #000; font-size: 22px">
+                                                Notre Sélection du Moment
+                                              </h2>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td align="left" class="esd-structure es-p10t es-p20b es-p20r es-p20l es-m-p5b">
+                              <table align="left" cellpadding="0" cellspacing="0" class="es-left">
+                                <tbody>
+                                  <tr>
+                                    <td align="center" width="174" class="es-m-p0r es-m-p20b esd-container-frame">
+                                      <table cellpadding="0" cellspacing="0" width="100%" style="border: 1px solid #efefef; border-radius: 5px; border-collapse: separate">
+                                        <tbody>
+                                          <tr>
+                                            <td align="center" class="esd-block-image es-p5" style="font-size: 0px">
+                                              <a target="_blank" href="https://chogan-by-ikram.vercel.app/perfumes/Homme/031">
+                                                <img alt="" src="https://fujclez.stripocdn.email/content/guids/CABINET_f295fbfa96b4f50a858efad56963e60e3ef7117f54de28144de53de8248c2fd1/images/homme.png" width="132" class="adapt-img" style="display: block">
+                                              </a>
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td align="center" class="esd-block-text es-p10r es-p10l">
+                                              <h3 class="es-m-txt-c" style="margin-bottom: 5px">
+                                                Parfum 031
+                                              </h3>
+                                              <p style="font-size: 12px; color: #888">
+                                                Homme, Inspiré par Blu de Bulgari
+                                              </p>
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td align="center" class="esd-block-text es-p5t es-p5b es-p10r es-p10l">
+                                              <h2 class="es-m-txt-c" style="color: #000">
+                                                18€
+                                              </h2>
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td align="center" class="esd-block-button es-p20b">
+                                              <span class="es-button-border" style="border-color: #000000; background: #ffffff; border-width: 2px">
+                                                <a href="https://chogan-by-ikram.vercel.app/perfumes/Homme/031" target="_blank" class="es-button" style="color: #000000; background: #ffffff; padding: 5px 20px; font-size: 14px">
+                                                  Commander
+                                                </a>
+                                              </span>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                    <td width="20" class="es-hidden"></td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                              <table align="left" cellpadding="0" cellspacing="0" class="es-left">
+                                <tbody>
+                                  <tr>
+                                    <td align="center" width="173" class="es-m-p20b esd-container-frame">
+                                      <table cellpadding="0" cellspacing="0" width="100%" style="border: 1px solid #efefef; border-radius: 5px; border-collapse: separate">
+                                        <tbody>
+                                          <tr>
+                                            <td align="center" class="esd-block-image es-p5" style="font-size: 0px">
+                                              <a target="_blank" href="https://chogan-by-ikram.vercel.app/perfumes/Femme/085">
+                                                <img alt="" src="https://fujclez.stripocdn.email/content/guids/CABINET_f295fbfa96b4f50a858efad56963e60e3ef7117f54de28144de53de8248c2fd1/images/femme.png" width="131" class="adapt-img" style="display: block">
+                                              </a>
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td align="center" class="esd-block-text es-p10r es-p10l">
+                                              <h3 class="es-m-txt-c" style="margin-bottom: 5px">
+                                                Parfum 085
+                                              </h3>
+                                              <p style="font-size: 12px; color: #888">
+                                                Femme, Inspiré par Chance de Chanel
+                                              </p>
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td align="center" class="esd-block-text es-p5t es-p5b es-p10r es-p10l">
+                                              <h2 class="es-m-txt-c" style="color: #000">
+                                                18€
+                                              </h2>
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td align="center" class="esd-block-button es-p20b">
+                                              <span class="es-button-border" style="border-color: #000000; background: #ffffff; border-width: 2px">
+                                                <a href="https://chogan-by-ikram.vercel.app/perfumes/Femme/085" target="_blank" class="es-button" style="color: #000000; background: #ffffff; padding: 5px 20px; font-size: 14px">
+                                                  Commander
+                                                </a>
+                                              </span>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                    <td width="20" class="es-hidden"></td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                              <table align="right" cellpadding="0" cellspacing="0" class="es-right">
+                                <tbody>
+                                  <tr>
+                                    <td align="center" width="173" class="esd-container-frame">
+                                      <table cellpadding="0" cellspacing="0" width="100%" style="border: 1px solid #efefef; border-radius: 5px; border-collapse: separate">
+                                        <tbody>
+                                          <tr>
+                                            <td align="center" class="esd-block-image es-p5" style="font-size: 0px">
+                                              <a target="_blank" href="https://chogan-by-ikram.vercel.app/perfumes/Brume%20cheveux/PC023B">
+                                                <img alt="" src="https://fujclez.stripocdn.email/content/guids/CABINET_f295fbfa96b4f50a858efad56963e60e3ef7117f54de28144de53de8248c2fd1/images/brume.jpg" width="132" class="adapt-img" style="display: block">
+                                              </a>
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td align="center" class="esd-block-text es-p10r es-p10l">
+                                              <h3 class="es-m-txt-c" style="margin-bottom: 5px">
+                                                Brume cheveux
+                                              </h3>
+                                              <p style="font-size: 12px; color: #888">
+                                                Inspiré par Hypnotic Poison de Dior
+                                              </p>
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td align="center" class="esd-block-text es-p5t es-p5b es-p10r es-p10l">
+                                              <h2 class="es-m-txt-c" style="color: #000">
+                                                9.90 €
+                                              </h2>
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td align="center" class="esd-block-button es-p20b">
+                                              <span class="es-button-border" style="border-color: #000000; background: #ffffff; border-width: 2px">
+                                                <a href="https://chogan-by-ikram.vercel.app/perfumes/Brume%20cheveux/PC023B" target="_blank" class="es-button" style="color: #000000; background: #ffffff; padding: 5px 20px; font-size: 14px">
+                                                  Commander
+                                                </a>
+                                              </span>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <table align="center" cellpadding="0" cellspacing="0" class="es-footer">
+                <tbody>
+                  <tr>
+                    <td align="center" class="esd-stripe">
+                      <table align="center" bgcolor="#ffffff" cellpadding="0" cellspacing="0" width="600" class="es-footer-body">
+                        <tbody>
+                          <tr>
+                            <td align="left" class="esd-structure es-p20t es-p20b es-p20r es-p20l">
+                              <table cellpadding="0" cellspacing="0" width="100%">
+                                <tbody>
+                                  <tr>
+                                    <td align="center" valign="top" width="560" class="esd-container-frame">
+                                      <table cellpadding="0" cellspacing="0" role="presentation" width="100%">
+                                        <tbody>
+                                          <tr>
+                                            <td align="center" class="esd-block-text es-p10t es-p10b">
+                                              <p style="font-size: 12px; color: #999">
+                                                Vous recevez cet email car vous avez manifesté un intérêt pour nos produits. <br>Pour ne plus recevoir nos offres, <a href="{{unsubscribe_link}}" target="_blank" style="color: #000000">cliquez ici</a>.
+                                              </p>
+                                            </td>
+                                          </tr>
+                                          <tr>
+                                            <td align="center" class="esd-block-text">
+                                              <p style="font-size: 14px; color: #555">
+                                                © ${new Date().getFullYear()} Chogan By Ikram. Tous droits réservés.
+                                              </p>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>
+`;
   
     return htmlContent;
-  };
-  
+}

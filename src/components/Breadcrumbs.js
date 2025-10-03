@@ -40,7 +40,7 @@ const MyBreadcrumbs = () => {
     if (path.length > 0) {
       const firstSegment = path[0].toLowerCase();
 
-      if (['perfume', 'perfumes', 'beauty', 'brilhome', 'peptilux', 'parfumerieinterieur'].includes(firstSegment)) {
+      if (['perfume', 'perfumes', 'beauty', 'brilhome', 'peptilux', 'parfumerieInterieur'].includes(firstSegment)) {
         const baseLabel = labelMap[firstSegment] || firstSegment;
         crumbs.push({ label: baseLabel, href: `/${firstSegment}` });
 

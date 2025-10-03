@@ -11,7 +11,6 @@ import ReviewsSection from '../components/ReviewsSection';
 import Link from 'next/link';
 import TopProducts from '../components/TopProducts';
 import { ContactSection } from '../components/ContactSection';
-import { TrustpilotBanner } from '../components/TrustpilotBanner';
 import TrustLogos from '../components/TrustLogos';
 import { ArrowForward, LocalShipping, Security, Support, Star } from '@mui/icons-material';
 import PartnerBrandsSection from '../components/BrandPartnersSection'
@@ -804,7 +803,6 @@ export default function Home() {
                 Ce que disent nos clients
               </Typography>
             </Box>
-            <TrustpilotBanner />
             <Box sx={{ marginTop: 4 }}>
               <ReviewsSection productId={'*'} isInsertComment={false} />
             </Box>
