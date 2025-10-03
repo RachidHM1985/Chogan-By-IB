@@ -2,9 +2,11 @@
 
 export async function generateEmailHTML (prospect){
     const { firstName, lastName, email } = prospect;
+
+    const name = [firstName, lastName].filter(Boolean).join(" ");
   
     // Variables de personnalisation
-    const personalizedGreeting = `Bonjour ${firstName +" "+ lastName || 'Cher amateur de belles senteurs'},`;
+    const personalizedGreeting = `Bonjour ${name || 'Cher amateur de belles senteurs'},`;
   
     const htmlContent = `<!DOCTYPE html>
 <html dir="ltr" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office">
